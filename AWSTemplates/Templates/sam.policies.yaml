@@ -1,0 +1,328 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: | 
+  This stack creates ubiqutious cloudfront policies and functions 
+Parameters:
+  GuidParameter:
+    Description: "System Guid"
+    Type: String
+  EnvironmentParameter:
+    Description: "Environment"
+    Type: String
+    Default: "dev"
+    AllowedValues:
+      - dev
+      - test
+      - prod
+  WebSocketApiIdParameter:  
+    Description: "WebSocket API ID"
+    Type: String
+
+Conditions:
+  IsDev: !Equals [!Ref EnvironmentParameter, "dev"]
+
+Resources:
+
+  Request:  
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub request-${GuidParameter}
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            return request;
+        }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Default handler. nop for now.'
+        Runtime: cloudfront-js-2.0
+
+
+  RequestDev:  
+    Type: AWS::CloudFront::Function
+    DependsOn: Request
+    Properties:
+      Name: !Sub request-dev-${GuidParameter}
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var headers = request.headers;
+          var origin = headers.origin && headers.origin.value;
+          function isLocalhost(origin) {
+              return  origin.startsWith('https://localhost:') || origin.startsWith('http://localhost:');
+          }
+          // Check if it's a preflight request from localhost
+          if (
+              request.method === 'OPTIONS' 
+              && origin 
+              && isLocalhost(origin) 
+              && headers['access-control-request-method']
+          ) {
+              // Return a 204 No Content for preflight
+              return {
+                  statusCode: 204,
+                  statusDescription: 'No Content',
+                  headers: {
+                      'access-control-allow-origin': { value: origin },
+                      'access-control-allow-methods': { value: 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH' },
+                      'access-control-allow-headers': { value: 'Content-Type, X-Amz-Date, Authorization, X-Api-Key, X-Amz-Security-Token' },
+                      'access-control-max-age': { value: '86400' },
+                      'cache-control': { value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' }
+                  }
+              };
+          }
+          return request;
+        }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Return a 204 for preflight requests when origin is localhost. Used in development  deployments only.'
+        Runtime: cloudfront-js-2.0
+
+  # Return a 204 for preflight requests when in development mode and remove the prefix from the URI
+  RequestPrefixDev:  
+    Type: AWS::CloudFront::Function
+    DependsOn: RequestDev 
+    Properties:
+      Name: !Sub request-prefix-dev-${GuidParameter}
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            var headers = request.headers;
+            var origin = headers.origin && headers.origin.value;
+            function isLocalhost(origin) {
+                return  origin.startsWith('https://localhost:') || origin.startsWith('http://localhost:');
+            }
+            // Check if it's a preflight request from localhost
+            if (
+                request.method === 'OPTIONS' 
+                && origin 
+                && isLocalhost(origin) 
+                && headers['access-control-request-method']
+            ) {
+                // Return a 204 No Content for preflight
+                return {
+                    statusCode: 204,
+                    statusDescription: 'No Content',
+                    headers: {
+                        'access-control-allow-origin': { value: origin },
+                        'access-control-allow-methods': { value: 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH' },
+                        'access-control-allow-headers': { value: 'Content-Type, X-Amz-Date, Authorization, X-Api-Key, X-Amz-Security-Token' },
+                        'access-control-max-age': { value: '86400' },
+                        'cache-control': { value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' }
+                    }
+                };
+            }
+            // URI modification
+            var uri = request.uri;
+            var secondSlash = uri.indexOf('/', 1);
+            request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
+            return request;
+        }
+
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Return a 204 for preflight requests when origin is localhost and remove the prefix from the URI. Used in development deployments only.'
+        Runtime: cloudfront-js-2.0
+
+  RequestPrefix:  
+    Type: AWS::CloudFront::Function
+    DependsOn: RequestPrefixDev
+    Properties:
+      Name: !Sub request-prefix-${GuidParameter}
+      FunctionCode: |
+        function handler(event) {
+            var request = event.request;
+            // URI modification
+            var uri = request.uri;
+            var secondSlash = uri.indexOf('/', 1);
+            request.uri = secondSlash > 0 ? uri.slice(secondSlash) : "/";
+            return request;
+        }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Remove the prefix from the URI.'
+        Runtime: cloudfront-js-2.0
+  
+  ResponseDev:  
+    Type: AWS::CloudFront::Function
+    DependsOn: RequestPrefix
+    Properties:
+      Name: !Sub response-dev-${GuidParameter}
+      FunctionCode: 
+        Fn::Sub: |
+            function handler(event) {
+                var response = event.response;
+                // Add your speical response handling here
+                return response;
+            }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Modify response headers in development mode.'
+        Runtime: cloudfront-js-2.0
+
+  Response:  
+    Type: AWS::CloudFront::Function
+    DependsOn: ResponseDev
+    Properties:
+      Name: !Sub response-${GuidParameter}
+      FunctionCode: 
+        Fn::Sub: |
+            function handler(event) {
+                var response = event.response;
+                // Add your special response handling here
+                return response;
+            }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Modify response headers.'
+        Runtime: cloudfront-js-2.0
+
+  ResponseHeadersPolicy: 
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub ResponseHeadersPolicy-${GuidParameter}
+        CorsConfig:
+          AccessControlAllowCredentials: false # must be false when AccessControlAllowOrigins, AccessControlAllowHeaders, or AccessControlAllowMethods is '*'
+          AccessControlAllowHeaders:
+            Items: 
+              - Authorization
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - GET 
+              - POST
+              - OPTIONS 
+          AccessControlAllowOrigins:
+            Items:
+              - !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com"
+          AccessControlExposeHeaders:
+            Items:
+              - Date
+              - x-api-id
+          AccessControlMaxAgeSec: 3000
+          OriginOverride: true
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 3000 # time, in seconds, browser may cache preflight requests
+            IncludeSubdomains: true # subdomains must also use HTTPS
+            Preload: true # add site to HSTS preload list
+            Override: true # override any origin settings 
+            # default-src 'self'; // This directive serves as a fallback for other CSP directives. It specifies the default policy for fetching resources such as JavaScript, images, CSS, fonts, AJAX requests, frames, HTML5 media, and more.
+            # img-src data: ; // This directive specifies valid sources of images. The 'data:' scheme allows data: URIs to be used as a content source. This is useful, for example, for embedding small images directly into CSS or HTML files.
+            # script-src 'self'; // This directive specifies valid sources for JavaScript. This includes not only URLs loaded directly into <script> elements, but also things like inline script event handlers (onclick) and XSLT stylesheets which can trigger script execution.
+            # style-src self; // This directive specifies valid sources for stylesheets. This includes not only external stylesheets, but also inline <style> elements or the style attribute on any element.
+            # style-src-elem self; // This directive specifies valid sources for stylesheets that are applied to elements. This includes not only external stylesheets, but also inline <style> elements or the style attribute on any element.
+            # object-src self; // This directive specifies valid sources for the <object>, <embed>, and <applet> elements. It does not apply to <iframe> or <object> elements with a data attribute.
+            # font-src *; // This directive specifies valid sources for fonts loaded using @font-face.
+            # NOTE: 'self' refers to the exact domain from which the content is served. For our CloudFront distribution, this includes the subdomain.
+          ContentSecurityPolicy:
+            ContentSecurityPolicy: !Sub "default-src 'self'; img-src data: 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline'; object-src 'self'; worker-src 'self'; font-src *; connect-src 'self' wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
+            Override: true # override any origin settings
+          FrameOptions: # control whether a browser should be allowed to render a page in a <frame>, <iframe>, <embed>, or <object> tag
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy: # The Referrer-Policy HTTP header controls how much referrer information (sent via the Referer header) should be included with requests.
+            ReferrerPolicy: same-origin # Sends the full referrer to same-origin destinations but no referrer to cross-origin destinations.
+            Override: true
+
+
+# CloudFront Policies 
+# There are three types of CloudFront policies:
+# - CachePolicy: Determines the cache key and the TTLs for the cacheable content.
+# - OriginRequestPolicy: Determines the headers, query strings, and cookies that are included in requests that CloudFront sends to the origin.
+#       Note that any headers included in the CachePolicy are also passed through to the origin.  
+# - ResponseHeadersPolicy: Determines the headers that CloudFront includes in the response that it returns to the viewer.
+#       Note: The ResponseHeadersPolicy may contain distribution specific content in the CSP, so it is defined in the sam.cloudfront.yaml template.
+# AWS Provides some managed policies that can be used in lieu of creating custom policies. The IDS for these policies don't change and 
+# are provided below.
+#
+# Type: AWS::CloudFront::CachePolicy
+# - 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled, recommended for API Gateway
+# - 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+# - b2884449-e4de-46a7-ac36-70bc7f1ddd6d # Managed-CachingOptimizedForUncompressedObjects
+# - 08627262-05a9-4f76-9ded-b50ca2e3a84f # Managed-Elemental-MediaPackage
+
+# Type: AWS::CloudFront::OriginRequestPolicy
+# - 216adef6-5c7f-47e4-b989-5492eafa07d3 # Managed-AllViewer
+# - 33f36d7e-f396-46d9-90e0-52428a34d9dc # Managed-AllViewerAndCloudFrontHeaders-2022-06
+# - b689b0a8-53d0-40ab-baf2-68738e2966ac # Managed-AllViewerExceptHostHeader, recommended for API Gateway
+# - 59781a5b-3903-41f3-afcb-af62929ccde1 # Managed-CORS-CustomOrigin
+# - 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # Managed-CORS-S3Origin
+# - 775133bc-15f2-49f9-abea-afb2e0bf67d2 # Managed-Elemental-MediaTailor-PersonalizedManifests
+# - acba4595-bd28-49b8-b9fe-13317c0390fa # Managed-UserAgentRefererHeaders
+
+  # DevCachePolicy:
+  #   Type: AWS::CloudFront::CachePolicy
+  #   Properties:
+  #     CachePolicyConfig:
+  #       Name: !Sub DevCachePolicy-${GuidParameter}
+  #       DefaultTTL: 1
+  #       MaxTTL: 1
+  #       MinTTL: 1
+  #       ParametersInCacheKeyAndForwardedToOrigin: 
+  #         CookiesConfig:
+  #           CookieBehavior:  all
+  #         QueryStringsConfig:
+  #           QueryStringBehavior: all
+  #         EnableAcceptEncodingBrotli: true
+  #         EnableAcceptEncodingGzip: true
+  #         HeadersConfig: 
+  #           HeaderBehavior: whitelist 
+  #           Headers:
+  #           - Authorization 
+  #           - Accept-Charset 
+  #           - Origin
+  #           - Access-Control-Request-Method 
+  #           - Access-Control-Request-Headers 
+  #           - Accept 
+  #           - Referer 
+  #           - Accept-Language 
+  #           - Accept-Datetime
+
+  WebSocketOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub WebsocketOriginRequestPolicy-${GuidParameter}
+        Comment: "Forward necessary headers for WebSocket connections"
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Sec-WebSocket-Key
+            - Sec-WebSocket-Version
+            - Sec-WebSocket-Protocol
+            - Sec-WebSocket-Extensions
+            - Sec-WebSocket-Accept
+            - Host
+            - Origin
+        CookiesConfig:
+          CookieBehavior: none
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+
+Outputs:
+  CachePolicyId:
+    # if IsDev is true, use the Managed-CachingDisabled, otherwise use the Managed-CachingOptimized
+    Value: !If [IsDev, 4135ea2d-6df8-44a3-9df3-4b5a84be39ad, 658327ea-f89d-4fab-a63d-7e88639e58f6]
+  OriginRequestPolicyId:
+    # Managed-AllViewerExceptHostHeader
+    Value: b689b0a8-53d0-40ab-baf2-68738e2966ac 
+  ApiOriginRequestPolicyId:
+    # Managed-AllViewerExceptHostHeader
+    Value: b689b0a8-53d0-40ab-baf2-68738e2966ac 
+  ApiCachePolicyId:
+    # Managed-CachingDisabled
+    Value: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad 
+  WebsocketOriginRequestPolicyId:
+    Value: !Ref WebSocketOriginRequestPolicy
+  ResponseHeadersPolicyId:
+    Value: !GetAtt ResponseHeadersPolicy.Id
+  RequestFunctionArn:
+    Value: !If [ IsDev, !GetAtt RequestDev.FunctionARN, !GetAtt Request.FunctionARN]
+  RequestPrefixFunctionArn:
+    Value: !If [ IsDev, !GetAtt RequestPrefixDev.FunctionARN, !GetAtt RequestPrefix.FunctionARN]
+  ResponseFunctionArn:
+    Value: !If [IsDev, !GetAtt ResponseDev.FunctionARN, !GetAtt Response.FunctionARN]
+  

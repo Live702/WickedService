@@ -1,0 +1,83 @@
+openapi: 3.0.1
+components:
+  schemas:
+    LzNotification: 
+      type: object
+      x-lz-hasrepo: true
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          type: string 
+        topics:
+          type: string
+          nullable: true
+        userId:
+          type: string 
+          nullable: true
+        payloadParentId:
+          type: string 
+          nullable: true 
+        payloadId:
+          type: string 
+          nullable: true
+        payloadType:
+          type: string 
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+        payloadAction:
+          type: string
+          nullable: true
+        sessionId:
+          type: string
+          nullable: true    
+        createUtcTick: 
+          type: integer 
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+      required:
+        - id
+        - topicId
+        - userId
+        - payloadType
+        - payloadAction
+    LzNotificationsPage:
+      type: object
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          type: string
+        LzNotifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/LzNotification'
+        more:
+          type: boolean
+    LzSubscription:
+      type: object 
+      x-lz-hasrepo: true
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          description: subscriptionId
+          type: string 
+        connectionId:
+          description: web socket connectionId
+          type: string
+        userId:
+          description: lzUserId
+          type: string 
+          nullable: true
+        topicIds:
+          type: array
+          items:
+            type: string
+        createUtcTick: 
+          type: integer 
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64

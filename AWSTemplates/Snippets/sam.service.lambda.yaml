@@ -1,0 +1,15 @@
+  __LambdaName__:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: ../../__OutputDir__/__LambdaName__/bin/Release/net8.0
+      Handler: __LambdaName__::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: LazyMagic Generated Lambda
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Policies:
+      - AWSXrayWriteOnlyAccess
+      - DynamoDBCrudPolicy:
+          TableName: '*'

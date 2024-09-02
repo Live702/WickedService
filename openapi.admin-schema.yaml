@@ -1,0 +1,31 @@
+openapi: 3.0.1
+components:
+  schemas:
+
+    User:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        login:
+          type: string
+          nullable: true    
+        name: 
+          type: string 
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        employee: 
+          type: boolean 
+        admin:
+          type: boolean
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+

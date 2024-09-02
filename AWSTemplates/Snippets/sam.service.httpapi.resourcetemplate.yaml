@@ -1,0 +1,10 @@
+  __ApiGatewayName__RequestTemplateString:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: |
+        #set($path = $input.path)
+        #set($prefixLength = $input.params('apiPrefix').length() + 1)
+        {
+          "path": "$path.substring($prefixLength)"
+        }

@@ -1,0 +1,46 @@
+openapi: 3.0.1
+components:
+  schemas:
+
+    Order:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+          description: Cognito Identity Id of clerk entering order
+        petId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+        shipDate:
+          type: string
+          format: date-time
+        orderStatus:
+          type: string
+          title: orderStatus
+          description: Order Status
+          $ref: '#/components/schemas/OrderStatus'
+        complete:
+          type: boolean
+          default: false
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+
+    OrderStatus:
+      type: string
+      description: Order Status
+      enum:
+      - placed
+      - approved
+      - delivered
+
+

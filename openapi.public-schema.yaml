@@ -1,0 +1,11 @@
+openapi: 3.0.1
+components:
+  schemas:
+    Bada:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        name:
+          type: string    

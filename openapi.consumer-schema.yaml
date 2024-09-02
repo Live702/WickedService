@@ -1,0 +1,36 @@
+openapi: 3.0.1
+components:
+  schemas:
+    Preferences:
+      type: object
+      properties:
+        id:
+          type: string  
+        theme:
+          type: string
+          enum:
+            - light
+            - dark
+        locale:
+          type: string
+          enum:
+            - en
+            - fr
+            - es
+        petStatus:
+          type: string
+          description: pet status in the store
+          $ref: '#/components/schemas/PetStatus'
+        pets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pet'
+        pet:
+          type: object
+          $ref: '#/components/schemas/Pet'
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64            

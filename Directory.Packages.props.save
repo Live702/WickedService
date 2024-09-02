@@ -1,0 +1,30 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="Amazon.Lambda.AspNetCoreServer" Version="8.1.1" />
+    <PackageVersion Include="Amazon.Lambda.Core" Version="2.2.0" />
+    <PackageVersion Include="Amazon.Lambda.RuntimeSupport" Version="1.0.0" />
+    <PackageVersion Include="Amazon.Lambda.Serialization.Json" Version="1.7.0" />
+    <PackageVersion Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.0" />
+    <PackageVersion Include="AWSSDK.Core" Version="3.7.204.1" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
+    <PackageVersion Include="AWSSDK.SecurityToken" Version="3.7.300.29" />
+    <PackageVersion Include="AWSSDK.SSO" Version="3.7.300.28" />
+    <PackageVersion Include="AWSSDK.SSOOIDC" Version="3.7.301.23" />
+    <PackageVersion Include="JsonSubTypes" Version="2.0.1" />
+    <PackageVersion Include="LazyMagic.DynamoDBRepo" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Config" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.ControllerBase" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Notifications.FromStreams" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Notifications.Schema" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Notifications.Repo" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Notifications.WebSocket" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.Notifications.WebSocketService" Version="3.0.0" />
+    <PackageVersion Include="LazyMagic.ClientSDK" Version="3.0.7" />
+    <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="NLog" Version="5.2.8" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\ServiceVersion.props" />
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<!--This project generates the release artifacts into the Release folder. 
+		Each Lambda project generates a zip file that is copied to the Release folder.
+		Make each lambda a dependency of this project to ensure the build order is correct.
+		
+		We use this project to build the release artifacts for a few reasons:
+		1. We want to ensure that the release artifacts are built in the correct order.
+		2. We want to ensure that the release artifacts are built only for the Release configuration.
+		3. We only want to produce a zip when the whole solution is built.
+		4. Building releases is optional. We don't want to build releases when we are just testing locally.
+		
+		Note that there is small overhead in building the Program.cs file in this project. It is 
+		only built when the whole solution is built, and it is not included in the release artifacts.
+		
+	-->
+
+	
+
+	<Target Name="DeleteFiles" BeforeTargets="Build">
+
+		<MakeDir Directories="..\Release" />
+		
+		<ItemGroup>
+			<FilesToDelete Include="..\Release\*.zip" />
+		</ItemGroup>
+		<Message Text="Deleting Files @(FilesToDelete)" />
+		<Delete Files="@(FilesToDelete)">
+			<Output TaskParameter="DeletedFiles" ItemName="FilesDeleted" />
+		</Delete>
+		<Message Text="Files deleted: @(FilesDeleted)" />
+	</Target>	
+	
+	<Target Condition="'$(Configuration)' == 'Release'" Name="ZipOutput" AfterTargets="Build">
+
+		<!--<ZipDirectory SourceDirectory="..\Lambdas\NotificationsFromStreams\bin\Release\net8.0" DestinationFile="..\Release\NotificationsFromStreams.zip" />
+		
+		<ZipDirectory SourceDirectory="..\Lambdas\NotificationsWebSocket\bin\Release\net8.0" DestinationFile="..\Release\NotificationsWebSocket.zip" />
+		
+		<ZipDirectory SourceDirectory="..\Lambdas\AdminLambda\bin\Release\net8.0" DestinationFile="..\Release\AdminLambda.zip" />
+		
+		<ZipDirectory SourceDirectory="..\Lambdas\EmployeeLambda\bin\Release\net8.0" DestinationFile="..\Release\EmployeeLambda.zip" />-->
+	</Target>
+
+</Project>
+

@@ -1,0 +1,762 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 
+  - 'AWS::Serverless-2016-10-31'
+  - 'AWS::LanguageExtensions'
+Description: | 
+  This stack defines the service resources
+
+Parameters:
+  ArtifactsBucketParameter:
+    Description: "Bucket where artifacts are stored"
+    Type: String
+
+  EnvironmentParameter:   
+    Type: String
+    Description: The stage name for the API Gateway and controls some policies
+  
+  SystemGuidParameter:
+    Description: "System Guid. No spaces. Lower case."
+    Type: String
+
+# LazyMagic inserted ServiceParameters
+#LzParameters#
+
+Resources:
+  # RequestTemplateString:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Type: String
+  #     Value: |
+  #       #set($path = $input.path)
+  #       #set($prefixLength = $input.params('apiPrefix').length())
+  #       {
+  #         "path": "$path.substring($prefixLength)"
+  #       }
+
+  StoreLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: ../../Containers/StoreLambda/bin/Release/net8.0
+      Handler: StoreLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: LazyMagic Generated Lambda
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Policies:
+      - AWSXrayWriteOnlyAccess
+      - DynamoDBCrudPolicy:
+          TableName: '*'
+  StoreLambdaStoreApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref StoreLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*'
+  StoreLambdaConsumerApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref StoreLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*'
+  StoreLambdaPublicApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref StoreLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*'
+  ConsumerLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: ../../Containers/ConsumerLambda/bin/Release/net8.0
+      Handler: ConsumerLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: LazyMagic Generated Lambda
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Policies:
+      - AWSXrayWriteOnlyAccess
+      - DynamoDBCrudPolicy:
+          TableName: '*'
+  ConsumerLambdaStoreApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref ConsumerLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*'
+  ConsumerLambdaConsumerApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref ConsumerLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*'
+  ConsumerLambdaPublicApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref ConsumerLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*'
+  PublicLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: ../../Containers/PublicLambda/bin/Release/net8.0
+      Handler: PublicLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: LazyMagic Generated Lambda
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Policies:
+      - AWSXrayWriteOnlyAccess
+      - DynamoDBCrudPolicy:
+          TableName: '*'
+  PublicLambdaStoreApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref PublicLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*'
+  PublicLambdaConsumerApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref PublicLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*'
+  PublicLambdaPublicApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref PublicLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*'
+  WebSocketLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: ../../Containers/WebSocketLambda/bin/Release/net8.0
+      Handler: WebSocketLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: LazyMagic Generated WebSocket Function
+      MemorySize: 512
+      Timeout: 30
+      Tracing: Active
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: '*'
+      - Statement:
+        - Effect: Allow
+          Action:
+          - execute-api:ManageConnections
+          Resource:
+            Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
+      Environment:
+        Variables:
+          COGNITO_REGION:
+            Ref: AWS::Region
+  WebSocketLambdaStoreApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref WebSocketLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*'
+  WebSocketLambdaConsumerApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref WebSocketLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*'
+  WebSocketLambdaPublicApiPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      FunctionName: !Ref WebSocketLambda
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*'
+#
+
+  StoreApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: HttpApi with Cognito Authentication generated by LazyMagic
+      StageName:
+        Ref: EnvironmentParameter
+      Auth:
+        Authorizers:
+          OpenIdAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer:
+                Fn::Sub: https://cognito-idp.${AWS::Region}.amazonaws.com/${EmployeeAuthUserPool}
+              audience:
+              - Ref: EmployeeAuthUserPoolClient
+        DefaultAuthorizer: OpenIdAuthorizer
+      CorsConfiguration:
+        AllowOrigins:
+        - https://*
+        - http://*
+        AllowHeaders:
+        - Authorization
+        - '*'
+        AllowMethods:
+        - GET
+        - HEAD
+        - PUT
+        - OPTIONS
+        - POST
+        - DELETE
+        ExposeHeaders:
+        - Date
+        - x-api-id
+        MaxAge: 600
+        AllowCredentials: false
+
+      DefinitionBody:
+        openapi: 3.0.1
+        paths:
+          '/Store/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/Notification':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/lzSubscription/{id}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/lzSubscription':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/callerInfo':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/test':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/listPets':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/findByStatus':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/{petId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            delete:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/findByTags':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/categories':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/tags':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/order/inventory':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/order':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/order/{orderId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            delete:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/suspendUser/{user}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/user/{userId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/user':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/user/listUsers':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Store/pet/seedPets':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+  ConsumerApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: HttpApi with Cognito Authentication generated by LazyMagic
+      StageName:
+        Ref: EnvironmentParameter
+      Auth:
+        Authorizers:
+          OpenIdAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer:
+                Fn::Sub: https://cognito-idp.${AWS::Region}.amazonaws.com/${ConsumerAuthUserPool}
+              audience:
+              - Ref: ConsumerAuthUserPoolClient
+        DefaultAuthorizer: OpenIdAuthorizer
+      CorsConfiguration:
+        AllowOrigins:
+        - https://*
+        - http://*
+        AllowHeaders:
+        - Authorization
+        - '*'
+        AllowMethods:
+        - GET
+        - HEAD
+        - PUT
+        - OPTIONS
+        - POST
+        - DELETE
+        ExposeHeaders:
+        - Date
+        - x-api-id
+        MaxAge: 600
+        AllowCredentials: false
+
+      DefinitionBody:
+        openapi: 3.0.1
+        paths:
+          '/Consumer/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Consumer/Notification':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Consumer/lzSubscription/{id}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/Consumer/lzSubscription':
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          'Consumer/preferences':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+  PublicApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Description: Unsecuire HttpApi generated by LazyMagic
+      StageName:
+        Ref: EnvironmentParameter
+
+      DefinitionBody:
+        openapi: 3.0.1
+        paths:
+          '/Public/publicTest':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+  # WebSocket Api
+
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: WebSocketApi
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.eventType
+
+  WebSocketApiConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      RouteKey: $connect
+      AuthorizationType: NONE
+      Target:
+        Fn::Sub: integrations/${WebSocketApiConnectIntegration}
+
+  WebSocketApiConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
+
+  WebSocketApiMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      RouteKey: message
+      AuthorizationType: NONE
+      Target:
+        Fn::Sub: integrations/${WebSocketApiMessageIntegration}
+
+  WebSocketApiMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
+
+  WebSocketApiDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      RouteKey: $default
+      AuthorizationType: NONE
+      Target:
+        Fn::Sub: integrations/${WebSocketApiDefaultIntegration}
+
+  WebSocketApiDefaultIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
+
+  WebSocketApiDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+    - WebSocketApiMessageRoute
+    - WebSocketApiConnectRoute
+    - WebSocketApiDefaultRoute
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+
+  WebSocketApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      DeploymentId:
+        Ref: WebSocketApiDeployment
+      StageName:
+        Ref: EnvironmentParameter
+
+  EmployeeAuthUserPool:
+    Type: AWS::Cognito::UserPool
+    # UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AliasAttributes:
+      - email
+      - preferred_username
+      UserPoolName: EmployeeAuth 
+      AutoVerifiedAttributes:
+      - email
+  EmployeeAuthUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: EmployeeAuthUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      SupportedIdentityProviders:
+      - COGNITO
+      GenerateSecret: false
+      AllowedOAuthFlows:
+      - code
+      RefreshTokenValidity: 30
+      AllowedOAuthScopes:
+      - phone
+      - email
+      - openid
+      - aws.cognito.signin.user.admin
+      - profile
+      CallbackURLs:
+      - https://www.example.com
+      LogoutURLs:
+      - https://www.example.com      
+
+  ConsumerAuthUserPool:
+    Type: AWS::Cognito::UserPool
+    # UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AliasAttributes:
+      - email
+      - preferred_username
+      UserPoolName: ConsumerAuth
+      AutoVerifiedAttributes:
+      - email
+  ConsumerAuthUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: ConsumerAuthUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      SupportedIdentityProviders:
+      - COGNITO
+      GenerateSecret: false
+      AllowedOAuthFlows:
+      - code
+      RefreshTokenValidity: 30
+      AllowedOAuthScopes:
+      - phone
+      - email
+      - openid
+      - aws.cognito.signin.user.admin
+      - profile
+      CallbackURLs:
+      - https://www.example.com
+      LogoutURLs:
+      - https://www.example.com      
+
+
+  # WebSocket Support
+#LzWebsockets#
+
+Outputs:
+  # LazyMagic inserted Outputs
+
+  StoreApiId:
+    Value: !Ref StoreApi
+
+  ConsumerApiId:
+    Value: !Ref ConsumerApi
+
+  PublicApiId:
+    Value: !Ref PublicApi
+
+  WebSocketApiId:
+    Value: !Ref WebSocketApi
+
+  EmployeeAuthUserPoolName:
+    Value: EmployeeAuth
+  EmployeeAuthUserPoolId:
+    Value: !Ref EmployeeAuthUserPool
+  EmployeeAuthUserPoolClientId:
+    Value: !Ref EmployeeAuthUserPoolClient
+  EmployeeAuthIdentityPoolId:
+    Value: ""
+  EmployeeAuthSecurityLevel:
+    Value: 1
+
+  ConsumerAuthUserPoolName:
+    Value: ConsumerAuth
+  ConsumerAuthUserPoolId:
+    Value: !Ref ConsumerAuthUserPool
+  ConsumerAuthUserPoolClientId:
+    Value: !Ref ConsumerAuthUserPoolClient
+  ConsumerAuthIdentityPoolId:
+    Value: ""
+  ConsumerAuthSecurityLevel:
+    Value: 1
+
+
+    

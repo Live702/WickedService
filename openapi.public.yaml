@@ -1,0 +1,15 @@
+openapi: 3.0.1
+paths:
+  # Test/Util
+  '/{prefix}/publicTest':
+    get:
+      operationId: publicTest
+      responses:
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  

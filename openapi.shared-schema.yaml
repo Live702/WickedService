@@ -1,0 +1,62 @@
+openapi: 3.0.1
+components:
+  schemas:
+
+    Category:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    Tag:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    Pet:
+      type: object
+      x-lz-genrepo: true
+      required:
+      - name
+      - photoUrls
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        name:
+          type: string
+          example: Dog
+        photoUrls:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        petStatus:
+          type: string
+          description: pet status in the store
+          $ref: '#/components/schemas/PetStatus'
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+
+    PetStatus:
+      type: string
+      description: pet status in the store
+      enum:
+      - available
+      - pending
+      - sold

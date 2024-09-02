@@ -1,0 +1,21 @@
+
+          - PathPattern: __PathPattern__
+            TargetOriginId: __TargetOriginId__
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ViewerProtocolPolicy: 'redirect-to-https'   
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+

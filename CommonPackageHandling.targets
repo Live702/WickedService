@@ -1,0 +1,84 @@
+<Project>
+	<Import Project="$(SolutionDir)ServiceVersion.props" Condition="!Exists('ClientSDK')"/>
+	<!-- Common properties for package handling -->
+	<PropertyGroup>
+		<PackageRepoFolder>$(SolutionDir)\Packages</PackageRepoFolder>
+		<Copyright>Copyright (c) 2021,2024 Insight Sciences Corporation. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://LazyMagic.org</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/LazyMagicNet/Service</RepositoryUrl>
+		<RepositoryType>GitHub</RepositoryType>
+		<Company>Insight Sciences Corporation</Company>
+		<Authors>Tim May, Thomas May</Authors>
+		<Version>$(ServiceVersion)</Version>
+		<SignAssembly>false</SignAssembly>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<!-- Set this to true in your csproj file to include referenced projects in the package -->
+		<IncludeReferencedProjects Condition="'$(IncludeReferencedProjects)' == ''">false</IncludeReferencedProjects>
+	</PropertyGroup>
+	
+	<!-- By default, MSBuild makes project references package references when producing a package for your project. 
+		This has pros and cons. If you want to include all referenced project dlls in your package, set the
+		IncludeReferencedProject property to true in your csproj file (before importing this props file). 
+		In general, it is better to accept the default behavior and make all referenced projects nuget packages. 
+		For example, if you have multiple projects producing nuget packages and each of those project reference 
+		a common project, then each of those projects will have a copy of the common project's dll in their package.
+		If your application includes both of the nuget packages, you will have two copies of the common project's dll.
+	-->
+	<!-- Conditionally set TargetsForTfmSpecificBuildOutput -->
+	<PropertyGroup Condition="'$(IncludeReferencedProjects)' == 'true'">
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<!-- Target to copy dlls into the package. -->
+	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+		<ItemGroup>
+			<_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+			<BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)"/>
+		</ItemGroup>
+	</Target>	
+	
+	<!-- Copy Package License -->
+	<Target Name="CopyPackageLicense" BeforeTargets="Clean">
+		<Copy SourceFiles="$(SolutionDir)\LICENSE.txt" DestinationFiles="LICENSE.txt" />
+	</Target>
+	<ItemGroup>
+		<None Include="LICENSE.txt" Pack="True" PackagePath=""/>
+	</ItemGroup>
+	<!-- Copy Package Target -->
+	<Target Name="CopyPackage" AfterTargets="Pack">
+		<Message Importance="high" Text="Copying $(AssemblyName).$(Version).nupkg to Packages folder" />
+		<MakeDir Directories="$(PackageRepoFolder)" />
+		<Copy SourceFiles=".\bin\$(Configuration)\$(AssemblyName).$(Version).nupkg"
+			  DestinationFiles="$(PackageRepoFolder)\$(AssemblyName).$(Version).nupkg" />
+		<Copy Condition="Exists('.\bin\$(Configuration)\$(AssemblyName).$(Version).snupkg')"
+			  SourceFiles=".\bin\$(Configuration)\$(AssemblyName).$(Version).snupkg"
+			  DestinationFiles="$(PackageRepoFolder)\$(AssemblyName).$(Version).snupkg" />
+	</Target>
+	<!-- Delete Package from local cache -->
+	<Target Name="DeletePackage" AfterTargets="Build">
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="DeleteSpecificPackage" Properties="Configuration=$(Configuration)" />
+	</Target>
+	<Target Name="DeleteSpecificPackage">
+		<PropertyGroup>
+			<PackageCacheFolder Condition=" '$(OS)' == 'Windows_NT' ">$(UserProfile)\.nuget\packages\$(AssemblyName)\$(Version)</PackageCacheFolder>
+			<PackageCacheFolder Condition=" '$(OS)' != 'Windows_NT' ">$(Home)/.nuget/packages/$(AssemblyName)/$(Version)</PackageCacheFolder>
+		</PropertyGroup>
+		<Message Importance="high" Text="Attempting to delete package $(AssemblyName) version $(Version) from cache folder $(PackageCacheFolder)" />
+		<!-- Windows-specific delete command -->
+		<Exec Condition=" '$(OS)' == 'Windows_NT' AND Exists('$(PackageCacheFolder)')"
+			  Command="cmd.exe /c &quot;if exist &quot;$(PackageCacheFolder)&quot; rmdir /s /q &quot;$(PackageCacheFolder)&quot;&quot;"
+			  ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+		</Exec>
+		<!-- Unix/Linux/Mac-specific delete command -->
+		<Exec Condition=" '$(OS)' != 'Windows_NT' AND Exists('$(PackageCacheFolder)')"
+			  Command="rm -rf &quot;$(PackageCacheFolder)&quot;"
+			  ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+		</Exec>
+		<Message Condition="'$(ErrorCode)' != '0'" Importance="high" Text="Failed to delete package. Error code: $(ErrorCode)" />
+		<Message Condition="'$(ErrorCode)' == '0'" Importance="high" Text="Successfully deleted package from $(PackageCacheFolder)" />
+	</Target>
+</Project>

@@ -1,0 +1,313 @@
+LazyMagicDirectivesVersion: 2.0.0
+
+Directives:
+
+  # SCHEMAS - libraires for DTOs and CRUDL
+  SchemaDefault:
+    Type: Schema
+    IsDefault: true
+    Artifacts:
+      SchemaProject:
+        Type: DotNetSchema
+        Template: ./ProjectTemplates/Schema
+        OutputFolder: Schemas
+      RepoProject:
+        Type: DotNetRepo
+        Template: ./ProjectTemplates/Repo
+        SchemaProject: SchemaProject
+        OutputFolder: Schemas
+        NameSuffix: Repo
+
+
+  ConsumerSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.consumer-schema.yaml
+
+  SharedSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.shared-schema.yaml
+
+  StoreSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.store-schema.yaml
+
+  SubscriptionsSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.subscriptions-schema.yaml
+
+  AdminSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.admin-schema.yaml
+
+  PublicSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.public-schema.yaml
+
+  # MODULES - libraries handling paths
+  ModuleDefault:
+    Type: Module
+    IsDefault: true
+    Artifacts:
+      ControllerProject:
+        Type: DotNetController
+        Template: ./ProjectTemplates/Controller
+        OutputFolder: Modules
+
+  SubscriptionsModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.subscriptions.yaml
+
+  StoreModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.store.yaml
+    - openapi.admin.yaml
+
+  ConsumerModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.consumer.yaml
+
+  PublicModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.public.yaml
+
+  # CONTAINERS - executables
+  AwsLambdaContainerDefault:
+    Type: Container
+    IsDefault: true
+    Artifacts:
+      LambdaProject:
+        Type: DotNetLambda
+        Runtime: dotnet8
+        Template: ./ProjectTemplates/Lambda
+        OutputFolder: Containers   
+      AwsLambda:
+        Type: AwsLambdaResource
+        Template: AWSTemplates/Snippets/sam.service.lambda.yaml
+
+  WebSocketLambda:
+    Type: Container
+    Artifacts:
+      WebSocketProject:
+        Type: DotNetLambda
+        Runtime: dotnet8
+        Template: ./ProjectTemplates/WebSocket
+        OutputFolder: Containers
+      WebSocketFunction:
+        Type: AwsLambdaResource
+        Template: AWSTemplates/Snippets/sam.service.websocketfunction.yaml
+        Resource1: WebSocketApi # websocket function manages the websocket api       
+
+  StoreLambda:
+    Type: Container
+    ApiPrefix: Store
+    Defaults: AwsLambdaContainerDefault
+    Modules:
+    - SubscriptionsModule
+    - StoreModule
+
+  ConsumerLambda:
+    Type: Container
+    ApiPrefix: Consumer
+    Defaults: AwsLambdaContainerDefault
+    Modules:
+    - SubscriptionsModule
+    - ConsumerModule
+
+  PublicLambda:
+    Type: Container
+    ApiPrefix: Public
+    Defaults: AwsLambdaContainerDefault
+    Modules:
+    - PublicModule
+
+  # AUTHENTICATORS - Authentication services
+  EmployeeAuth:
+    Type: Authentication
+    Artifacts:
+      CognitoUserPool:
+        Type: AwsCognitoResource
+        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.managed.yaml
+
+  ConsumerAuth:
+    Type: Authentication
+    Artifacts:
+      CognitoUserPool:
+        Type: AwsCognitoResource
+        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.unmanaged.yaml
+
+  # APIS - API Gateways that proxy requests to containers
+  StoreApi:
+    Type: Api
+    Authentication: EmployeeAuth
+    Containers:
+    - StoreLambda
+    Artifacts:
+      ApiGateway:
+        Type: AwsHttpApiResource
+      ApiClientSDK:
+        Type: DotNetSDK
+        Template: ./ProjectTemplates/ClientSDK
+        OutputFolder: ClientSDKs
+
+  ConsumerApi:
+    Type: Api
+    Authentication: ConsumerAuth
+    Containers:
+    - ConsumerLambda
+    Artifacts:
+      ApiGateway:
+        Type: AwsHttpApiResource
+      ApiClientSDK:
+        Type: DotNetSDK
+        Template: ./ProjectTemplates/ClientSDK
+        OutputFolder: ClientSDKs
+
+  PublicApi:
+    Type: Api
+    Containers:
+    - PublicLambda
+    Artifacts:
+      ApiGateway:
+        Type: AwsHttpApiResource
+        Template: AWSTemplates/Snippets/sam.service.httpapi.yaml
+      ApiClientSDK:
+        Type: DotNetSDK
+        Template: ./ProjectTemplates/ClientSDK
+        OutputFolder: ClientSDKs
+
+  WebSocketApi:
+    Type: Api
+    Containers:
+    - WebSocketLambda
+    Artifacts:
+      ApiGateway:
+        Type: AwsWebSocketApiResource
+        Template: AWSTemplates/Snippets/sam.service.websocketapi.yaml
+  
+
+  # SERVICES - Aggregate Api endpoints to allow shared Authenticators and Containers.
+  Service:
+    Type: Service
+    Apis: # remember that each Api has it's own ClientSDK
+    - StoreApi
+    - ConsumerApi
+    - PublicApi
+    - WebSocketApi
+    Artifacts:
+      ServiceStack:
+        Type: AwsServiceStackTemplate
+        Template: AWSTemplates/Snippets/sam.service.yaml
+
+  LocalWebService:
+    Type: Service
+    Apis:
+    - StoreApi
+    - ConsumerApi
+    - PublicApi
+    Artifacts:
+      LocalWebApi:
+        Type: DotNetLocalWebApi
+        Template: ./ProjectTemplates/WebApi
+
+
+
+# WEBAPPS
+  WebAppDefault:
+    Type: WebApp
+    IsDefault: true
+
+  StoreApp:
+    Type: WebApp
+    Defaults: WebAppDefault
+    Path: store 
+    Apis:
+    - StoreApi
+    - ConsumerApi
+    - PublicApi
+    - WebSocketApi
+
+  ConsumerApp:
+    Type: WebApp
+    Defaults: WebAppDefault
+    Path: app
+    Apis:
+    - ConsumerApi
+    - PublicApi
+    - WebSocketApi
+
+# TENANCIES
+  TenancyDefaults:
+    Type: Tenancy
+    IsDefault: true
+    Service: Service
+    Artifacts:
+      TenancyStack:
+        Type: AwsTenancyStackTemplate
+  
+  StoreTenancy:
+    Type: Tenancy
+    Defaults: TenancyDefaults
+    WebApps:
+    - StoreApp
+    - ConsumerApp
+
+  ConsumerTenancy:
+    Type: Tenancy
+    Defaults: TenancyDefaults
+    WebApps:
+    - ConsumerApp
+
+# # DEPLOYMENTS
+#   DeploymentDefaults:
+#     Type: Deployment
+#     IsDefault: true
+#     Service: Service
+#     Tenancies:
+#     - Tenancy: StoreTenancy
+#       TenancyKey: Uptown
+#     - Tenancy: StoreTenancy
+#       TenancyKey: Downtown
+#     - Tenancy: ConsumerTenancy
+#       TenancyKey: Consumer
+#     Artifacts:
+#       DeploymentStack:
+#         Type: AwsDeploymentStack
+#         Template: AWSTemplates/sam.deployment.yaml
+#       # DeploymentScript:
+#       #   Type: DeploymentScript
+#       #   Template: ./ProjectTemplates/DeploymentScript
+
+#   DevDeployment:
+#     Type: Deployment
+#     Environment: Dev
+#     Defaults: DeploymentDefaults
+
+#   TestDeployment:
+#     Type: Deployment
+#     Environment: Test
+#     Defaults: DeploymentDefaults
+
+#   ProdDeployment:
+#     Type: Deployment
+#     Environment: Prod
+#     Defaults: DeploymentDefaults

@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 
+  - 'AWS::Serverless-2016-10-31'
+  - 'AWS::LanguageExtensions'
+Description: | 
+  This stack defines the service resources
+
+Parameters:
+  ArtifactsBucketParameter:
+    Description: "Bucket where artifacts are stored"
+    Type: String
+
+  EnvironmentParameter:   
+    Type: String
+    Description: The stage name for the API Gateway and controls some policies
+  
+  SystemGuidParameter:
+    Description: "System Guid. No spaces. Lower case."
+    Type: String
+
+# LazyMagic inserted ServiceParameters
+#LzParameters#
+
+Resources:
+  # RequestTemplateString:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Type: String
+  #     Value: |
+  #       #set($path = $input.path)
+  #       #set($prefixLength = $input.params('apiPrefix').length())
+  #       {
+  #         "path": "$path.substring($prefixLength)"
+  #       }
+
+#LzLambdas#
+
+#LzApis#
+
+#LzAuthenticators#
+
+  # WebSocket Support
+#LzWebsockets#
+
+Outputs:
+  # LazyMagic inserted Outputs
+#LzOutputs#
+
+    

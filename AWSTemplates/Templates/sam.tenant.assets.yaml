@@ -1,0 +1,234 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 
+  - 'AWS::Serverless-2016-10-31'
+  - 'AWS::LanguageExtensions'
+Description: | 
+  This sub-stack is used to create tenancy assets
+    This includes
+      Tenancy Config bucket
+      Tenancy Config Bucket policy
+      Tenancy DynamoDb table (note that tables are used like separate databases in DynamoDB)
+
+Parameters:
+  CreateConfigBucketsParameter: 
+    Description: "Create s3 bucket for tenancy config"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+ 
+  CreateCDNLogBucketsParameter: 
+    Description: "Create s3 bucket for CDN Log"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"  
+
+  CreateTableParameter: 
+    Description: "Create table"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  TenantKeyParameter:
+    Description: "Tenant Key. No spaces. Lower case."
+    Type: String
+    MinLength: '3'
+    MaxLength: '19'
+
+  # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
+  GuidParameter:
+    Description: "GuidParameter"
+    Type: String
+
+  OriginAccessIdentityParameter:
+    Type: String
+
+
+Conditions: 
+  CreateConfigBucket: !Equals [!Ref CreateConfigBucketsParameter, "true"]
+  CreateCDNLogBucket: !Equals [!Ref CreateCDNLogBucketsParameter, "true"]
+  CreateTable: !Equals [!Ref CreateTableParameter, "true"]
+
+Resources:
+  ConfigBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Condition: CreateConfigBucket 
+    Properties:
+      BucketName: !Sub "config-${TenantKeyParameter}-${GuidParameter}"
+
+  ConfigBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Sub "config-${TenantKeyParameter}-${GuidParameter}"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${OriginAccessIdentityParameter}'
+            Action: 
+              - s3:GetObject
+            Resource: !Sub 'arn:aws:s3:::config-${TenantKeyParameter}-${GuidParameter}/*'
+
+  CDNLogsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Condition: CreateCDNLogBucket
+    Properties:
+      BucketName: !Sub "cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+      OwnershipControls:
+        Rules: 
+          - ObjectOwnership: BucketOwnerPreferred   
+      AccessControl: LogDeliveryWrite
+
+  CDNLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Sub "cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "delivery.logs.amazonaws.com"
+            Action: "s3:PutObject"
+            Resource: !Sub "arn:aws:s3:::cdnlogs-${TenantKeyParameter}-${GuidParameter}/*"
+            Condition:
+              StringEquals:
+                "s3:x-amz-acl": "bucket-owner-full-control"
+          - Effect: "Allow"
+            Principal:
+              Service: "delivery.logs.amazonaws.com"
+            Action: "s3:GetBucketAcl"
+            Resource: !Sub "arn:aws:s3:::cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+
+  # The Tenancy DynamoDb table is used like a separate database in DynamoDB
+  # See the LazyMagic documentation for more information on how to use this table
+  # with the LazyMagic.DynamoDBRepo library/package.
+  TenantDB:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Condition: CreateTable
+    Properties:
+      TableName: !Ref TenantKeyParameter
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      - AttributeName: SK1
+        AttributeType: S
+      - AttributeName: SK2
+        AttributeType: S
+      - AttributeName: SK3
+        AttributeType: S
+      - AttributeName: SK4
+        AttributeType: S
+      - AttributeName: SK5
+        AttributeType: S
+      - AttributeName: GSI1PK
+        AttributeType: S
+      - AttributeName: GSI1SK
+        AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+      LocalSecondaryIndexes:
+      - IndexName: PK-SK1-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK1
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK2-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK2
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK3-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK3
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK4-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK4
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK5-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK5
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      GlobalSecondaryIndexes:
+      - IndexName: GSI1
+        KeySchema:
+        - AttributeName: GSI1PK
+          KeyType: HASH
+        - AttributeName: GSI1SK
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+

@@ -1,0 +1,578 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 
+  - 'AWS::Serverless-2016-10-31'
+  - 'AWS::LanguageExtensions'
+Description: | 
+  This stack is used to create a tenancy distribution
+  Note: A sam.teant.assets.yaml stack, for this tenant, must be deployed before this stack
+
+Parameters:
+  TenantKeyParameter:
+    Description: "Tenant Key. No spaces. Lower case."
+    Type: String
+    MinLength: '3'
+    MaxLength: '19'
+
+  SubDomainParameter:
+    Description: "SubDomain"
+    Type: String
+
+  # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
+  GuidParameter:
+    Description: "GuidParameter"
+    Type: String
+
+  # RootDomainParameter is usuall the value in serviceconfig.yaml file
+  RootDomainParameter:
+    Description: "RootDomain"
+    Type: String
+
+  # Parameters from the serviceconfig.yaml file
+  EnvironmentParameter:
+    Description: "Environment"
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - prod
+
+  HostedZoneIdParameter:
+    Type: String    
+
+  AcmCertificateArnParameter:
+    Type: String
+
+  # Parameters from Policy stack outputs
+  OriginRequestPolicyIdParameter:
+    Type: String
+
+  CachePolicyIdParameter:
+    Type: String
+
+  ResponseHeadersPolicyIdParameter:
+    Type: String
+
+  RequestFunctionArnParameter:
+    Type: String
+
+  RequestPrefixFunctionArnParameter:
+    Type: String
+
+  ResponseFunctionArnParameter:
+    Type: String
+
+  # Parameters from WebApp stack outputs
+  OriginAccessIdentityParameter:
+    Type: String
+
+  OriginAccessControlParameter:
+    Type: String    
+
+  AppAssetsBucketNameParameter:
+    Type: String    
+
+
+  
+  ConsumerAppBucketNameParameter:
+    Type: String
+
+  # Parameters from Service stack outputs
+
+  ConsumerApiIdParameter:
+    Type: String
+  PublicApiIdParameter:
+    Type: String
+  WebSocketApiIdParameter:
+    Type: String
+  ConsumerAuthUserPoolNameParameter:
+    Type: String
+  ConsumerAuthUserPoolIdParameter:
+    Type: String
+  ConsumerAuthUserPoolClientIdParameter:
+    Type: String
+  ConsumerAuthIdentityPoolIdParameter:
+    Type: String
+  ConsumerAuthSecurityLevelParameter:
+    Type: String
+
+
+Conditions: 
+  SubDomainEmpty: !Equals [!Ref SubDomainParameter, ""]
+  HasSubDomain: !Not [!Condition SubDomainEmpty]
+  IsDev : !Equals [!Ref EnvironmentParameter, "dev"]   
+  IsProd: !Not [!Condition IsDev]
+
+Resources:
+  ResponseHeadersPolicy: 
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub ResponseHeadersPolicy-${TenantKeyParameter}-${GuidParameter}
+        CorsConfig:
+          AccessControlAllowCredentials: false # must be false when AccessControlAllowOrigins, AccessControlAllowHeaders, or AccessControlAllowMethods is '*'
+          AccessControlAllowHeaders:
+            Items: 
+              - Authorization
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - GET 
+              - POST
+              - OPTIONS 
+          AccessControlAllowOrigins:
+            Items:
+              - !Sub "https://${SubDomainParameter}.${RootDomainParameter}" 
+              - !If
+                - IsDev  
+                - !Sub "https://localhost:*"
+                - !Ref AWS::NoValue
+              
+          AccessControlExposeHeaders:
+            Items:
+              - Date
+              - x-api-id
+          AccessControlMaxAgeSec: 3000
+          OriginOverride: true
+        SecurityHeadersConfig:
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 3000 # time, in seconds, browser may cache preflight requests
+            IncludeSubdomains: true # subdomains must also use HTTPS
+            Preload: true # add site to HSTS preload list
+            Override: true # override any origin settings 
+            # default-src 'self'; // This directive serves as a fallback for other CSP directives. It specifies the default policy for fetching resources such as JavaScript, images, CSS, fonts, AJAX requests, frames, HTML5 media, and more.
+            # img-src data: ; // This directive specifies valid sources of images. The 'data:' scheme allows data: URIs to be used as a content source. This is useful, for example, for embedding small images directly into CSS or HTML files.
+            # script-src 'self'; // This directive specifies valid sources for JavaScript. This includes not only URLs loaded directly into <script> elements, but also things like inline script event handlers (onclick) and XSLT stylesheets which can trigger script execution.
+            # style-src self; // This directive specifies valid sources for stylesheets. This includes not only external stylesheets, but also inline <style> elements or the style attribute on any element.
+            # style-src-elem self; // This directive specifies valid sources for stylesheets that are applied to elements. This includes not only external stylesheets, but also inline <style> elements or the style attribute on any element.
+            # object-src self; // This directive specifies valid sources for the <object>, <embed>, and <applet> elements. It does not apply to <iframe> or <object> elements with a data attribute.
+            # font-src *; // This directive specifies valid sources for fonts loaded using @font-face.
+            # NOTE: 'self' refers to the exact domain from which the content is served. For our CloudFront distribution, this includes the subdomain.
+          ContentSecurityPolicy:
+            ContentSecurityPolicy:
+              !If
+                - IsDev
+                - !Sub "default-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; img-src data: 'self' https://${SubDomainParameter}.${RootDomainParameter}; script-src 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; style-src-elem 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; object-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; worker-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; font-src *; connect-src 'self' https://${SubDomainParameter}.${RootDomainParameter} wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
+                - !Sub "default-src 'self'; img-src data: 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline'; object-src 'self'; worker-src 'self'; font-src *; connect-src 'self' wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
+            Override: true
+          FrameOptions: # control whether a browser should be allowed to render a page in a <frame>, <iframe>, <embed>, or <object> tag
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy: # The Referrer-Policy HTTP header controls how much referrer information (sent via the Referer header) should be included with requests.
+            ReferrerPolicy: same-origin # Sends the full referrer to same-origin destinations but no referrer to cross-origin destinations.
+            Override: true
+
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Sub '${SubDomainParameter}.${RootDomainParameter}'
+        Comment: !Sub '${AWS::StackName}-${TenantKeyParameter}'
+        Logging:
+          Bucket: !Sub 'cdnlogs-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
+          IncludeCookies: false 
+          Prefix: !Sub '${TenantKeyParameter}/'
+
+        Enabled: true
+        HttpVersion: 'http2'
+        DefaultRootObject: 'index.html'
+        IPV6Enabled: true
+        PriceClass: 'PriceClass_All'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArnParameter
+          MinimumProtocolVersion: 'TLSv1.1_2016'
+          SslSupportMethod: 'sni-only'
+
+        DefaultCacheBehavior: 
+          TargetOriginId: TenancyConfigOrigin
+          ViewerProtocolPolicy: 'redirect-to-https'
+          CachePolicyId: !Ref CachePolicyIdParameter
+          OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+          ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+          FunctionAssociations:
+            - EventType: 'viewer-request'
+              FunctionARN: !GetAtt LandingPageFunction.FunctionARN
+            # - EventType: 'viewer-response'
+            #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+        #Logging:
+        #  Bucket: !Sub '${CDNLogsBucketParameter}.s3.amazonaws.com'
+        #  IncludeCookies: false 
+        #  Prefix: !Sub '${AWS::StackName}/'
+
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 60
+            ErrorCode: 404
+            ResponseCode: 404
+            ResponsePagePath: '/404.html'
+          - ErrorCachingMinTTL: 60
+            ErrorCode: 403
+            ResponseCode: 403
+            ResponsePagePath: '/index.html'
+
+        CacheBehaviors:
+
+          - PathPattern: '/Tenancy/*'
+            TargetOriginId: TenancyConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: '/Assets/*'
+            TargetOriginId: AssetsConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: '/config'
+            TargetOriginId: TenancyConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !GetAtt ConfigFunction.FunctionARN
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          # Generated webapp cache behaviors
+
+          - PathPattern: /WebSocketApi/*
+            TargetOriginId: WebSocketApi-Origin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id 
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: /PublicApi/*
+            TargetOriginId: PublicApi-Origin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id 
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: /ConsumerApi/*
+            TargetOriginId: ConsumerApi-Origin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id 
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: /app/*
+            TargetOriginId: ConsumerApp-Origin
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ViewerProtocolPolicy: 'redirect-to-https'   
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+
+          - PathPattern: /app
+            TargetOriginId: ConsumerApp-Origin
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ViewerProtocolPolicy: 'redirect-to-https'   
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+         
+
+        Origins:
+          # Origin serving tenancy config
+          - Id: TenancyConfigOrigin
+            DomainName: !Sub 'config-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+
+          - Id: AssetsConfigOrigin
+            DomainName: !Sub '${AppAssetsBucketNameParameter}.s3.amazonaws.com'
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+
+
+           # LazyMagic generated webapp origins
+
+          - Id: ConsumerApp-Origin
+            DomainName: !Sub '${ConsumerAppBucketNameParameter}.s3.amazonaws.com'
+            OriginPath: '/wwwroot'
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+
+
+           # LazyMagic generated api origins
+          - Id: ConsumerApi-Origin
+            DomainName: !Sub '${ConsumerApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${EnvironmentParameter}'
+            CustomOriginConfig: 
+              HTTPSPort: 443
+              HTTPPort: 80
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: TenantKey
+                HeaderValue: !Ref TenantKeyParameter
+
+          - Id: PublicApi-Origin
+            DomainName: !Sub '${PublicApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${EnvironmentParameter}'
+            CustomOriginConfig: 
+              HTTPSPort: 443
+              HTTPPort: 80
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: TenantKey
+                HeaderValue: !Ref TenantKeyParameter
+
+          - Id: WebSocketApi-Origin
+            DomainName: !Sub '${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${EnvironmentParameter}'
+            CustomOriginConfig: 
+              HTTPSPort: 443
+              HTTPPort: 80
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: TenantKey
+                HeaderValue: !Ref TenantKeyParameter
+
+
+
+           # LazyMagic generated websocket origins  
+#LzWsOrigins#
+
+  # LazyMagic generated config function
+  ConfigFunction:  
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub config-${TenantKeyParameter}-${GuidParameter}
+      FunctionCode: 
+        Fn::Sub: |
+            async function handler(event) {
+                var response = {
+                    statusCode: 200,
+                    statusDescription: 'OK',
+                    headers: {
+                        'content-type': { value: 'application/json' }, // Set the content type to application/json
+                        'cache-control': { value: 'max-age=0, no-cache, no-store, must-revalidate' } // Set caching headers to prevent caching
+                    },
+                    body: JSON.stringify(
+                        {
+                            meta: {
+                                type: 'cloudfront',
+                                awsRegion: '${AWS::Region}',
+                                tenantKey: '${TenantKeyParameter}',
+                                wsUrl: '${WebSocketApiIdParameter}',
+                             },
+                             authConfigs: {
+                                
+                                ConsumerAuth: {
+                                    awsRegion: '${AWS::Region}',
+                                    userPoolName: '${ConsumerAuthUserPoolNameParameter}',
+                                    userPoolId: '${ConsumerAuthUserPoolIdParameter}',
+                                    userPoolClientId: '${ConsumerAuthUserPoolClientIdParameter}',
+                                    userPoolSecurityLevel: '${ConsumerAuthSecurityLevelParameter}',
+                                    identityPoolId: '${ConsumerAuthIdentityPoolIdParameter}'
+                                },
+
+                             }
+                        })
+                }
+                return response
+            }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'CloudFront Function to handle /config path'
+        Runtime: cloudfront-js-2.0
+
+  # LazyMagic generated landing page function
+  LandingPageFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub landingpage-${TenantKeyParameter}-${GuidParameter}
+      FunctionCode: 
+        Fn::Sub: |
+            function handler(event) {
+                var request = event.request;
+                var uri = request.uri;
+    
+                // Only handle requests to the root
+                if (uri !== "/") {
+                    return request;
+                }
+    
+                var html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Please select the WebApp you want to use.</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                        background-color: #f0f0f0;
+                    }
+                    .container {
+                        text-align: center;
+                        padding: 20px;
+                        background-color: white;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+                    h1 {
+                        color: #333;
+                    }
+                    .links {
+                        display: flex;
+                        justify-content: space-around;
+                        margin-top: 20px;
+                    }
+                    a {
+                        text-decoration: none;
+                        color: white;
+                        background-color: #007bff;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        transition: background-color 0.3s;
+                    }
+                    a:hover {
+                        background-color: #0056b3;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Welcome to My Apps</h1>
+                    <div class="links">
+
+                        <a href='/app'>ConsumerApp App</a>
+                       
+                    </div>
+                </div>
+            </body>
+            </html>
+                `;
+    
+                var response = {
+                    statusCode: 200,
+                    statusDescription: 'OK',
+                    headers: {
+                        'content-type': { value: 'text/html' },
+                        'cache-control': { value: 'max-age=0' }
+                    },
+                    body: html
+                };
+    
+                return response;
+            }
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'CloudFront Function to return landing page'
+        Runtime: cloudfront-js-2.0
+
+
+
+
+
+
+  Route53RecordSetGroup:
+    Type: AWS::Route53::RecordSetGroup
+    Condition: HasSubDomain 
+    Properties:
+      HostedZoneId: !Ref HostedZoneIdParameter
+      RecordSets:
+      - Name: !Sub '${SubDomainParameter}.${RootDomainParameter}'
+        Type: 'A'
+        AliasTarget:
+          DNSName: !GetAtt 'CloudFrontDistribution.DomainName'
+          EvaluateTargetHealth: false
+          # The  following HostedZoneIdParameter is always used for alias records pointing to CF.
+          HostedZoneId: 'Z2FDTNDATAQYW2' 
+
+
+

@@ -1,0 +1,31 @@
+openapi: 3.0.1
+paths:
+  '{prefix}/preferences':
+    get:
+      summary: Get user preferences
+      operationId: getPreferences
+      x-lz-gencall: preferencesRepo.ReadAsync(callerInfo, callerInfo.LzUserId)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+    post:
+      summary: Update user preferences
+      operationId: updatePreferences
+      x-lz-gencall: preferencesRepo.UpdateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Preferences'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+

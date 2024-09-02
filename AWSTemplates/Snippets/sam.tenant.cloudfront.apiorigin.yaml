@@ -1,0 +1,13 @@
+          - Id: __OriginId__
+            DomainName: !Sub '${__ApiId__}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${EnvironmentParameter}'
+            CustomOriginConfig: 
+              HTTPSPort: 443
+              HTTPPort: 80
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: TenantKey
+                HeaderValue: !Ref TenantKeyParameter
+

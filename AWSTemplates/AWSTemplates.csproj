@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Library</OutputType>
+	</PropertyGroup>
+	<ItemGroup>
+		<!-- Avoid spurious errors for !Sub style markup in the templates -->
+		<None Update="./*.yaml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Generated\" />
+	</ItemGroup>
+</Project>
