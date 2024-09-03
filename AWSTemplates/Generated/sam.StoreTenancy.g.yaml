@@ -325,7 +325,7 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-
+              
           - PathPattern: /store
             TargetOriginId: StoreApp-Origin
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -346,7 +346,7 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-
+              
           - PathPattern: /PublicApi/*
             TargetOriginId: PublicApi-Origin
             ViewerProtocolPolicy: 'redirect-to-https'
@@ -407,7 +407,7 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-
+              
           - PathPattern: /app
             TargetOriginId: ConsumerApp-Origin
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -428,7 +428,7 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-         
+                       
 
         Origins:
           # Origin serving tenancy config
