@@ -1,0 +1,16 @@
+{
+  "ConsumerAuthUserPoolId": "us-west-2_jqWzod0Qu",
+  "EmployeeAuthUserPoolId": "us-west-2_oHBS4sXlB",
+  "ConsumerAuthUserPoolClientId": "3uv77obiuo03ubupj8l07g20ug",
+  "PublicApiId": "d6pux8b0w8",
+  "ConsumerAuthIdentityPoolId": "",
+  "StoreApiId": "mmr2xz0k71",
+  "ConsumerAuthSecurityLevel": "1",
+  "EmployeeAuthSecurityLevel": "1",
+  "ConsumerApiId": "apwf4pcd0m",
+  "ConsumerAuthUserPoolName": "ConsumerAuth",
+  "EmployeeAuthUserPoolClientId": "4pif9bh89ambrpoh4kl9tq4t45",
+  "EmployeeAuthUserPoolName": "EmployeeAuth",
+  "EmployeeAuthIdentityPoolId": "",
+  "WebSocketApiId": "ctk3qjq8re"
+}

@@ -27,7 +27,7 @@ The following PowerShell scripts are provided, in the ```AWSTemplates``` folder,
 - DeployArtifactsStack.ps1
 - DeployServiceStack.ps1
 - DeployPoliciesStack.ps1
-- DeployWebAppStack.ps1
+- DeployWebAppBucketsStack.ps1
 - DeployTenantAssetsStack.ps1  // deploy once for each tenant.
 - DeployStoreTenanctStack.ps1  // deploy once for each tenant. 
 - DeployConsumerTeantStack.ps1 
@@ -50,7 +50,7 @@ To deploy the system, follow these steps:
 3. ```.\DeployArtifactsStack.ps1``` -- creates the S3 bucket for the lambda artifacts.
 4. ```.\DeployServiceStack.ps1``` -- creates the APIs, Lambdas, Cognito User Pools, and Identity Pools.
 5. ```.\DeployPoliciesStack.ps1``` -- creates the policies used throughout the system.
-6. ```.\DeployWebAppStack.ps1``` -- creates the S3 buckets for the web applications.
+6. ```.\DeployWebAppBucketsStack.ps1``` -- creates the S3 buckets for the web applications.
 7. ```.\DeployTenantAssetsStack.ps1 -TenantKey uptown``` -- creates the S3 bucket for the uptown tenant.
 8. ```.\DeployStoreTenantStack.ps1 -TenantKey uptown -SubDomain uptown``` -- creates the CloudFront distribution for the uptown tenant.
 9. ```.\DeployTenantAssetsStack.ps1 -TenantKey downtown``` -- creates the S3 bucket for the downtown tenant.
