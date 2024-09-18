@@ -1,10 +1,8 @@
-# This script deploys a StoreTenancy stack 
-# Note: This script is hand coded. We will generate this 
-# script as an Deployment artifact later on.
+# This script deploys a StoreTenancy assets stack
+# Note: This script is static. It is not generated.
 # https://docs.aws.amazon.com/powershell/latest/reference/
 param( 
-    [Parameter(Mandatory=$true)]
-    [string]$TenantKey, 
+    [Parameter(Mandatory=$true)] [string]$TenantKey, 
     [string]$Guid,
     [string]$RootDomain
 )
@@ -14,11 +12,8 @@ Import-Module AWSPowerShell.NetCore
 
 function Display-OutputDictionary {
     param (
-        [Parameter(Mandatory=$true)]
-        [hashtable]$Dictionary,
-        
-        [Parameter(Mandatory=$false)]
-        [string]$Title = "Stack Outputs"
+        [Parameter(Mandatory=$true)] [hashtable]$Dictionary,
+        [Parameter(Mandatory=$false)] [string]$Title = "Stack Outputs"
     )
     
     Write-Host $Title -ForegroundColor Cyan
@@ -100,10 +95,9 @@ if($SystemGuid -like "yourguid")
 }
 
 #Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
-# Get webapp stack outputs
-$targetStack = $config.SystemName + "-app-buckets"
-$WebAppStackOutputDict = Get-StackOutputs $targetStack
-#Display-OutputDictionary -Dictionary $WebAppStackOutputDict -Title "Webapps Stack Outputs"
+# Get policy stack outputs
+$targetStack = $config.SystemName + "-policies"
+$PoliciesStackOutputDict = Get-StackOutputs $targetStack
 
 $ConfigBucketName = "config-$TenantKey-$SystemGuid"
 $CreateConfigBucket = CreateBucket($ConfigBucketName)
@@ -120,8 +114,8 @@ $ParametersDict = @{
     "GuidParameter" = $Guid
     "RootDomainParameter" = $RootDomain
     "EnvironmentParameter" = $Environment
-    "OriginAccessIdentityParameter" = $WebAppStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControl" = $WebAppStackOutputDict["OriginAccessControl"]
+    "OriginAccessIdentityParameter" = $PoliciesStackOutputDict["OriginAccessIdentity"]
+    "OriginAccessControl" = $PoliciesStackOutputDict["OriginAccessControl"]
 
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"

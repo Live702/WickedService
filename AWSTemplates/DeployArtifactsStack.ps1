@@ -1,4 +1,4 @@
-# This script deploys the system into a dev account. 
+# This script deploys a stack that creates the system artifacts bucket 
 param( [bool]$DeployOnly = $False )
 
 Import-Module powershell-yaml

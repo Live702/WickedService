@@ -1,4 +1,4 @@
-# This script deploys the system into a dev account. 
+# This script deploys a stack that defines the system service 
 param( [bool]$DeployOnly = $False )
 
 Import-Module powershell-yaml

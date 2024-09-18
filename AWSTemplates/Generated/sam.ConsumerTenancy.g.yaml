@@ -123,10 +123,12 @@ Resources:
           AccessControlAllowOrigins:
             Items:
               - !Sub "https://${SubDomainParameter}.${RootDomainParameter}" 
+              - "https://0.0.0.0"
               - !If
                 - IsDev  
                 - !Sub "https://localhost:*"
                 - !Ref AWS::NoValue
+                
               
           AccessControlExposeHeaders:
             Items:
@@ -152,8 +154,8 @@ Resources:
             ContentSecurityPolicy:
               !If
                 - IsDev
-                - !Sub "default-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; img-src data: 'self' https://${SubDomainParameter}.${RootDomainParameter}; script-src 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; style-src-elem 'self' https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; object-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; worker-src 'self' https://${SubDomainParameter}.${RootDomainParameter}; font-src *; connect-src 'self' https://${SubDomainParameter}.${RootDomainParameter} wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
-                - !Sub "default-src 'self'; img-src data: 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; style-src-elem 'self' 'unsafe-inline'; object-src 'self'; worker-src 'self'; font-src *; connect-src 'self' wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
+                - !Sub "default-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter}; img-src data: 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter}; script-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; style-src-elem 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter} 'unsafe-inline'; object-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter}; worker-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter}; font-src *; connect-src 'self' https://0.0.0.0 https://${SubDomainParameter}.${RootDomainParameter} wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
+                - !Sub "default-src 'self' https://0.0.0.0; img-src data: 'self' https://0.0.0.0; script-src 'self' https://0.0.0.0 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://0.0.0.0 'unsafe-inline'; style-src-elem 'self' https://0.0.0.0 'unsafe-inline'; object-src 'self' https://0.0.0.0; worker-src 'self' https://0.0.0.0; font-src *; connect-src 'self' https://0.0.0.0 wss://${WebSocketApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter} https://cognito-idp.${AWS::Region}.amazonaws.com;"
             Override: true
           FrameOptions: # control whether a browser should be allowed to render a page in a <frame>, <iframe>, <embed>, or <object> tag
             FrameOption: DENY
@@ -219,6 +221,14 @@ Resources:
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !Ref RequestFunctionArnParameter
@@ -230,6 +240,14 @@ Resources:
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !Ref RequestFunctionArnParameter
@@ -242,6 +260,14 @@ Resources:
             CachePolicyId: !Ref CachePolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !GetAtt ConfigFunction.FunctionARN
@@ -352,6 +378,46 @@ Resources:
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
                        
+
+
+          - PathPattern: '/*/Tenancy/*'
+            TargetOriginId: TenancyConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: '/*/Assets/*'
+            TargetOriginId: AssetsConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
 
         Origins:
           # Origin serving tenancy config

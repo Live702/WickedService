@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: | 
+  This stack creates the static assets bucket for web applications 
+
+Parameters:
+  GuidParameter:
+    Description: "Guid"
+    Type: String
+  OriginAccessIdentityParameter:
+    Description: "Origin Access Identity"
+    Type: String
+  OriginAccessControlParameter:
+    Description: "Origin Access Control"
+    Type: String
+
+Resources:
+  AppAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'app-assets-${GuidParameter}'
+
+  AppAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AppAssetsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${OriginAccessIdentityParameter}'
+            Action: 
+              - s3:GetObject
+            Resource: !Sub 'arn:aws:s3:::${AppAssetsBucket}/*'
+
+Outputs:
+  AppAssetsBucket:
+    Description: The App Assets Bucket
+    Value: !Ref AppAssetsBucket

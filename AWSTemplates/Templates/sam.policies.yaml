@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: | 
-  This stack creates ubiqutious cloudfront policies and functions 
+  This stack creates ubiqutious cloudfront policies, functions etc. for tenancies
 Parameters:
   GuidParameter:
     Description: "System Guid"
@@ -22,6 +22,20 @@ Conditions:
   IsDev: !Equals [!Ref EnvironmentParameter, "dev"]
 
 Resources:
+  OriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: "OAI for accessing S3 bucket"
+
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: Lzm-OAC
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   Request:  
     Type: AWS::CloudFront::Function
@@ -303,6 +317,13 @@ Resources:
 
 
 Outputs:
+  OriginAccessIdentity:
+    Description: The Origin Access Identity
+    Value:
+      Ref: OriginAccessIdentity
+  OriginAccessControl:
+    Description: The Origin Access Control
+    Value: !GetAtt 'OriginAccessControl.Id'
   CachePolicyId:
     # if IsDev is true, use the Managed-CachingDisabled, otherwise use the Managed-CachingOptimized
     Value: !If [IsDev, 4135ea2d-6df8-44a3-9df3-4b5a84be39ad, 658327ea-f89d-4fab-a63d-7e88639e58f6]

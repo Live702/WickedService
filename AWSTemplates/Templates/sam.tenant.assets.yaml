@@ -3,7 +3,7 @@ Transform:
   - 'AWS::Serverless-2016-10-31'
   - 'AWS::LanguageExtensions'
 Description: | 
-  This sub-stack is used to create tenancy assets
+  This stack is used to create tenancy assets
     This includes
       Tenancy Config bucket
       Tenancy Config Bucket policy

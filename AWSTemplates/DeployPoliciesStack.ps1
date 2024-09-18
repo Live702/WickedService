@@ -1,4 +1,4 @@
-# This script deploys policies used in tenancies
+# This script deploys as stack that creates the policies used in tenancies and webapps
 Import-Module powershell-yaml
 Import-Module AWSPowerShell.NetCore
 

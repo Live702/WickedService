@@ -1,6 +1,6 @@
 # This script deploys a stack defining a tenancy
-# Note: This script is hand coded. We will generate this 
-# script as an Deployment artifact later on.
+# Note: This script is generated. See the template 
+# AWSTemplates/Snippets/DeployTenantsStack.ps1
 # https://docs.aws.amazon.com/powershell/latest/reference/
 param( 
     [Parameter(Mandatory=$true)]
@@ -56,7 +56,7 @@ function ConvertTo-ParameterOverrides {
 }
 
 # Load configuration from YAML file
-$filePath = "..\..\serviceconfig.yaml"
+$filePath = "..\..\..\serviceconfig.yaml"
 if(-not (Test-Path $filePath))
 {
 	Write-Host "Please create a serviceconfig.yaml file above the solution folder."
@@ -92,7 +92,7 @@ $ServiceStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
 
 # Get webapp stack outputs
-$targetStack = $config.SystemName + "-app-buckets"
+$targetStack = $config.SystemName + "-assets-bucket"
 $WebAppStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $WebAppStackOutputDict -Title "Webapps Stack Outputs"
 
@@ -101,8 +101,13 @@ $targetStack = $config.SystemName + "-policies"
 $PolicyStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $PolicyStackOutputDict -Title "Policy Stack Outputs"
 
-$ConfigBucketName = "config-$TenantKey-$SystemGuid"
-$CDNLogBucketName = "cdnlogs-$TenantKey-$SystemGuid"
+# Get app-assets stack outputs 
+$targetStack = $config.SystemName + "-assets-bucket"
+$AppAssetsStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $AppAssetsStackOutputDict -Title "AppAssets Stack Outputs"
+
+# Get webapp stack(s) outputs 
+# WebAppStackOutputs __webappstackoutputs__
 
 # Create the parameters dictionary
 $ParametersDict = @{
@@ -120,29 +125,17 @@ $ParametersDict = @{
     "RequestFunctionArnParameter" = $PolicyStackOutputDict["RequestFunctionArn"]
     "RequestPrefixFunctionArnParameter" = $PolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $PolicyStackOutputDict["ResponseFunctionArn"]
+    "OriginAccessIdentityParameter" = $PolicyStackOutputDict["OriginAccessIdentity"]
+    "OriginAccessControlParameter" = $PolicyStackOutputDict["OriginAccessControl"]
 
-    "OriginAccessIdentityParameter" = $WebAppStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControlParameter" = $WebAppStackOutputDict["OriginAccessControl"]
-    "StoreAppBucketNameParameter" = $WebAppStackOutputDict["StoreAppBucket"]
-    "ConsumerAppBucketNameParameter" = $WebAppStackOutputDict["ConsumerAppBucket"]
-    "AppAssetsBucketNameParameter" = $WebAppStackOutputDict["AppAssetsBucket"]
 
-    "StoreApiIdParameter" = $ServiceStackOutputDict["StoreApiId"]
-    "ConsumerApiIdParameter" = $ServiceStackOutputDict["ConsumerApiId"]
-    "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
-    "WebSocketApiIdParameter" = $ServiceStackOutputDict["WebSocketApiId"]
+    "AppAssetsBucketNameParameter" = $AppAssetsStackOutputDict["AppAssetsBucket"]
 
-    "EmployeeAuthUserPoolNameParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolName"]
-    "EmployeeAuthUserPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolId"]
-    "EmployeeAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolClientId"]
-    "EmployeeAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthIdentityPoolId"]
-    "EmployeeAuthSecurityLevelParameter" = $ServiceStackOutputDict["EmployeeAuthSecurityLevel"]
+    # WebApps __webapps__
 
-    "ConsumerAuthUserPoolNameParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolName"]
-    "ConsumerAuthUserPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolId"]
-    "ConsumerAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolClientId"]
-    "ConsumerAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthIdentityPoolId"]
-    "ConsumerAuthSecurityLevelParameter" = $ServiceStackOutputDict["ConsumerAuthSecurityLevel"]
+    # Apis __apis__
+
+    # Authentications __auths__
 
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"
@@ -150,7 +143,7 @@ $ParametersDict = @{
 $parameters = ConvertTo-ParameterOverrides -parametersDict $ParametersDict
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Generated/sam.StoreTenancy.g.yaml `
+--template-file sam.StoreTenancy.g.yaml `
 --s3-bucket $ArtifactsBucket `
 --stack-name $StackName `
 --parameter-overrides $parameters `

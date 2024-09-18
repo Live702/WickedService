@@ -55,6 +55,14 @@
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !Ref RequestFunctionArnParameter
@@ -66,6 +74,14 @@
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !Ref RequestFunctionArnParameter
@@ -78,6 +94,14 @@
             CachePolicyId: !Ref CachePolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
                 FunctionARN: !GetAtt ConfigFunction.FunctionARN
@@ -86,6 +110,46 @@
 
           # Generated webapp cache behaviors
 #LzCacheBehaviors#         
+
+
+          - PathPattern: '/*/Tenancy/*'
+            TargetOriginId: TenancyConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+          - PathPattern: '/*/Assets/*'
+            TargetOriginId: AssetsConfigOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            CachePolicyId: !Ref CachePolicyIdParameter
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
 
         Origins:
           # Origin serving tenancy config
