@@ -4,26 +4,24 @@ Description: |
   This stack creates the S3 bucket a web application
 
 Parameters:
+  SystemNameParameter:
+    Description: "System Name"
+    Type: String
   AppNameParameter:
     Description: "App Name"
     Type: String
   GuidParameter:
     Description: "Guid"
     Type: String
-  OriginAccessIdentityParameter:
-    Description: "Origin Access Identity"
-    Type: String
-  OriginAccessControlParameter:
-    Description: "Origin Access Control"
-    Type: String
+
 
 Resources:
   AppBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'app-${AppNameParameter}-${GuidParameter}'
+      BucketName: !Sub '${SystemNameParameter}-webapp-${AppNameParameter}-${GuidParameter}'
 
-  StoreAppBucketPolicy:
+  AppBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref AppBucket
@@ -33,12 +31,14 @@ Resources:
           - Sid: AllowCloudFrontRead
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${OriginAccessIdentityParameter}'
+              Service: cloudfront.amazonaws.com
             Action: 
               - s3:GetObject
             Resource: !Sub 'arn:aws:s3:::${AppBucket}/*'
-
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
 Outputs:
   AppBucket:
-    Description: The Store App Bucket
+    Description: The WebApp Bucket
     Value: !Ref AppBucket

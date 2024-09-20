@@ -230,11 +230,20 @@ Directives:
         Template: ./ProjectTemplates/WebApi
 
 
-
 # WEBAPPS
   WebAppDefault:
     Type: WebApp
     IsDefault: true
+
+  AdminApp:
+    Type: WebApp
+    Defaults: WebAppDefault
+    Path: admin
+    Apis:
+    - StoreApi
+    - ConsumerApi
+    - PublicApi
+    - WebSocketApi
 
   StoreApp:
     Type: WebApp
@@ -263,7 +272,15 @@ Directives:
     Artifacts:
       TenancyStack:
         Type: AwsTenancyStackTemplate
-  
+
+  SystemTenancy:
+    Type: Tenancy
+    Defaults: TenancyDefaults
+    WebApps:
+    - AdminApp
+    - StoreApp
+    - ConsumerApp
+
   StoreTenancy:
     Type: Tenancy
     Defaults: TenancyDefaults

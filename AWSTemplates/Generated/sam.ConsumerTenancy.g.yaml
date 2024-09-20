@@ -7,6 +7,10 @@ Description: |
   Note: A sam.teant.assets.yaml stack, for this tenant, must be deployed before this stack
 
 Parameters:
+  SystemNameParameter:
+    Description: "System Name"
+    Type: String
+
   TenantKeyParameter:
     Description: "Tenant Key. No spaces. Lower case."
     Type: String
@@ -59,19 +63,17 @@ Parameters:
   RequestPrefixFunctionArnParameter:
     Type: String
 
-  ResponseFunctionArnParameter:
+  ResponseFunctionArnParameter: 
     Type: String
 
-  # Parameters from WebApp stack outputs
-  OriginAccessIdentityParameter:
+  SystemAssetsBucketNameParameter:
+    Type: String    
+
+  AssetsBucketNameParameter:
+    Type: String    
+
+  CDNLogBucketNameParameter:
     Type: String
-
-  OriginAccessControlParameter:
-    Type: String    
-
-  AppAssetsBucketNameParameter:
-    Type: String    
-
 
   
   ConsumerAppBucketNameParameter:
@@ -165,6 +167,19 @@ Resources:
             Override: true
 
 
+  
+
+
+  MyOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${AWS::StackName}-OAC'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -173,7 +188,7 @@ Resources:
           - !Sub '${SubDomainParameter}.${RootDomainParameter}'
         Comment: !Sub '${AWS::StackName}-${TenantKeyParameter}'
         Logging:
-          Bucket: !Sub 'cdnlogs-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
+          Bucket: !Sub '${CDNLogBucketNameParameter}.s3.amazonaws.com'
           IncludeCookies: false 
           Prefix: !Sub '${TenantKeyParameter}/'
 
@@ -422,14 +437,14 @@ Resources:
         Origins:
           # Origin serving tenancy config
           - Id: TenancyConfigOrigin
-            DomainName: !Sub 'config-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            DomainName: !Sub '${AssetsBucketNameParameter}.s3.amazonaws.com'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
           - Id: AssetsConfigOrigin
-            DomainName: !Sub '${AppAssetsBucketNameParameter}.s3.amazonaws.com'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            DomainName: !Sub '${SystemAssetsBucketNameParameter}.s3.amazonaws.com'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
 
            # LazyMagic generated webapp origins
@@ -437,8 +452,8 @@ Resources:
           - Id: ConsumerApp-Origin
             DomainName: !Sub '${ConsumerAppBucketNameParameter}.s3.amazonaws.com'
             OriginPath: '/wwwroot'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
 
            # LazyMagic generated api origins

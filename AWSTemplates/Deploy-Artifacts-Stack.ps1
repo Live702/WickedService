@@ -29,7 +29,7 @@ if($SystemGuid -like "yourguid")
 
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Templates/sam.artifactsbucket.yaml `
+--template-file Templates/sam.artifacts.yaml `
 --stack-name $StackName `
 --parameter-overrides BucketNameParameter=$BucketName `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `

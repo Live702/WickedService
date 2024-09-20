@@ -5,95 +5,65 @@ Transform:
 Description: | 
   This stack is used to create tenancy assets
     This includes
-      Tenancy Config bucket
-      Tenancy Config Bucket policy
+      Tenancy Assets bucket
+      Tenancy CDNLog Bucket policy
       Tenancy DynamoDb table (note that tables are used like separate databases in DynamoDB)
 
 Parameters:
-  CreateConfigBucketsParameter: 
-    Description: "Create s3 bucket for tenancy config"
+  SystemNameParameter:
+    Description: "System Name"
     Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"
- 
-  CreateCDNLogBucketsParameter: 
-    Description: "Create s3 bucket for CDN Log"
-    Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"  
-
-  CreateTableParameter: 
-    Description: "Create table"
-    Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"
 
   TenantKeyParameter:
     Description: "Tenant Key. No spaces. Lower case."
     Type: String
-    MinLength: '3'
-    MaxLength: '19'
 
   # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
   GuidParameter:
     Description: "GuidParameter"
     Type: String
 
-  OriginAccessIdentityParameter:
-    Type: String
-
-
-Conditions: 
-  CreateConfigBucket: !Equals [!Ref CreateConfigBucketsParameter, "true"]
-  CreateCDNLogBucket: !Equals [!Ref CreateCDNLogBucketsParameter, "true"]
-  CreateTable: !Equals [!Ref CreateTableParameter, "true"]
-
 Resources:
-  ConfigBucket:
+  AssetsBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
-    Condition: CreateConfigBucket 
     Properties:
-      BucketName: !Sub "config-${TenantKeyParameter}-${GuidParameter}"
+      BucketName: !Sub "${SystemNameParameter}-assets-${TenantKeyParameter}-${GuidParameter}"
 
-  ConfigBucketPolicy:
+  AssetsBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Sub "config-${TenantKeyParameter}-${GuidParameter}"
+      Bucket: !Ref AssetsBucket
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
           - Sid: AllowCloudFrontRead
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${OriginAccessIdentityParameter}'
+              Service: cloudfront.amazonaws.com
             Action: 
               - s3:GetObject
-            Resource: !Sub 'arn:aws:s3:::config-${TenantKeyParameter}-${GuidParameter}/*'
+            Resource: !Sub 'arn:aws:s3:::${AssetsBucket}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
 
-  CDNLogsBucket:
+  CDNLogBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
-    Condition: CreateCDNLogBucket
     Properties:
-      BucketName: !Sub "cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+      BucketName: !Sub "${SystemNameParameter}-cdnlog-${TenantKeyParameter}-${GuidParameter}"
       OwnershipControls:
         Rules: 
           - ObjectOwnership: BucketOwnerPreferred   
       AccessControl: LogDeliveryWrite
 
-  CDNLogsBucketPolicy:
+  CDNLogBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Sub "cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+      Bucket: !Ref CDNLogBucket
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -101,7 +71,7 @@ Resources:
             Principal:
               Service: "delivery.logs.amazonaws.com"
             Action: "s3:PutObject"
-            Resource: !Sub "arn:aws:s3:::cdnlogs-${TenantKeyParameter}-${GuidParameter}/*"
+            Resource: !Sub "arn:aws:s3:::${CDNLogBucket}/*"
             Condition:
               StringEquals:
                 "s3:x-amz-acl": "bucket-owner-full-control"
@@ -109,7 +79,7 @@ Resources:
             Principal:
               Service: "delivery.logs.amazonaws.com"
             Action: "s3:GetBucketAcl"
-            Resource: !Sub "arn:aws:s3:::cdnlogs-${TenantKeyParameter}-${GuidParameter}"
+            Resource: !Sub "arn:aws:s3:::${CDNLogBucket}"
 
   # The Tenancy DynamoDb table is used like a separate database in DynamoDB
   # See the LazyMagic documentation for more information on how to use this table
@@ -118,7 +88,6 @@ Resources:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
-    Condition: CreateTable
     Properties:
       TableName: !Ref TenantKeyParameter
       TimeToLiveSpecification:
@@ -232,3 +201,15 @@ Resources:
           - General
           ProjectionType: INCLUDE
 
+Outputs:
+  AssetsBucketName:
+    Description: "Config Bucket Name"
+    Value: !Ref AssetsBucket
+
+  CDNLogBucketName:
+    Description: "CDN Logs Bucket Name"
+    Value: !Ref CDNLogBucket
+
+  TenantDBName:
+    Description: "Tenant DB Name"
+    Value: !Ref TenantDB

@@ -69,7 +69,8 @@ $SystemGuid = $config.SystemGuid
 if(-not $Guid.HasValue) {
 	$Guid = $SystemGuid
 }
-$StackName = $config.SystemName + "-" + $TenantKey
+$SystemName = $config.SystemName
+$StackName = $config.SystemName + "-tenant-" + $TenantKey
 $ArtifactsBucket = $config.SystemName + "-artifacts-" + $config.SystemGuid
 $Profile = $config.Profile
 $Environment = $config.Environment
@@ -91,26 +92,36 @@ $targetStack = $config.SystemName + "-service"
 $ServiceStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
 
-# Get webapp stack outputs
-$targetStack = $config.SystemName + "-assets-bucket"
-$WebAppStackOutputDict = Get-StackOutputs $targetStack
-#Display-OutputDictionary -Dictionary $WebAppStackOutputDict -Title "Webapps Stack Outputs"
-
 # Get policies stack outputs 
 $targetStack = $config.SystemName + "-policies"
 $PolicyStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $PolicyStackOutputDict -Title "Policy Stack Outputs"
 
-# Get app-assets stack outputs 
-$targetStack = $config.SystemName + "-assets-bucket"
-$AppAssetsStackOutputDict = Get-StackOutputs $targetStack
-#Display-OutputDictionary -Dictionary $AppAssetsStackOutputDict -Title "AppAssets Stack Outputs"
+# Get sytem assets stack outputs 
+$targetStack = $config.SystemName + "-assets-system"
+$SystemAssetsStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $SystemAssetsStackOutputDict -Title "Assets-system Stack Outputs"
+
+# Get tenant assets stack outputs 
+$targetStack = $config.SystemName + "-assets-" + $TenantKey
+$AssetsStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $AssetsStackOutputDict -Title "Assets-$TenantKey Stack Outputs"
+
 
 # Get webapp stack(s) outputs 
-# WebAppStackOutputs __webappstackoutputs__
+# WebAppStackOutputs 
+$targetStack = $config.SystemName + "-webapp-storeapp" 
+$StoreAppStackOutputDict = Get-StackOutputs $targetStack
+Display-OutputDictionary -Dictionary $StoreAppStackOutputDict -Title "storeapp Stack Outputs"
+                    
+$targetStack = $config.SystemName + "-webapp-consumerapp" 
+$ConsumerAppStackOutputDict = Get-StackOutputs $targetStack
+Display-OutputDictionary -Dictionary $ConsumerAppStackOutputDict -Title "storeapp Stack Outputs"
+                    
 
 # Create the parameters dictionary
 $ParametersDict = @{
+    "SystemNameParameter" = $SystemName
     "TenantKeyParameter" = $TenantKey
     "SubDomainParameter" = $SubDomain
     "GuidParameter" = $Guid
@@ -125,17 +136,40 @@ $ParametersDict = @{
     "RequestFunctionArnParameter" = $PolicyStackOutputDict["RequestFunctionArn"]
     "RequestPrefixFunctionArnParameter" = $PolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $PolicyStackOutputDict["ResponseFunctionArn"]
-    "OriginAccessIdentityParameter" = $PolicyStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControlParameter" = $PolicyStackOutputDict["OriginAccessControl"]
+
+    "SystemAssetsBucketNameParameter" = $SystemAssetsStackOutputDict["AssetsBucketName"]
+    "AssetsBucketNameParameter" = $AssetsStackOutputDict["AssetsBucketName"]
+    "CDNLogBucketNameParameter" = $SystemAssetsStackOutputDict["CDNLogBucketName"]
+
+    # WebApps 
+    "StoreAppBucketNameParameter" = $StoreAppStackOutputDict["AppBucket"]
+
+    "ConsumerAppBucketNameParameter" = $ConsumerAppStackOutputDict["AppBucket"]
 
 
-    "AppAssetsBucketNameParameter" = $AppAssetsStackOutputDict["AppAssetsBucket"]
+    # Apis 
+    "StoreApiIdParameter" = $ServiceStackOutputDict["StoreApiId"]
 
-    # WebApps __webapps__
+    "ConsumerApiIdParameter" = $ServiceStackOutputDict["ConsumerApiId"]
 
-    # Apis __apis__
+    "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
 
-    # Authentications __auths__
+    "WebSocketApiIdParameter" = $ServiceStackOutputDict["WebSocketApiId"]
+
+
+    # Authentications 
+    "EmployeeAuthUserPoolNameParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolName"]
+    "EmployeeAuthUserPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolId"]
+    "EmployeeAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolClientId"]
+    "EmployeeAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthIdentityPoolId"]
+    "EmployeeAuthSecurityLevelParameter" = $ServiceStackOutputDict["EmployeeAuthSecurityLevel"]
+
+    "ConsumerAuthUserPoolNameParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolName"]
+    "ConsumerAuthUserPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolId"]
+    "ConsumerAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolClientId"]
+    "ConsumerAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthIdentityPoolId"]
+    "ConsumerAuthSecurityLevelParameter" = $ServiceStackOutputDict["ConsumerAuthSecurityLevel"]
+
 
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"

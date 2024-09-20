@@ -10,7 +10,10 @@ This set of templates describes a system where we have two tenancy types:
 ## LazyMagic MDD
 LazyMagic MDD generates SAM (Serverless Application Model) templates from the LazyMagic.yaml directives file and template snippets from the AWSTemplates/Snippets folder. 
 
-The stacks generated into ```AWSTemplates/Generated``` include:
+The stacks and scripts generated into ```AWSTemplates/Generated``` include:
+- Deploy-Tenancy-ConsumerTenancy-Stack.g.ps1
+- Deploy-Tenancy-StoreTenancy-Stack.g.ps1
+- Deploy-Tenancy-SystemTenancy-Stack.g.ps1
 - sam.Service.g.yaml 
 - sam.StoreTenancy.g.yaml
 - sam.ConsumerTenancy.g.yaml
@@ -19,18 +22,24 @@ The stacks generated into ```AWSTemplates/Generated``` include:
 In addition to generated snippets, the ```AWSTemplates\Templates``` folder contains these standard templates:
 - sam.artifactsbucket.yaml
 - sam.policies.yaml
-- sam.webappbuckets.yaml
 - sam.tenant.assets.yaml
+- sam.webappassetsbucket.yaml
+- sam.webappbucket.yaml
+
 
 ## Deployment Scripts
-The following PowerShell scripts are provided, in the ```AWSTemplates``` folder, to deploy the system, run them in this order:
-- DeployArtifactsStack.ps1
-- DeployServiceStack.ps1
-- DeployPoliciesStack.ps1
-- DeployWebAppBucketsStack.ps1
-- DeployTenantAssetsStack.ps1  // deploy once for each tenant.
-- DeployStoreTenanctStack.ps1  // deploy once for each tenant. 
-- DeployConsumerTeantStack.ps1 
+The following scripts are provided, in the ```AWSTemplates``` folder, to deploy the system:
+- Deploy-Artifacts-Stack.ps1
+- Deploy-Assets-Stack.ps1
+- Deploy-Policies-Stack.ps1
+- Deploy-Service-Stack.ps1
+- Deploy-WebApp-Stack.ps1
+
+
+The following PowerShell scripts are generated into the ```AWSTemplates\Generated``` folder:
+- Generated/Deploy-Tenancy-StoreTenancy-Stack.g.ps1  // deploy once for each store. 
+- Generated/Deploy-Tenancy-SystemTenancy-Stack.g.ps1 
+- Generated/Deploy-Tenancy-ConsumerTenancy-Stack.g.ps1 
 
 
 ## Setting Expectations
@@ -47,25 +56,21 @@ The policies provided in the templates may be too permissive for some use cases.
 To deploy the system, follow these steps:
 1. Create and update the serviceconfig.yaml file in the folder above the solution folder.
 2. cd into the AWSTemplates folder.
-3. ```.\DeployArtifactsStack.ps1``` -- creates the S3 bucket for the lambda artifacts.
-4. ```.\DeployServiceStack.ps1``` -- creates the APIs, Lambdas, Cognito User Pools, and Identity Pools.
-5. ```.\DeployPoliciesStack.ps1``` -- creates the policies used throughout the system.
-6. ```.\DeployWebAppBucketsStack.ps1``` -- creates the S3 buckets for the web applications.
-7. ```.\DeployTenantAssetsStack.ps1 -TenantKey uptown``` -- creates the S3 bucket for the uptown tenant.
-8. ```.\DeployStoreTenantStack.ps1 -TenantKey uptown -SubDomain uptown``` -- creates the CloudFront distribution for the uptown tenant.
-9. ```.\DeployTenantAssetsStack.ps1 -TenantKey downtown``` -- creates the S3 bucket for the downtown tenant.
-10. ```.\DeployStoreTenantStack.ps1 -TenantKey downtown -SubDomain downtown``` -- creates the CloudFront distribution for the downtown tenant.
-11. ```.\DeployTenantAssetsStack.ps1 -TenantKey consumer``` -- creates the S3 bucket for the consumer tenant.
-12. ```.\DeployConsumerTenantStack.ps1 -TenantKey consumer ``` -- creates the CloudFront distribution for the consumer tenant.
-
-## Notes
-Currently, the folowing templates and scripts must be manually updated to reflect changes in the LazyMagic.yaml file:
-- sam.webappbuckets.yaml
-- DeployWebAppStack.ps1
-- DeployStoreTenantStack.ps1
-- DeployConsumerTenantStack.ps1
-
-LazyMagic MDD will be updated to generate these files when time permits.
+3. ```.\Deploy-Artifacts-Stack.ps1``` -- creates the S3 bucket for the lambda artifacts.
+4. ```.\Deploy-Service-Stack.ps1``` -- creates the APIs, Lambdas, Cognito User Pools, and Identity Pools.
+5. ```.\Deploy-Policies-Stack.ps1``` -- creates the policies used throughout the system.
+6. ```.\Deploy-WebApp-Stack.ps1 -AppName storeapp``` -- creates the storeapp S3 bucket.
+7. ```.\Deploy-WebApp-Stack.ps1 -AppName consumerapp``` -- creates the consumerapp S3 bucket.
+8. ```.\Deploy-WebApp-Stack.ps1 -AppName adminapp``` -- creates the adminapp S3 bucket.
+9. ```.\Deploy-Assets-Stack.ps1 -TenantKey uptown``` -- creates the S3 bucket for the uptown tenant.
+10. ```.\Deploy-Assets-Stack.ps1 -TenantKey downtown``` -- creates the S3 bucket for the downtown tenant.
+11. ```.\Deploy-Assets-Stack.ps1 -TenantKey consumer``` -- creates the S3 bucket for the consumer tenant.
+12. ```.\Deploy-Assets-Stack.ps1 -TenantKey system``` -- creates the S3 bucket for the system tenant.
+13. ```cd to the Generated folder```
+14. ```.\Deploy-Tenant-StoreTenancy-Stack.ps1 -TenantKey uptown -SubDomain uptown``` -- creates the CloudFront distribution for the downtown tenant.
+15. ```.\Deploy-Tenant-StoreTenantcy-Stack.ps1 -TenantKey downtown -SubDomain downtown``` -- creates the CloudFront distribution for the downtown tenant.
+16. ```.\Deploy-Tenant-ConsumerTenantcy-Stack.ps1 -TenantKey consumer -SubDomain app``` -- creates the CloudFront distribution for the consumer tenant.
+17. ```.\Deploy-Tenant-SystemTenantcy-Stack.ps1 -TenantKey system -SubDomain admin``` -- creates the CloudFront distribution for the system tenant.
 
 
 ## CORS and CSP

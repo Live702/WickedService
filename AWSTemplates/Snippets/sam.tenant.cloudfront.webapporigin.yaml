@@ -2,5 +2,5 @@
           - Id: __OriginId__
             DomainName: !Sub '${__WebAppBucket__}.s3.amazonaws.com'
             OriginPath: '/wwwroot'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl

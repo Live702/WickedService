@@ -1,4 +1,4 @@
-# This script deploys a StoreTenancy assets stack
+# This script deploys a Tenancy assets stack
 # Note: This script is static. It is not generated.
 # https://docs.aws.amazon.com/powershell/latest/reference/
 param( 
@@ -27,39 +27,6 @@ function Display-OutputDictionary {
     Write-Host "------------------------`n" -ForegroundColor Cyan
 }
 
-function Get-StackOutputs {
-	param (
-	    [string]$SourceStackName
-        )
-
-    $stack = Get-CFNStack -StackName $SourceStackName -ProfileName $Profile
-    $outputDictionary = @{}
-    foreach($output in $stack.Outputs) {
-        $outputDictionary[$output.OutputKey] = $output.OutputValue
-    }
-    return $outputDictionary
-}
-
-function CreateBucket {
-	param (
-		[string]$BucketName
-	)
-	$bucket = Get-S3Bucket -BucketName $BucketName -ProfileName $Profile -ErrorAction SilentlyContinue
-	if ($bucket -ne $null) { return 'false' }
-    return 'true'
-}
-
-function CreateTable {
-	param (
-		[string]$TableName
-	)
-    try {
-	    $table = Get-DDBTable -TableName $TableName -ProfileName $Profile -ErrorAction SilentlyContinue
-	    return 'false'
-    } catch {
-		return 'true'
-	}
-}
 
 function ConvertTo-ParameterOverrides {
     param ([hashtable]$parametersDict)
@@ -85,8 +52,10 @@ $SystemGuid = $config.SystemGuid
 if(-not $Guid.HasValue) {
 	$Guid = $SystemGuid
 }
-$StackName = $config.SystemName + "-" + $TenantKey + "-assets"
+$SystemName = $config.SystemName
+$StackName = $SystemName + "-assets-" + $TenantKey
 $Profile = $config.Profile
+
 
 if($SystemGuid -like "yourguid")
 {
@@ -94,29 +63,12 @@ if($SystemGuid -like "yourguid")
 	exit
 }
 
-#Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
-# Get policy stack outputs
-$targetStack = $config.SystemName + "-policies"
-$PoliciesStackOutputDict = Get-StackOutputs $targetStack
-
-$ConfigBucketName = "config-$TenantKey-$SystemGuid"
-$CreateConfigBucket = CreateBucket($ConfigBucketName)
-$CreateCDNLogBucketName = "cdnlogs-$TenantKey-$SystemGuid"
-$CreateCDNLogBucket = CreateBucket($CreateCDNLogBucketName)
-$CreateTable = CreateTable($TenantKey)
 
 # Create the parameters dictionary
 $ParametersDict = @{
-    "CreateConfigBucketsParameter" = $CreateConfigBucket
-    "CreateCDNLogBucketParameter" = $CreateCDNLogBucket
-    "CreateTableParameter" = $CreateTable
+    "SystemNameParameter" = $SystemName
     "TenantKeyParameter" = $TenantKey
     "GuidParameter" = $Guid
-    "RootDomainParameter" = $RootDomain
-    "EnvironmentParameter" = $Environment
-    "OriginAccessIdentityParameter" = $PoliciesStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControl" = $PoliciesStackOutputDict["OriginAccessControl"]
-
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"
 
@@ -125,7 +77,7 @@ Write-Host $parameters
 
 #Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Templates/sam.tenant.assets.yaml `
+--template-file Templates/sam.assets.yaml `
 --stack-name $StackName `
 --parameter-overrides $parameters `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `

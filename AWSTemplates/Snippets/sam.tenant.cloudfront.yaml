@@ -1,4 +1,17 @@
 
+  
+
+
+  MyOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${AWS::StackName}-OAC'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -7,7 +20,7 @@
           - !Sub '${SubDomainParameter}.${RootDomainParameter}'
         Comment: !Sub '${AWS::StackName}-${TenantKeyParameter}'
         Logging:
-          Bucket: !Sub 'cdnlogs-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
+          Bucket: !Sub '${CDNLogBucketNameParameter}.s3.amazonaws.com'
           IncludeCookies: false 
           Prefix: !Sub '${TenantKeyParameter}/'
 
@@ -154,14 +167,14 @@
         Origins:
           # Origin serving tenancy config
           - Id: TenancyConfigOrigin
-            DomainName: !Sub 'config-${TenantKeyParameter}-${GuidParameter}.s3.amazonaws.com'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            DomainName: !Sub '${AssetsBucketNameParameter}.s3.amazonaws.com'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
           - Id: AssetsConfigOrigin
-            DomainName: !Sub '${AppAssetsBucketNameParameter}.s3.amazonaws.com'
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${OriginAccessIdentityParameter}'
+            DomainName: !Sub '${SystemAssetsBucketNameParameter}.s3.amazonaws.com'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
 
            # LazyMagic generated webapp origins

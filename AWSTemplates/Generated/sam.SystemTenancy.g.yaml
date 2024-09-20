@@ -76,6 +76,8 @@ Parameters:
     Type: String
 
   
+  AdminAppBucketNameParameter:
+    Type: String  
   StoreAppBucketNameParameter:
     Type: String  
   ConsumerAppBucketNameParameter:
@@ -469,6 +471,48 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
+              
+          - PathPattern: /admin/*
+            TargetOriginId: AdminApp-Origin
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ViewerProtocolPolicy: 'redirect-to-https'   
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
+              
+          - PathPattern: /admin
+            TargetOriginId: AdminApp-Origin
+            CachePolicyId: !Ref CachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ViewerProtocolPolicy: 'redirect-to-https'   
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
                        
 
 
@@ -525,6 +569,12 @@ Resources:
 
 
            # LazyMagic generated webapp origins
+
+          - Id: AdminApp-Origin
+            DomainName: !Sub '${AdminAppBucketNameParameter}.s3.amazonaws.com'
+            OriginPath: '/wwwroot'
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref MyOriginAccessControl
 
           - Id: StoreApp-Origin
             DomainName: !Sub '${StoreAppBucketNameParameter}.s3.amazonaws.com'
@@ -715,6 +765,8 @@ Resources:
                 <div class="container">
                     <h1>Welcome to My Apps</h1>
                     <div class="links">
+
+                        <a href='/admin'>AdminApp App</a>
 
                         <a href='/store'>StoreApp App</a>
 

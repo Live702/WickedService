@@ -1,6 +1,6 @@
 # This script deploys a stack defining a tenancy
-# Note: This script is hand coded. We will generate this 
-# script as an Deployment artifact later on.
+# Note: This script is generated. See the template 
+# AWSTemplates/Snippets/DeployTenantsStack.ps1
 # https://docs.aws.amazon.com/powershell/latest/reference/
 param( 
     [Parameter(Mandatory=$true)]
@@ -56,7 +56,7 @@ function ConvertTo-ParameterOverrides {
 }
 
 # Load configuration from YAML file
-$filePath = "..\..\serviceconfig.yaml"
+$filePath = "..\..\..\serviceconfig.yaml"
 if(-not (Test-Path $filePath))
 {
 	Write-Host "Please create a serviceconfig.yaml file above the solution folder."
@@ -69,7 +69,8 @@ $SystemGuid = $config.SystemGuid
 if(-not $Guid.HasValue) {
 	$Guid = $SystemGuid
 }
-$StackName = $config.SystemName + "-" + $TenantKey
+$SystemName = $config.SystemName
+$StackName = $config.SystemName + "-tenant-" + $TenantKey
 $ArtifactsBucket = $config.SystemName + "-artifacts-" + $config.SystemGuid
 $Profile = $config.Profile
 $Environment = $config.Environment
@@ -91,21 +92,32 @@ $targetStack = $config.SystemName + "-service"
 $ServiceStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
 
-# Get webapp stack outputs
-$targetStack = $config.SystemName + "-app-buckets"
-$WebAppStackOutputDict = Get-StackOutputs $targetStack
-#Display-OutputDictionary -Dictionary $WebAppStackOutputDict -Title "Webapps Stack Outputs"
-
 # Get policies stack outputs 
 $targetStack = $config.SystemName + "-policies"
 $PolicyStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $PolicyStackOutputDict -Title "Policy Stack Outputs"
 
-$ConfigBucketName = "config-$TenantKey-$SystemGuid"
-$CDNLogBucketName = "cdnlogs-$TenantKey-$SystemGuid"
+# Get sytem assets stack outputs 
+$targetStack = $config.SystemName + "-assets-system"
+$SystemAssetsStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $SystemAssetsStackOutputDict -Title "Assets-system Stack Outputs"
+
+# Get tenant assets stack outputs 
+$targetStack = $config.SystemName + "-assets-" + $TenantKey
+$AssetsStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $AssetsStackOutputDict -Title "Assets-$TenantKey Stack Outputs"
+
+
+# Get webapp stack(s) outputs 
+# WebAppStackOutputs 
+$targetStack = $config.SystemName + "-webapp-consumerapp" 
+$ConsumerAppStackOutputDict = Get-StackOutputs $targetStack
+Display-OutputDictionary -Dictionary $ConsumerAppStackOutputDict -Title "storeapp Stack Outputs"
+                    
 
 # Create the parameters dictionary
 $ParametersDict = @{
+    "SystemNameParameter" = $SystemName
     "TenantKeyParameter" = $TenantKey
     "SubDomainParameter" = $SubDomain
     "GuidParameter" = $Guid
@@ -121,28 +133,29 @@ $ParametersDict = @{
     "RequestPrefixFunctionArnParameter" = $PolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $PolicyStackOutputDict["ResponseFunctionArn"]
 
-    "OriginAccessIdentityParameter" = $WebAppStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControlParameter" = $WebAppStackOutputDict["OriginAccessControl"]
-    "StoreAppBucketNameParameter" = $WebAppStackOutputDict["StoreAppBucket"]
-    "ConsumerAppBucketNameParameter" = $WebAppStackOutputDict["ConsumerAppBucket"]
-    "AppAssetsBucketNameParameter" = $WebAppStackOutputDict["AppAssetsBucket"]
+    "SystemAssetsBucketNameParameter" = $SystemAssetsStackOutputDict["AssetsBucketName"]
+    "AssetsBucketNameParameter" = $AssetsStackOutputDict["AssetsBucketName"]
+    "CDNLogBucketNameParameter" = $SystemAssetsStackOutputDict["CDNLogBucketName"]
 
-    "StoreApiIdParameter" = $ServiceStackOutputDict["StoreApiId"]
+    # WebApps 
+    "ConsumerAppBucketNameParameter" = $ConsumerAppStackOutputDict["AppBucket"]
+
+
+    # Apis 
     "ConsumerApiIdParameter" = $ServiceStackOutputDict["ConsumerApiId"]
+
     "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
+
     "WebSocketApiIdParameter" = $ServiceStackOutputDict["WebSocketApiId"]
 
-    "EmployeeAuthUserPoolNameParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolName"]
-    "EmployeeAuthUserPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolId"]
-    "EmployeeAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolClientId"]
-    "EmployeeAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["EmployeeAuthIdentityPoolId"]
-    "EmployeeAuthSecurityLevelParameter" = $ServiceStackOutputDict["EmployeeAuthSecurityLevel"]
 
+    # Authentications 
     "ConsumerAuthUserPoolNameParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolName"]
     "ConsumerAuthUserPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolId"]
     "ConsumerAuthUserPoolClientIdParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolClientId"]
     "ConsumerAuthIdentityPoolIdParameter" = $ServiceStackOutputDict["ConsumerAuthIdentityPoolId"]
     "ConsumerAuthSecurityLevelParameter" = $ServiceStackOutputDict["ConsumerAuthSecurityLevel"]
+
 
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"
@@ -150,7 +163,7 @@ $ParametersDict = @{
 $parameters = ConvertTo-ParameterOverrides -parametersDict $ParametersDict
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Generated/sam.StoreTenancy.g.yaml `
+--template-file sam.StoreTenancy.g.yaml `
 --s3-bucket $ArtifactsBucket `
 --stack-name $StackName `
 --parameter-overrides $parameters `

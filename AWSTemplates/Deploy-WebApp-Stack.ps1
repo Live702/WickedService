@@ -16,18 +16,19 @@ if(-not (Test-Path $filePath))
 }
 
 $config = Get-Content -Path $filePath | ConvertFrom-Yaml
-$SystemGuid = $config.SystemGuid
-if(-not $Guid.HasValue) {
-	$Guid = $SystemGuid
-}
-$StackName = $config.SystemName + "-" + $AppName + "-webappbucket"
-$Profile = $config.Profile
-
 if($SystemGuid -like "yourguid")
 {
 	Write-Host "Please update the serviceconfig.yaml file with your system guid"
 	exit
 }
+
+$SystemGuid = $config.SystemGuid
+if(-not $Guid.HasValue) {
+	$Guid = $SystemGuid
+}
+$SystemName = $config.SystemName
+$StackName = $systemName + "-webapp-" + $AppName
+$Profile = $config.Profile
 
 function ConvertTo-ParameterOverrides {
     param ([hashtable]$parametersDict)
@@ -39,36 +40,18 @@ function ConvertTo-ParameterOverrides {
     return $overrides -join " "
 }
 
-function Get-StackOutputs {
-	param (
-	    [string]$SourceStackName
-        )
-
-    $stack = Get-CFNStack -StackName $SourceStackName -ProfileName $Profile
-    $outputDictionary = @{}
-    foreach($output in $stack.Outputs) {
-        $outputDictionary[$output.OutputKey] = $output.OutputValue
-    }
-    return $outputDictionary
-}
-
-# Get the stack outputs from the Policies Stack
-$targetStack = $config.SystemName + "-policies"
-$PoliciesStackOutputDict = Get-StackOutputs $targetStack
-
 # Create the parameters dictionary
 $ParametersDict = @{
+    "SystemNameParameter" = $SystemName
     "AppNameParameter" = $AppName
     "GuidParameter" = $Guid
-    "OriginAccessIdentityParameter" = $PoliciesStackOutputDict["OriginAccessIdentity"]
-    "OriginAccessControlParameter" = $PoliciesStackOutputDict["OriginAccessControl"]
 }
 $parameters = ConvertTo-ParameterOverrides -parametersDict $ParametersDict
 
 
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Templates/sam.webappbucket.yaml `
+--template-file Templates/sam.webapp.yaml `
 --stack-name $StackName `
 --parameter-overrides $parameters `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `
