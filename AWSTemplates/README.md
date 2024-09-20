@@ -3,9 +3,11 @@ This project provides a set of AWS CloudFormation SAM templates that can be used
 
 The templates are organized to support the incremental deployment of multiple tenancies in a CI/CD pipeline and to support  deployment to a dev environment.
 
-This set of templates describes a system where we have two tenancy types:
-- Store
+This set of templates describes a system where we have these tenancy types:
 - Consumer
+- Store
+- System
+
 
 ## LazyMagic MDD
 LazyMagic MDD generates SAM (Serverless Application Model) templates from the LazyMagic.yaml directives file and template snippets from the AWSTemplates/Snippets folder. 
