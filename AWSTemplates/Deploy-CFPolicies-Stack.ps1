@@ -23,10 +23,11 @@ if(-not (Test-Path $filePath))
 	Write-Host "Copy the serviceconfig.yaml.template file and update the values in the new file."
 	exit
 }
-
 $config = Get-Content -Path $filePath | ConvertFrom-Yaml
+
+$SystemName = $config.SystemName
 $SystemGuid = $config.SystemGuid
-$StackName = $config.SystemName + "-policies"
+$StackName = $SystemName + "-cfpolicies" 
 $Profile = $config.Profile
 $Environment = $config.Environment
 
@@ -43,9 +44,9 @@ $WebSocketApiIdParameter = $ServiceStackOutputDict["WebSocketApiId"]
 
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file Templates/sam.policies.yaml `
+--template-file Templates/sam.cfpolicies.yaml `
 --stack-name $StackName `
---parameter-overrides GuidParameter=$SystemGuid EnvironmentParameter=$Environment WebSocketApiIdParameter=$WebSocketApiIdParameter `
+--parameter-overrides SystemName=$SystemName GuidParameter=$SystemGuid EnvironmentParameter=$Environment WebSocketApiIdParameter=$WebSocketApiIdParameter `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `
 --profile $Profile 
 

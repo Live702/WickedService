@@ -1,7 +1,8 @@
   LandingPageFunction:
     Type: AWS::CloudFront::Function
-    Properties:
-      Name: !Sub landingpage-${TenantKeyParameter}-${GuidParameter}
+    DependsOn: ConfigFunction
+    Properties:               
+      Name: !Sub ${SystemNameParameter}-lndpg-${TenantKeyParameter}-${GuidParameter}
       FunctionCode: 
         Fn::Sub: |
             function handler(event) {

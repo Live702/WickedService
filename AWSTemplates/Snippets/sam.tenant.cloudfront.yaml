@@ -1,15 +1,13 @@
 
-  
-
-
-  MyOriginAccessControl:
+  OriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
       OriginAccessControlConfig:
-        Name: !Sub '${AWS::StackName}-OAC'
+        Name: !Sub ${SystemNameParameter}-oac-${GuidParameter}
+        Description: 'Origin Access Control for S3'
         OriginAccessControlOriginType: s3
         SigningBehavior: always
-        SigningProtocol: sigv4
+        SigningProtocol: sigv4  
 
 
   CloudFrontDistribution:
@@ -35,7 +33,7 @@
           SslSupportMethod: 'sni-only'
 
         DefaultCacheBehavior: 
-          TargetOriginId: TenancyConfigOrigin
+          TargetOriginId: TenancyAssetsOrigin
           ViewerProtocolPolicy: 'redirect-to-https'
           CachePolicyId: !Ref CachePolicyIdParameter
           OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
@@ -64,7 +62,7 @@
         CacheBehaviors:
 
           - PathPattern: '/Tenancy/*'
-            TargetOriginId: TenancyConfigOrigin
+            TargetOriginId: TenancyAssetsOrigin
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -82,8 +80,8 @@
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-          - PathPattern: '/Assets/*'
-            TargetOriginId: AssetsConfigOrigin
+          - PathPattern: '/System/*'
+            TargetOriginId: SystemAssetsOrigin
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -102,7 +100,7 @@
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
           - PathPattern: '/config'
-            TargetOriginId: TenancyConfigOrigin
+            TargetOriginId: TenancyAssetsOrigin
             ViewerProtocolPolicy: 'redirect-to-https'
             CachePolicyId: !Ref CachePolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
@@ -126,7 +124,7 @@
 
 
           - PathPattern: '/*/Tenancy/*'
-            TargetOriginId: TenancyConfigOrigin
+            TargetOriginId: TenancyAssetsOrigin
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -144,8 +142,8 @@
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
-          - PathPattern: '/*/Assets/*'
-            TargetOriginId: AssetsConfigOrigin
+          - PathPattern: '/*/System/*'
+            TargetOriginId: SystemAssetsOrigin
             ViewerProtocolPolicy: 'redirect-to-https'
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             CachePolicyId: !Ref CachePolicyIdParameter
@@ -166,15 +164,15 @@
 
         Origins:
           # Origin serving tenancy config
-          - Id: TenancyConfigOrigin
+          - Id: TenancyAssetsOrigin
             DomainName: !Sub '${AssetsBucketNameParameter}.s3.amazonaws.com'
             S3OriginConfig: {}
-            OriginAccessControlId: !Ref MyOriginAccessControl
+            OriginAccessControlId: !Ref OriginAccessControl
 
-          - Id: AssetsConfigOrigin
+          - Id: SystemAssetsOrigin
             DomainName: !Sub '${SystemAssetsBucketNameParameter}.s3.amazonaws.com'
             S3OriginConfig: {}
-            OriginAccessControlId: !Ref MyOriginAccessControl
+            OriginAccessControlId: !Ref OriginAccessControl
 
 
            # LazyMagic generated webapp origins

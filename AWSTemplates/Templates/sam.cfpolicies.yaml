@@ -1,8 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+
 Description: | 
   This stack creates ubiqutious cloudfront policies, functions etc. for tenancies
 Parameters:
+  SystemName:
+    Description: "System Name"
+    Type: String
   GuidParameter:
     Description: "System Guid"
     Type: String
@@ -23,11 +26,10 @@ Conditions:
 
 Resources:
 
-
   Request:  
     Type: AWS::CloudFront::Function
     Properties:
-      Name: !Sub request-${GuidParameter}
+      Name: !Sub ${SystemName}-req-${GuidParameter}
       FunctionCode: |
         function handler(event) {
             var request = event.request;
@@ -41,9 +43,9 @@ Resources:
 
   RequestDev:  
     Type: AWS::CloudFront::Function
-    DependsOn: Request
+    DependsOn: Request 
     Properties:
-      Name: !Sub request-dev-${GuidParameter}
+      Name: !Sub ${SystemName}-req-dev-${GuidParameter}
       FunctionCode: |
         function handler(event) {
           var request = event.request;
@@ -82,9 +84,9 @@ Resources:
   # Return a 204 for preflight requests when in development mode and remove the prefix from the URI
   RequestPrefixDev:  
     Type: AWS::CloudFront::Function
-    DependsOn: RequestDev 
+    DependsOn: RequestDev # avoides rate limit on function creation
     Properties:
-      Name: !Sub request-prefix-dev-${GuidParameter}
+      Name: !Sub ${SystemName}-req-prefix-dev-${GuidParameter}
       FunctionCode: |
         function handler(event) {
             var request = event.request;
@@ -127,9 +129,9 @@ Resources:
 
   RequestPrefix:  
     Type: AWS::CloudFront::Function
-    DependsOn: RequestPrefixDev
+    DependsOn: RequestPrefixDev # avoides rate limit on function creation
     Properties:
-      Name: !Sub request-prefix-${GuidParameter}
+      Name: !Sub ${SystemName}-req-prefix-${GuidParameter}
       FunctionCode: |
         function handler(event) {
             var request = event.request;
@@ -146,9 +148,9 @@ Resources:
   
   ResponseDev:  
     Type: AWS::CloudFront::Function
-    DependsOn: RequestPrefix
+    DependsOn: RequestPrefix # avoides rate limit on function creation
     Properties:
-      Name: !Sub response-dev-${GuidParameter}
+      Name: !Sub ${SystemName}-rsp-dev-${GuidParameter}
       FunctionCode: 
         Fn::Sub: |
             function handler(event) {
@@ -163,9 +165,9 @@ Resources:
 
   Response:  
     Type: AWS::CloudFront::Function
-    DependsOn: ResponseDev
+    DependsOn: ResponseDev # avoides rate limit on function creation
     Properties:
-      Name: !Sub response-${GuidParameter}
+      Name: !Sub ${SystemName}-rsp-${GuidParameter}
       FunctionCode: 
         Fn::Sub: |
             function handler(event) {
@@ -182,7 +184,7 @@ Resources:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Properties:
       ResponseHeadersPolicyConfig:
-        Name: !Sub ResponseHeadersPolicy-${GuidParameter}
+        Name: !Sub ${SystemName}-RspHeadersPlcy-${GuidParameter}
         CorsConfig:
           AccessControlAllowCredentials: false # must be false when AccessControlAllowOrigins, AccessControlAllowHeaders, or AccessControlAllowMethods is '*'
           AccessControlAllowHeaders:
@@ -257,7 +259,7 @@ Resources:
   #   Type: AWS::CloudFront::CachePolicy
   #   Properties:
   #     CachePolicyConfig:
-  #       Name: !Sub DevCachePolicy-${GuidParameter}
+  #       Name: !Sub ${AWS::StackName}-DevCachePlcy-${GuidParameter}
   #       DefaultTTL: 1
   #       MaxTTL: 1
   #       MinTTL: 1
@@ -285,8 +287,8 @@ Resources:
     Type: AWS::CloudFront::OriginRequestPolicy
     Properties:
       OriginRequestPolicyConfig:
-        Name: !Sub WebsocketOriginRequestPolicy-${GuidParameter}
-        Comment: "Forward necessary headers for WebSocket connections"
+        Name: !Sub ${SystemName}-WSOrignReqPlcy-${GuidParameter}
+        Comment: "OriginRequestPolciy - Forward necessary headers for WebSocket connections"
         HeadersConfig:
           HeaderBehavior: whitelist
           Headers:

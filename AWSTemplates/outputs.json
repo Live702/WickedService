@@ -1,16 +1,16 @@
 {
-  "EmployeeAuthUserPoolClientId": "1babkra3o51ncqd0949kimldej",
+  "ConsumerAuthUserPoolClientId": "78gq2rq7d2vmc02afv2jrd572a",
+  "EmployeeAuthUserPoolClientId": "3ah4vgmdudmimmmbc6ofctgllv",
   "ConsumerAuthIdentityPoolId": "",
-  "ConsumerAuthUserPoolName": "ConsumerAuth",
   "ConsumerAuthSecurityLevel": "1",
+  "ConsumerApiId": "hmff5ughhj",
+  "EmployeeAuthUserPoolId": "us-west-2_zDfiynQu8",
+  "ConsumerAuthUserPoolName": "ConsumerAuth",
+  "WebSocketApiId": "6imiwlfwq4",
+  "StoreApiId": "joraui352g",
+  "ConsumerAuthUserPoolId": "us-west-2_Zg4owXxGn",
   "EmployeeAuthSecurityLevel": "1",
-  "ConsumerApiId": "1xf87sszy8",
-  "StoreApiId": "dyz9gkdf0b",
-  "EmployeeAuthUserPoolId": "us-west-2_PJdyR44Oq",
-  "EmployeeAuthIdentityPoolId": "",
-  "ConsumerAuthUserPoolId": "us-west-2_J7cRtPEq9",
   "EmployeeAuthUserPoolName": "EmployeeAuth",
-  "PublicApiId": "ls22gbuwa5",
-  "WebSocketApiId": "4k2xxjaukl",
-  "ConsumerAuthUserPoolClientId": "20q2n7kicm4o917a43aqpoub4s"
+  "PublicApiId": "o7hztkhu07",
+  "EmployeeAuthIdentityPoolId": ""
 }

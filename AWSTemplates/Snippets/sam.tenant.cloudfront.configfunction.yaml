@@ -1,7 +1,7 @@
   ConfigFunction:  
     Type: AWS::CloudFront::Function
     Properties:
-      Name: !Sub config-${TenantKeyParameter}-${GuidParameter}
+      Name: !Sub ${SystemNameParameter}-config-${TenantKeyParameter}-${GuidParameter}
       FunctionCode: 
         Fn::Sub: |
             async function handler(event) {

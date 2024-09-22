@@ -27,6 +27,38 @@ function Display-OutputDictionary {
     Write-Host "------------------------`n" -ForegroundColor Cyan
 }
 
+function Get-StackOutputs {
+	param (
+	    [string]$SourceStackName
+        )
+    $stack = Get-CFNStack -StackName $SourceStackName -ProfileName $Profile
+    $outputDictionary = @{}
+    foreach($output in $stack.Outputs) {
+        $outputDictionary[$output.OutputKey] = $output.OutputValue
+    }
+    return $outputDictionary
+}
+
+function CreateBucket {
+	param (
+		[string]$BucketName
+	)
+	$bucket = Get-S3Bucket -BucketName $BucketName -ProfileName $Profile -ErrorAction SilentlyContinue
+	if ($bucket -ne $null) { return 'false' }
+    return 'true'
+}
+
+function CreateTable {
+	param (
+		[string]$TableName
+	)
+    try {
+	    $table = Get-DDBTable -TableName $TableName -ProfileName $Profile -ErrorAction SilentlyContinue
+	    return 'false'
+    } catch {
+		return 'true'
+	}
+}
 
 function ConvertTo-ParameterOverrides {
     param ([hashtable]$parametersDict)
@@ -64,11 +96,18 @@ if($SystemGuid -like "yourguid")
 }
 
 
+$CreateAssetsBucket = CreateBucket -BucketName $SystemName-assets-$TenantKey-$Guid
+$CreateCDNLogBucket = CreateBucket -BucketName $SystemName-cdnlog-$TenantKey-$Guid
+$CreateTable = CreateTable -TableName $TenantKey 
+
 # Create the parameters dictionary
 $ParametersDict = @{
     "SystemNameParameter" = $SystemName
     "TenantKeyParameter" = $TenantKey
     "GuidParameter" = $Guid
+    "CreateAssetsBucketParameter" = $CreateAssetsBucket
+    "CreateCDNLogBucketParameter" = $CreateCDNLogBucket
+    "CreateTenantDBParameter" = $CreateTable
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"
 

@@ -9,7 +9,11 @@ Description: |
       Tenancy CDNLog Bucket policy
       Tenancy DynamoDb table (note that tables are used like separate databases in DynamoDB)
 
+# Note that this template doesn't allow the deletion of the assets bucket, CDN log bucket, and DynamoDB table
+# Also, if the reosurces exist, they are not updated or replaced
+
 Parameters:
+
   SystemNameParameter:
     Description: "System Name"
     Type: String
@@ -23,9 +27,39 @@ Parameters:
     Description: "GuidParameter"
     Type: String
 
+  CreateAssetsBucketParameter:
+    Description: "Create Assets Bucket"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  CreateCDNLogBucketParameter:
+    Description: "Create CDN Log Bucket"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  CreateTenantDBParameter:
+    Description: "Create Tenant DB"
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+Conditions:
+  CreateAssetsBucket: !Equals [!Ref CreateAssetsBucketParameter, "true"]
+  CreateCDNLogBucket: !Equals [!Ref CreateCDNLogBucketParameter, "true"]
+  CreateTenantDB: !Equals [!Ref CreateTenantDBParameter, "true"]
+
 Resources:
   AssetsBucket:
     Type: AWS::S3::Bucket
+    Condition: CreateAssetsBucket
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
@@ -33,6 +67,7 @@ Resources:
 
   AssetsBucketPolicy:
     Type: AWS::S3::BucketPolicy
+    Condition: CreateAssetsBucket
     Properties:
       Bucket: !Ref AssetsBucket
       PolicyDocument:
@@ -51,6 +86,7 @@ Resources:
 
   CDNLogBucket:
     Type: AWS::S3::Bucket
+    Condition: CreateCDNLogBucket
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
@@ -62,6 +98,7 @@ Resources:
 
   CDNLogBucketPolicy:
     Type: AWS::S3::BucketPolicy
+    Condition: CreateCDNLogBucket
     Properties:
       Bucket: !Ref CDNLogBucket
       PolicyDocument:
@@ -88,6 +125,7 @@ Resources:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
+    Condition: CreateTenantDB
     Properties:
       TableName: !Ref TenantKeyParameter
       TimeToLiveSpecification:
@@ -204,12 +242,21 @@ Resources:
 Outputs:
   AssetsBucketName:
     Description: "Config Bucket Name"
-    Value: !Ref AssetsBucket
+    Value: !If
+    - CreateAssetsBucket
+    - !Ref AssetsBucket
+    - !Sub "${SystemNameParameter}-assets-${TenantKeyParameter}-${GuidParameter}"
 
   CDNLogBucketName:
     Description: "CDN Logs Bucket Name"
-    Value: !Ref CDNLogBucket
+    Value: !If
+    - CreateCDNLogBucket
+    - !Ref CDNLogBucket
+    - !Sub "${SystemNameParameter}-cdnlog-${TenantKeyParameter}-${GuidParameter}"
 
   TenantDBName:
     Description: "Tenant DB Name"
-    Value: !Ref TenantDB
+    Value: !If
+    - CreateTenantDB
+    - !Ref TenantDB
+    - !Ref TenantKeyParameter

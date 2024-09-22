@@ -80,6 +80,8 @@ if(-not $RootDomain.HasValue) {
 }
 $HostedZoneId = $config.HostedZoneId
 $AcmCertificateArn = $config.AcmCertificateArn
+$OriginAccessControlId = $config.OriginAccessControlId
+
 
 if($SystemGuid -like "yourguid")
 {
@@ -93,9 +95,9 @@ $ServiceStackOutputDict = Get-StackOutputs $targetStack
 #Display-OutputDictionary -Dictionary $ServiceStackOutputDict -Title "Service Stack Outputs"
 
 # Get policies stack outputs 
-$targetStack = $config.SystemName + "-policies"
-$PolicyStackOutputDict = Get-StackOutputs $targetStack
-#Display-OutputDictionary -Dictionary $PolicyStackOutputDict -Title "Policy Stack Outputs"
+$targetStack = $config.SystemName + "-cfpolicies"
+$CFPolicyStackOutputDict = Get-StackOutputs $targetStack
+#Display-OutputDictionary -Dictionary $CFPolicyStackOutputDict -Title "CFPolicy Stack Outputs"
 
 # Get sytem assets stack outputs 
 $targetStack = $config.SystemName + "-assets-system"
@@ -122,12 +124,12 @@ $ParametersDict = @{
     "HostedZoneIdParameter" = $HostedZoneId
     "AcmCertificateArnParameter" = $AcmCertificateArn
 
-    "OriginRequestPolicyIdParameter" = $PolicyStackOutputDict["OriginRequestPolicyId"]
-    "CachePolicyIdParameter" = $PolicyStackOutputDict["CachePolicyId"]
-    "ResponseHeadersPolicyIdParameter" = $PolicyStackOutputDict["ResponseHeadersPolicyId"]
-    "RequestFunctionArnParameter" = $PolicyStackOutputDict["RequestFunctionArn"]
-    "RequestPrefixFunctionArnParameter" = $PolicyStackOutputDict["RequestPrefixFunctionArn"]
-    "ResponseFunctionArnParameter" = $PolicyStackOutputDict["ResponseFunctionArn"]
+    "OriginRequestPolicyIdParameter" = $CFPolicyStackOutputDict["OriginRequestPolicyId"]
+    "CachePolicyIdParameter" = $CFPolicyStackOutputDict["CachePolicyId"]
+    "ResponseHeadersPolicyIdParameter" = $CFPolicyStackOutputDict["ResponseHeadersPolicyId"]
+    "RequestFunctionArnParameter" = $CFPolicyStackOutputDict["RequestFunctionArn"]
+    "RequestPrefixFunctionArnParameter" = $CFPolicyStackOutputDict["RequestPrefixFunctionArn"]
+    "ResponseFunctionArnParameter" = $CFPolicyStackOutputDict["ResponseFunctionArn"]
 
     "SystemAssetsBucketNameParameter" = $SystemAssetsStackOutputDict["AssetsBucketName"]
     "AssetsBucketNameParameter" = $AssetsStackOutputDict["AssetsBucketName"]

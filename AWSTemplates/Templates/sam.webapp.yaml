@@ -18,11 +18,15 @@ Parameters:
 Resources:
   AppBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Sub '${SystemNameParameter}-webapp-${AppNameParameter}-${GuidParameter}'
 
   AppBucketPolicy:
     Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       Bucket: !Ref AppBucket
       PolicyDocument:

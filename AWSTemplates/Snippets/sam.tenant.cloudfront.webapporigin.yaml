@@ -3,4 +3,4 @@
             DomainName: !Sub '${__WebAppBucket__}.s3.amazonaws.com'
             OriginPath: '/wwwroot'
             S3OriginConfig: {}
-            OriginAccessControlId: !Ref MyOriginAccessControl
+            OriginAccessControlId: !Ref OriginAccessControl
