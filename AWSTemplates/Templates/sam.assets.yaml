@@ -68,6 +68,7 @@ Resources:
   AssetsBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Condition: CreateAssetsBucket
+    DeletionPolicy: Retain
     Properties:
       Bucket: !Ref AssetsBucket
       PolicyDocument:
@@ -99,6 +100,7 @@ Resources:
   CDNLogBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Condition: CreateCDNLogBucket
+    DeletionPolicy: Retain
     Properties:
       Bucket: !Ref CDNLogBucket
       PolicyDocument:

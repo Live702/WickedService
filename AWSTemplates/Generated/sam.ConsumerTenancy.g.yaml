@@ -32,9 +32,6 @@ Parameters:
     Type: String
 
   # Parameters from the serviceconfig.yaml file
-  OriginAccessControlIdParameter:
-    Type: String
-
   EnvironmentParameter:
     Description: "Environment"
     Type: String
@@ -57,8 +54,8 @@ Parameters:
   CachePolicyIdParameter:
     Type: String
 
-  ResponseHeadersPolicyIdParameter:
-    Type: String
+  # ResponseHeadersPolicyIdParameter:
+  #   Type: String
 
   RequestFunctionArnParameter:
     Type: String
@@ -174,7 +171,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
       OriginAccessControlConfig:
-        Name: !Sub ${AWS::StackName}-oac-${GuidParameter}
+        Name: !Sub ${SystemNameParameter}-${TenantKeyParameter}-${GuidParameter}
         Description: 'Origin Access Control for S3'
         OriginAccessControlOriginType: s3
         SigningBehavior: always
@@ -247,7 +244,7 @@ Resources:
               - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
-                FunctionARN: !Ref RequestFunctionArnParameter
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
@@ -266,7 +263,7 @@ Resources:
               - PUT
             FunctionAssociations:
               - EventType: 'viewer-request'
-                FunctionARN: !Ref RequestFunctionArnParameter
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 

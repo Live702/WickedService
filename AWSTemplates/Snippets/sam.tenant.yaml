@@ -54,8 +54,8 @@ Parameters:
   CachePolicyIdParameter:
     Type: String
 
-  ResponseHeadersPolicyIdParameter:
-    Type: String
+  # ResponseHeadersPolicyIdParameter:
+  #   Type: String
 
   RequestFunctionArnParameter:
     Type: String

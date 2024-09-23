@@ -21,8 +21,9 @@ if(-not $Guid.HasValue) {
 	$Guid = $SystemGuid
 }
 $Profile = $config.Profile
+$SystemName = $config.SystemName
 
-$bucketName = "cdnlogs-" + $TenantKey + "-" + $Guid
+$bucketName = $SystemName + "-cdnlog-" + $TenantKey + "-" + $Guid
 Write-Host "Bucket Name: $bucketName"
 Import-Module powershell-yaml
 Import-Module AWSPowerShell.NetCore

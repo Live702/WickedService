@@ -126,14 +126,14 @@ $ParametersDict = @{
 
     "OriginRequestPolicyIdParameter" = $CFPolicyStackOutputDict["OriginRequestPolicyId"]
     "CachePolicyIdParameter" = $CFPolicyStackOutputDict["CachePolicyId"]
-    "ResponseHeadersPolicyIdParameter" = $CFPolicyStackOutputDict["ResponseHeadersPolicyId"]
+    #"ResponseHeadersPolicyIdParameter" = $CFPolicyStackOutputDict["ResponseHeadersPolicyId"]
     "RequestFunctionArnParameter" = $CFPolicyStackOutputDict["RequestFunctionArn"]
     "RequestPrefixFunctionArnParameter" = $CFPolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $CFPolicyStackOutputDict["ResponseFunctionArn"]
 
     "SystemAssetsBucketNameParameter" = $SystemAssetsStackOutputDict["AssetsBucketName"]
     "AssetsBucketNameParameter" = $AssetsStackOutputDict["AssetsBucketName"]
-    "CDNLogBucketNameParameter" = $SystemAssetsStackOutputDict["CDNLogBucketName"]
+    "CDNLogBucketNameParameter" = $AssetsStackOutputDict["CDNLogBucketName"]
 
     # WebApps __webapps__
 
