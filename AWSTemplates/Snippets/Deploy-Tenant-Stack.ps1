@@ -147,7 +147,7 @@ $ParametersDict = @{
 $parameters = ConvertTo-ParameterOverrides -parametersDict $ParametersDict
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file sam.StoreTenancy.g.yaml `
+--template-file __templatename__ `
 --s3-bucket $ArtifactsBucket `
 --stack-name $StackName `
 --parameter-overrides $parameters `
