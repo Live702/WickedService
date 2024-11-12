@@ -7,7 +7,7 @@
 //----------------------
 namespace StoreModule
 {
-    public static class StoreModuleRegistrations 
+    public static partial class StoreModuleRegistrations 
     {
         public static IServiceCollection AddStoreModule(this IServiceCollection services) 
         {
@@ -17,7 +17,9 @@ namespace StoreModule
 			services.AddStoreSchemaRepo();
 			services.AddSubscriptionsSchemaRepo();
 			services.AddAdminSchemaRepo();
+            CustomConfigurations(services);
             return services;            
         }
+        static partial void CustomConfigurations(IServiceCollection sdervices);
     }
 }

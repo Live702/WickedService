@@ -29,6 +29,72 @@ namespace PublicModule
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> PublicTest();
 
+        /// <summary>
+        /// List all pets
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> ListPets();
+
+        /// <summary>
+        /// Finds Pets by status
+        /// </summary>
+
+        /// <remarks>
+        /// Multiple status values can be provided with comma separated strings
+        /// </remarks>
+
+        /// <param name="petStatus">Status values that need to be considered for filter</param>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByStatus(System.Collections.Generic.IEnumerable<PetStatus> petStatus);
+
+        /// <summary>
+        /// Find pet by ID
+        /// </summary>
+
+        /// <remarks>
+        /// Returns a single pet
+        /// </remarks>
+
+        /// <param name="petId">ID of pet to return</param>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId);
+
+        /// <summary>
+        /// Finds Pets by tags
+        /// </summary>
+
+        /// <remarks>
+        /// Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
+        /// </remarks>
+
+        /// <param name="tags">Tags to filter by</param>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByTags(System.Collections.Generic.IEnumerable<string> tags);
+
+        /// <summary>
+        /// Get all Pet Categories
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Category>>> GetPetCategories();
+
+        /// <summary>
+        /// Get all Pet Tags
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Tag>>> GetPetTags();
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.0.3.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.3.0))")]
@@ -41,6 +107,76 @@ namespace PublicModule
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> PublicTest()
         {
             throw new NotImplementedException();
+        }
+        /// <summary>
+        /// List all pets
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/listPets")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> ListPets()
+        {
+            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await petRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
+        /// Finds Pets by status
+        /// </summary>
+        /// <remarks>
+        /// Multiple status values can be provided with comma separated strings
+        /// </remarks>
+        /// <param name="petStatus">Status values that need to be considered for filter</param>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/findByStatus")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByStatus([Microsoft.AspNetCore.Mvc.FromQuery] System.Collections.Generic.IEnumerable<PetStatus> petStatus)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Find pet by ID
+        /// </summary>
+        /// <remarks>
+        /// Returns a single pet
+        /// </remarks>
+        /// <param name="petId">ID of pet to return</param>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/{petId}")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId)
+        {
+            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await petRepo.ReadAsync(callerInfo, petId);
+        }
+        /// <summary>
+        /// Finds Pets by tags
+        /// </summary>
+        /// <remarks>
+        /// Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
+        /// </remarks>
+        /// <param name="tags">Tags to filter by</param>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/findByTags")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByTags([Microsoft.AspNetCore.Mvc.FromQuery] System.Collections.Generic.IEnumerable<string> tags)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Get all Pet Categories
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/categories")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Category>>> GetPetCategories()
+        {
+            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await categoryRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
+        /// Get all Pet Tags
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/tags")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Tag>>> GetPetTags()
+        {
+            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await tagRepo.ListAsync(callerInfo);
         }
 		protected IPublicModuleAuthorization publicModuleAuthorization;
 		protected ICategoryRepo categoryRepo;

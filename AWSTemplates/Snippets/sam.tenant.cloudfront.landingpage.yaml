@@ -1,6 +1,5 @@
   LandingPageFunction:
     Type: AWS::CloudFront::Function
-    DependsOn: ConfigFunction
     Properties:               
       Name: !Sub ${SystemNameParameter}-lndpg-${TenantKeyParameter}-${GuidParameter}
       FunctionCode: 

@@ -40,13 +40,13 @@ public interface IConsumerModuleAuthorization : ILzAuthorization
 public partial class ConsumerModuleAuthorization : LzAuthorization, IConsumerModuleAuthorization
 {
     
-    public async Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table)
+    public virtual async Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table)
     {
         // TODO: generated code here
         return await Task.FromResult(new List<string>());
     }
 
-    public async Task LoadDefaultPermissionsAsync()
+    public virtual async Task LoadDefaultPermissionsAsync()
     {
         // TODO: generatedcode here
         await Task.CompletedTask;

@@ -40,13 +40,13 @@ public interface ISubscriptionsModuleAuthorization : ILzAuthorization
 public partial class SubscriptionsModuleAuthorization : LzAuthorization, ISubscriptionsModuleAuthorization
 {
     
-    public async Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table)
+    public virtual async Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table)
     {
         // TODO: generated code here
         return await Task.FromResult(new List<string>());
     }
 
-    public async Task LoadDefaultPermissionsAsync()
+    public virtual async Task LoadDefaultPermissionsAsync()
     {
         // TODO: generatedcode here
         await Task.CompletedTask;

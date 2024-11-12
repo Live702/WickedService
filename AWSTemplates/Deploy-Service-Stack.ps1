@@ -17,6 +17,7 @@ $SystemGuid = $config.SystemGuid
 $RootDomain = $config.RootDomain
 $AcmCertifcateArn = $config.AcmCertifcateArn
 $HostedZoneId = $config.HostedZoneId
+$SystemName = $config.SystemName
 $StackName = $config.SystemName + "-service"
 $ArtifactsBucket = $config.SystemName + "-artifacts-" + $config.SystemGuid
 $S3Prefix = $config.S3Prefix
@@ -81,6 +82,7 @@ sam deploy `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `
 --parameter-overrides `
 AWSPROFILE=$Profile `
+SystemNameParameter=$SystemName `
 EnvironmentParameter=$Environment `
 ArtifactsBucketParameter=$ArtifactsBucket `
 S3PrefixParameter=$S3Prefix `

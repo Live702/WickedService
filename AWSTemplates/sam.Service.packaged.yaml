@@ -15,12 +15,15 @@ Parameters:
   SystemGuidParameter:
     Description: System Guid. No spaces. Lower case.
     Type: String
+  SystemNameParameter:
+    Description: System Name. No spaces. Lower case.
+    Type: String
 Resources:
   StoreLambda:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/fe3cf5d2ebd976e76961a207859ec2e3
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/df6df26d0a75b2d3536ee0d6345c95ab
       Handler: StoreLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
@@ -70,7 +73,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/6a43d5e61205ff69dc954ce042620f5a
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/eefe95b4c4bac642e206b36ea11df2b2
       Handler: ConsumerLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
@@ -120,7 +123,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/5a044adbe9aad9cfe2e3ed851409daa6
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/898f198f9b05de2dd67482ceb689123d
       Handler: PublicLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
@@ -170,8 +173,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/3d1c5a8e1643c38d3ccd7cc076e490d9
-      Handler: WebSocketLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/6db14c0e0dea17fc36d689e38ceb28a2
+      Handler: WebSocketLambda::LambdaFunc.Function::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated WebSocket Function
       MemorySize: 512
@@ -185,13 +188,34 @@ Resources:
           Action:
           - execute-api:ManageConnections
           Resource:
-            Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
+          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
+          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsFunction}/*/*
+      - Statement:
+        - Effect: Allow
+          Action:
+          - cognito-idp:GetUser
+          Resource:
+            Fn::GetAtt:
+            - EmployeeAuthUserPool
+            - Arn
       Environment:
         Variables:
-          COGNITO_REGION:
-            Ref: AWS::Region
+          USER_POOL_ID:
+            Ref: EmployeeAuthUserPool
+          AUTHENTICATION_REQUIRED: true
     Metadata:
       SamResourceId: WebSocketLambda
+  WebSocketLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: WebSocketLambda
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*
+    Metadata:
+      SamResourceId: WebSocketLambdaInvokePermission
   WebSocketLambdaStoreApiPermissions:
     Type: AWS::Lambda::Permission
     Properties:
@@ -326,55 +350,8 @@ Resources:
                 uri:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
-          /Store/pet/listPets:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-          /Store/pet/findByStatus:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
           /Store/pet/{petId}:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
             delete:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-          /Store/pet/findByTags:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-          /Store/pet/categories:
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-          /Store/pet/tags:
-            get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
@@ -451,7 +428,7 @@ Resources:
                 uri:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
-          /Store/pet/seedPets:
+          /Store/pet/seedPets/{store}/{numPets}:
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -565,6 +542,54 @@ Resources:
                 uri:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
+          /Public/pet/listPets:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+          /Public/pet/findByStatus:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+          /Public/pet/{petId}:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+          /Public/pet/findByTags:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+          /Public/pet/categories:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+          /Public/pet/tags:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
     Metadata:
       SamResourceId: PublicApi
   WebSocketApi:
@@ -638,11 +663,33 @@ Resources:
         Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
     Metadata:
       SamResourceId: WebSocketApiDefaultIntegration
+  WebSocketApiDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      Target:
+        Fn::Sub: integrations/${WebSocketApiDisconnectIntegration}
+    Metadata:
+      SamResourceId: WebSocketApiDisconnectRoute
+  WebSocketApiDisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
+    Metadata:
+      SamResourceId: WebSocketApiDisconnectIntegration
   WebSocketApiDeployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
     - WebSocketApiMessageRoute
     - WebSocketApiConnectRoute
+    - WebSocketApiDisconnectRoute
     - WebSocketApiDefaultRoute
     Properties:
       ApiId:
@@ -734,7 +781,202 @@ Resources:
       - https://www.example.com
     Metadata:
       SamResourceId: ConsumerAuthUserPoolClient
+  NotificationsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: notifications
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      - AttributeName: SK1
+        AttributeType: S
+      - AttributeName: SK2
+        AttributeType: S
+      - AttributeName: SK3
+        AttributeType: S
+      - AttributeName: SK4
+        AttributeType: S
+      - AttributeName: SK5
+        AttributeType: S
+      - AttributeName: GSI1PK
+        AttributeType: S
+      - AttributeName: GSI1SK
+        AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+      LocalSecondaryIndexes:
+      - IndexName: PK-SK1-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK1
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK2-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK2
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK3-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK3
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK4-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK4
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK5-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK5
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      GlobalSecondaryIndexes:
+      - IndexName: GSI1
+        KeySchema:
+        - AttributeName: GSI1PK
+          KeyType: HASH
+        - AttributeName: GSI1SK
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+    Metadata:
+      SamResourceId: NotificationsTable
+  NotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/51b0951e3b6d7a15f6195d59fa4ce071
+      Handler: NotificationsLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnet8
+      Description: Processes DynamoDB stream events
+      MemorySize: 256
+      Timeout: 20
+      Tracing: Active
+      Policies:
+      - DynamoDBStreamReadPolicy:
+          StreamName:
+            Fn::GetAtt:
+            - NotificationsTable
+            - StreamArn
+          TableName:
+            Ref: NotificationsTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - execute-api:ManageConnections
+          Resource:
+          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream:
+              Fn::GetAtt:
+              - NotificationsTable
+              - StreamArn
+            BatchSize: 100
+            StartingPosition: LATEST
+    Metadata:
+      SamResourceId: NotificationsFunction
+  ConfigFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name:
+        Fn::Sub: ${SystemNameParameter}-config-${SystemGuidParameter}
+      FunctionCode:
+        Fn::Sub: "async function handler(event) {\n    var response = {\n        statusCode:\
+          \ 200,\n        statusDescription: 'OK',\n        headers: {\n         \
+          \   'content-type': { value: 'application/json' }, // Set the content type\
+          \ to application/json\n            'cache-control': { value: 'max-age=0,\
+          \ no-cache, no-store, must-revalidate' } // Set caching headers to prevent\
+          \ caching\n        },\n        body: JSON.stringify(\n            {\n  \
+          \              meta: {\n                    type: 'cloudfront',\n      \
+          \              awsRegion: '${AWS::Region}',\n                    wsUrl:\
+          \ 'wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter}',\n\
+          \                 },\n                 authConfigs: {\n                \
+          \    \n                    EmployeeAuth: {\n                        awsRegion:\
+          \ '${AWS::Region}',\n                        userPoolName: 'EmployeeAuth',\n\
+          \                        userPoolId: '${EmployeeAuthUserPool}',\n      \
+          \                  userPoolClientId: '${EmployeeAuthUserPoolClient}',\n\
+          \                        userPoolSecurityLevel: 1,\n                   \
+          \     identityPoolId: ''\n                    },\n\n                   \
+          \ ConsumerAuth: {\n                        awsRegion: '${AWS::Region}',\n\
+          \                        userPoolName: 'ConsumerAuth',\n               \
+          \         userPoolId: '${ConsumerAuthUserPool}',\n                     \
+          \   userPoolClientId: '${ConsumerAuthUserPoolClient}',\n               \
+          \         userPoolSecurityLevel: 1,\n                        identityPoolId:\
+          \ ''\n                    },\n\n                 }\n            })\n   \
+          \ }\n    return response\n}\n"
+      AutoPublish: true
+      FunctionConfig:
+        Comment: CloudFront Function to handle /config path
+        Runtime: cloudfront-js-2.0
+    Metadata:
+      SamResourceId: ConfigFunction
 Outputs:
+  ConfigFunctionArn:
+    Value:
+      Fn::GetAtt:
+      - ConfigFunction
+      - FunctionARN
   StoreApiId:
     Value:
       Ref: StoreApi

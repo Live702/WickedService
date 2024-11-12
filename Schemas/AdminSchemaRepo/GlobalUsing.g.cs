@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Configuration;
+global using LazyMagic.Shared;
 
 
 global using AdminSchema;

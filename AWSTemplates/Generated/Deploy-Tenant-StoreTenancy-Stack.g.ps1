@@ -131,10 +131,13 @@ $ParametersDict = @{
     "EnvironmentParameter" = $Environment
     "HostedZoneIdParameter" = $HostedZoneId
     "AcmCertificateArnParameter" = $AcmCertificateArn
+    "WebSocketApiParameter" = $ServiceStackOutputDict["WebSocketApi"]
+    "ConfigFunctionArnParameter" = $ServiceStackOutputDict["ConfigFunctionArn"]
 
     "OriginRequestPolicyIdParameter" = $CFPolicyStackOutputDict["OriginRequestPolicyId"]
     "CachePolicyIdParameter" = $CFPolicyStackOutputDict["CachePolicyId"]
-    #"ResponseHeadersPolicyIdParameter" = $CFPolicyStackOutputDict["ResponseHeadersPolicyId"]
+    "CacheByHeaderPolicyIdParameter" = $CFPolicyStackOutputDict["CacheByHeaderPolicyId"]
+    "ApiCachePolicyIdParameter" = $CFPolicyStackOutputDict["ApiCachePolicyId"]
     "RequestFunctionArnParameter" = $CFPolicyStackOutputDict["RequestFunctionArn"]
     "RequestPrefixFunctionArnParameter" = $CFPolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $CFPolicyStackOutputDict["ResponseFunctionArn"]
@@ -155,8 +158,6 @@ $ParametersDict = @{
     "ConsumerApiIdParameter" = $ServiceStackOutputDict["ConsumerApiId"]
 
     "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
-
-    "WebSocketApiIdParameter" = $ServiceStackOutputDict["WebSocketApiId"]
 
 
     # Authentications 

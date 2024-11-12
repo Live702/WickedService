@@ -153,7 +153,7 @@ Tenancies - CloudFront Policies, CloudFront distributions with Route53 records
 ### Adding New Tenancies
 1. Use the ```Deploy-Assets-Stack.ps1``` script to create the new tenancy assets. 
 2. Deploy the assets to the asset buckets for the new tenancy. See the MagicPetsTenancies solution.
-3. Use the ```Deploy-Tenant-{tenancykey}-Stack.ps1``` script to create a new tenancy. The script creates a CloudFront distribution and Route53 record for the tenancy. It also creates a new DynamoDB table for the tenancy.
+3. Use the ```Deploy-Tenant-StoreTenancy-Stack.ps1``` script to create a new tenancy. The script creates a CloudFront distribution and Route53 record for the tenancy. It also creates a new DynamoDB table for the tenancy.
 
 Note: You can pass a different GUID, than the System GUID, to the Deploy-Assets-Stack.ps1 script. This is rarely needed, but it is possible for some other AWS account to stomp on your bucket names.
 

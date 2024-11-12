@@ -15,7 +15,7 @@ public partial class Startup
     {
         services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
         ConfigureSvcs(services);
-        services.AddControllers();
+        services.AddControllers().AddNewtonsoftJson();
 
         // Add S3 to the ASP.NET Core dependency injection framework.
        // services.AddAWSService<Amazon.S3.IAmazonS3>();

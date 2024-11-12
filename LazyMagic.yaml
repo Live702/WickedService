@@ -18,7 +18,6 @@ Directives:
         OutputFolder: Schemas
         NameSuffix: Repo
 
-
   ConsumerSchema:
     Type: Schema
     Defaults: SchemaDefault
@@ -108,14 +107,16 @@ Directives:
     Type: Container
     Artifacts:
       WebSocketProject:
-        Type: DotNetLambda
+        Type: DotNetWebSocketLambda
         Runtime: dotnet8
         Template: ./ProjectTemplates/WebSocket
         OutputFolder: Containers
       WebSocketFunction:
         Type: AwsLambdaResource
-        Template: AWSTemplates/Snippets/sam.service.websocketfunction.yaml
-        Resource1: WebSocketApi # websocket function manages the websocket api       
+        Authentication: EmployeeAuth # we pass UserPol as an Environmental variable so we need Authentication here
+        AuthenticationRequired: true # we pass this as an Environmental variable so we need this assigned here
+        Template: AWSTemplates/Snippets/sam.service.websocketlambda.yaml
+        Resource1: NotificationsFunction # Calls WebSocketLambda.PostToConnectionAsync()     
 
   StoreLambda:
     Type: Container
@@ -197,6 +198,7 @@ Directives:
 
   WebSocketApi:
     Type: Api
+    # Authentication: None; For WebSockets the authentication is assigned at the Container level
     Containers:
     - WebSocketLambda
     Artifacts:
@@ -243,7 +245,6 @@ Directives:
     - StoreApi
     - ConsumerApi
     - PublicApi
-    - WebSocketApi
 
   StoreApp:
     Type: WebApp
@@ -253,7 +254,6 @@ Directives:
     - StoreApi
     - ConsumerApi
     - PublicApi
-    - WebSocketApi
 
   ConsumerApp:
     Type: WebApp
@@ -262,7 +262,6 @@ Directives:
     Apis:
     - ConsumerApi
     - PublicApi
-    - WebSocketApi
 
 # TENANCIES
   TenancyDefaults:

@@ -133,8 +133,6 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: TTL
         Enabled: true
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
       AttributeDefinitions:
       - AttributeName: PK
         AttributeType: S

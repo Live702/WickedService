@@ -7,7 +7,7 @@
 //----------------------
 namespace PublicModule
 {
-    public static class PublicModuleRegistrations 
+    public static partial class PublicModuleRegistrations 
     {
         public static IServiceCollection AddPublicModule(this IServiceCollection services) 
         {
@@ -16,7 +16,9 @@ namespace PublicModule
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
 			services.AddSubscriptionsSchemaRepo();
+            CustomConfigurations(services);
             return services;            
         }
+        static partial void CustomConfigurations(IServiceCollection sdervices);
     }
 }

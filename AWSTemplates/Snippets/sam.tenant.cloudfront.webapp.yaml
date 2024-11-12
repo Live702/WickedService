@@ -1,9 +1,9 @@
 
           - PathPattern: __PathPattern__
             TargetOriginId: __TargetOriginId__
-            CachePolicyId: !Ref CachePolicyIdParameter
+            CachePolicyId: !Ref CacheByHeaderPolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
-            ViewerProtocolPolicy: 'redirect-to-https'   
+            ViewerProtocolPolicy: 'https-only'   
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
             AllowedMethods: 
               - DELETE

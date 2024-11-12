@@ -1,8 +1,8 @@
 
           - PathPattern: __PathPattern__
             TargetOriginId: __TargetOriginId__
-            ViewerProtocolPolicy: 'redirect-to-https'
-            CachePolicyId: !Ref CachePolicyIdParameter
+            ViewerProtocolPolicy: 'https-only'
+            CachePolicyId: !Ref ApiCachePolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
             ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id 
             AllowedMethods: 

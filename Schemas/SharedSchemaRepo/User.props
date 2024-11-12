@@ -1,1 +1,5 @@
-<Project></Project>
+<Project>
+	<ItemGroup>
+		<ProjectReference Include="../SubscriptionsSchemaRepo/SubscriptionsSchemaRepo.csproj" />	
+	</ItemGroup>
+</Project>

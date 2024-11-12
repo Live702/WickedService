@@ -100,11 +100,25 @@ paths:
         '400':
           description: Invalid status value
 
-  '/{prefix}/pet/seedPets':
+  '/{prefix}/pet/seedPets/{store}/{numPets}':
     get:
       summary: See pet database
       operationId: seedPets
-      x-lz-gencall: petRepo.SeedAsync(callerInfo)
+      x-lz-gencall: petRepo.SeedAsync(callerInfo, store, numPets)
+      parameters:
+      - name: store
+        in: path
+        description: Store to seed
+        required: true
+        schema:
+          type: string
+      - name: numPets
+        in: path
+        description: Number of pets to seed
+        required: true
+        schema:
+          type: integer
+        default: 10
       responses:
         '200':
           description: Success

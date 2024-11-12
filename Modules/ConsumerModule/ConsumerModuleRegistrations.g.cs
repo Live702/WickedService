@@ -7,7 +7,7 @@
 //----------------------
 namespace ConsumerModule
 {
-    public static class ConsumerModuleRegistrations 
+    public static partial class ConsumerModuleRegistrations 
     {
         public static IServiceCollection AddConsumerModule(this IServiceCollection services) 
         {
@@ -17,7 +17,9 @@ namespace ConsumerModule
 			services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
 			services.AddSubscriptionsSchemaRepo();
+            CustomConfigurations(services);
             return services;            
         }
+        static partial void CustomConfigurations(IServiceCollection sdervices);
     }
 }

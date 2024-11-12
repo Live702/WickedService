@@ -1,4 +1,4 @@
-  # WebSocket Api
+  # WebSocket
 
   __WebSocketApi__:
     Type: AWS::ApiGatewayV2::Api
@@ -64,11 +64,32 @@
       IntegrationUri:
         Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__WebSocketFunction__.Arn}/invocations
 
+  __WebSocketApi__DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: __WebSocketApi__
+      RouteKey: $disconnect
+      AuthorizationType: NONE
+      Target:
+        Fn::Sub: integrations/${__WebSocketApi__DisconnectIntegration}
+
+  __WebSocketApi__DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: __WebSocketApi__
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${__WebSocketFunction__.Arn}/invocations
+
+
   __WebSocketApi__Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
     - __WebSocketApi__MessageRoute
     - __WebSocketApi__ConnectRoute
+    - __WebSocketApi__DisconnectRoute
     - __WebSocketApi__DefaultRoute
     Properties:
       ApiId:

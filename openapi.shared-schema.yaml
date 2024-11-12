@@ -46,6 +46,7 @@ components:
           type: string
           description: pet status in the store
           $ref: '#/components/schemas/PetStatus'
+          default: "available"
         createUtcTick:
           type: integer
           format: int64

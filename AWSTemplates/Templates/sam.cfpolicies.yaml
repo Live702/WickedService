@@ -37,7 +37,7 @@ Resources:
         }
       AutoPublish: true
       FunctionConfig:
-        Comment: 'Default handler. nop for now.'
+        Comment: 'Default handler. Use the CachePolicy with this function.'
         Runtime: cloudfront-js-2.0
 
 
@@ -78,7 +78,7 @@ Resources:
         }
       AutoPublish: true
       FunctionConfig:
-        Comment: 'Return a 204 for preflight requests when origin is localhost. Used in development  deployments only.'
+        Comment: 'Return a 204 for preflight requests when origin is localhost. Use CachePolicy.'
         Runtime: cloudfront-js-2.0
 
   # Return a 204 for preflight requests when in development mode and remove the prefix from the URI
@@ -117,6 +117,7 @@ Resources:
             }
             // URI modification
             var uri = request.uri;
+            headers['x-custom-cache-key'] = { value: request.uri }; // CF uses the modified URI as the cache key so we use a header instead
             var secondSlash = uri.indexOf('/', 1);
             request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
             return request;
@@ -124,7 +125,7 @@ Resources:
 
       AutoPublish: true
       FunctionConfig:
-        Comment: 'Return a 204 for preflight requests when origin is localhost and remove the prefix from the URI. Used in development deployments only.'
+        Comment: 'Return a 204 for preflight requests when origin is localhost and remove the prefix from the URI. Used in development deployments only.  Use the CacheByHeaderPolicy'
         Runtime: cloudfront-js-2.0
 
   RequestPrefix:  
@@ -137,13 +138,15 @@ Resources:
             var request = event.request;
             // URI modification
             var uri = request.uri;
+            var headers = request.headers;
+            headers['x-custom-cache-key'] = { value: request.uri}; // CF uses the modified URI as the cache key so we use a header instead
             var secondSlash = uri.indexOf('/', 1);
             request.uri = secondSlash > 0 ? uri.slice(secondSlash) : "/";
             return request;
         }
       AutoPublish: true
       FunctionConfig:
-        Comment: 'Remove the prefix from the URI.'
+        Comment: 'Remove the prefix from the URI. Use the CacheByHeaderPolicy'
         Runtime: cloudfront-js-2.0
   
   ResponseDev:  
@@ -179,6 +182,68 @@ Resources:
       FunctionConfig:
         Comment: 'Modify response headers.'
         Runtime: cloudfront-js-2.0
+
+  CacheByHeaderDevPolicy:
+    Type: 'AWS::CloudFront::CachePolicy'
+    Properties:
+      CachePolicyConfig:
+        Name: CacheByHeaderDevPolicy
+        Comment: 'Cache policy using custom x-custom-cache-key header'
+        DefaultTTL: 1  # use minimum TTL in development
+        MaxTTL: 31536000   # 1 year in seconds
+        MinTTL: 1
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers: 
+              - 'x-custom-cache-key'
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  CacheByHeaderProdPolicy:
+    Type: 'AWS::CloudFront::CachePolicy'
+    Properties:
+      CachePolicyConfig:
+        Name: CacheByHeaderProdPolicy
+        Comment: 'Cache policy using custom x-custom-cache-key header'
+        DefaultTTL: 86400  # 1 day in seconds
+        MaxTTL: 31536000   # 1 year in seconds
+        MinTTL: 1
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers: 
+              - 'x-custom-cache-key'
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
+  CachingOptimizedDevPolicy:
+    Type: 'AWS::CloudFront::CachePolicy'
+    Properties:
+      CachePolicyConfig:
+        Name: CachingOptimizedDev
+        Comment: 'Managed policy for optimized caching for dev environment'
+        DefaultTTL: 1  # allows rapid update for development testing
+        MaxTTL: 31536000   # 1 year in seconds
+        MinTTL: 1
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+
 
   # ResponseHeadersPolicy: 
   #   Type: AWS::CloudFront::ResponseHeadersPolicy
@@ -307,8 +372,12 @@ Resources:
 
 Outputs:
   CachePolicyId:
-    # if IsDev is true, use the Managed-CachingDisabled, otherwise use the Managed-CachingOptimized
-    Value: !If [IsDev, 4135ea2d-6df8-44a3-9df3-4b5a84be39ad, 658327ea-f89d-4fab-a63d-7e88639e58f6]
+    # Managed-CachingOptimized
+    Value: !If [IsDev, !Ref CachingOptimizedDevPolicy, 658327ea-f89d-4fab-a63d-7e88639e58f6]
+
+  CacheByHeaderPolicyId:
+    Value: !If [IsDev, !Ref CacheByHeaderDevPolicy, !Ref CacheByHeaderProdPolicy]
+
   OriginRequestPolicyId:
     # Managed-AllViewerExceptHostHeader
     Value: b689b0a8-53d0-40ab-baf2-68738e2966ac 

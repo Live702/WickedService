@@ -1,7 +1,7 @@
 
           - PathPattern: __PathPattern__
             TargetOriginId: __TargetOriginId__
-            ViewerProtocolPolicy: 'redirect-to-https'   
+            ViewerProtocolPolicy: 'https-only'   
             CachePolicyId: !Ref CachePolicyIdParameter
             OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
             # ResponseHeadersPolicyId: !If [UseDev, !Ref DevResponseHeadersPolicy, !Ref ProdResponseHeadersPolicy]

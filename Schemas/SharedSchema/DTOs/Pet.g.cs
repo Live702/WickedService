@@ -26,7 +26,7 @@ namespace SharedSchema
         private string _name;
         private System.Collections.Generic.ICollection<string> _photoUrls = new System.Collections.ObjectModel.Collection<string>();
         private System.Collections.Generic.ICollection<string> _tags;
-        private PetStatus _petStatus;
+        private PetStatus _petStatus = SharedSchema.PetStatus.Available;
         private long _createUtcTick;
         private long _updateUtcTick;
 

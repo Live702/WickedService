@@ -129,6 +129,8 @@ $result.Data | Export-Csv -Path $outputPath -NoTypeInformation
 # Clean up temporary file
 Remove-Item -Path $tempDecompressedFile
 
+Write-Host "Bucket: $($bucketName)"
+Write-Host "Log file processed: $($latestFile.Key)"
 Write-Host "Processing complete. Simplified CSV file saved to: $outputPath"
 Write-Host "Log file version: $($result.Version)"
 Write-Host "Fields found: $($result.Fields -join ', ')"

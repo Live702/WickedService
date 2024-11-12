@@ -38,7 +38,7 @@ public partial class Startup
             });
         });
 
-        services.AddControllers();
+        services.AddControllers().AddNewtonsoftJson();
 
         services.AddSwaggerGen(c =>
         {

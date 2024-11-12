@@ -13,6 +13,8 @@
 		<PackageReference Include="AWSSDK.SSOOIDC" />
 		<PackageReference Include="AWSSDK.SecurityToken" />
 		<PackageReference Include="LazyMagic.Shared" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 	</ItemGroup>
 	<Import Project="Projects.g.props"  Condition="Exists('Projects.g.props')"  />

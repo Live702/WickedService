@@ -127,10 +127,13 @@ $ParametersDict = @{
     "EnvironmentParameter" = $Environment
     "HostedZoneIdParameter" = $HostedZoneId
     "AcmCertificateArnParameter" = $AcmCertificateArn
+    "WebSocketApiParameter" = $ServiceStackOutputDict["WebSocketApi"]
+    "ConfigFunctionArnParameter" = $ServiceStackOutputDict["ConfigFunctionArn"]
 
     "OriginRequestPolicyIdParameter" = $CFPolicyStackOutputDict["OriginRequestPolicyId"]
     "CachePolicyIdParameter" = $CFPolicyStackOutputDict["CachePolicyId"]
-    #"ResponseHeadersPolicyIdParameter" = $CFPolicyStackOutputDict["ResponseHeadersPolicyId"]
+    "CacheByHeaderPolicyIdParameter" = $CFPolicyStackOutputDict["CacheByHeaderPolicyId"]
+    "ApiCachePolicyIdParameter" = $CFPolicyStackOutputDict["ApiCachePolicyId"]
     "RequestFunctionArnParameter" = $CFPolicyStackOutputDict["RequestFunctionArn"]
     "RequestPrefixFunctionArnParameter" = $CFPolicyStackOutputDict["RequestPrefixFunctionArn"]
     "ResponseFunctionArnParameter" = $CFPolicyStackOutputDict["ResponseFunctionArn"]
@@ -148,8 +151,6 @@ $ParametersDict = @{
 
     "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
 
-    "WebSocketApiIdParameter" = $ServiceStackOutputDict["WebSocketApiId"]
-
 
     # Authentications 
     "ConsumerAuthUserPoolNameParameter" = $ServiceStackOutputDict["ConsumerAuthUserPoolName"]
@@ -165,7 +166,7 @@ $ParametersDict = @{
 $parameters = ConvertTo-ParameterOverrides -parametersDict $ParametersDict
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
---template-file sam.StoreTenancy.g.yaml `
+--template-file sam.ConsumerTenancy.g.yaml `
 --s3-bucket $ArtifactsBucket `
 --stack-name $StackName `
 --parameter-overrides $parameters `

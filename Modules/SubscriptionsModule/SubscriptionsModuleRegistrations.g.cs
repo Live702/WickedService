@@ -7,7 +7,7 @@
 //----------------------
 namespace SubscriptionsModule
 {
-    public static class SubscriptionsModuleRegistrations 
+    public static partial class SubscriptionsModuleRegistrations 
     {
         public static IServiceCollection AddSubscriptionsModule(this IServiceCollection services) 
         {
@@ -16,7 +16,9 @@ namespace SubscriptionsModule
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
 			services.AddSubscriptionsSchemaRepo();
+            CustomConfigurations(services);
             return services;            
         }
+        static partial void CustomConfigurations(IServiceCollection sdervices);
     }
 }

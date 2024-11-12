@@ -180,6 +180,7 @@ components:
             type: string
         petStatus:
           description: pet status in the store
+          default: available
           $ref: '#/components/schemas/PetStatus'
         createUtcTick:
           type: integer
