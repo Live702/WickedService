@@ -13,25 +13,25 @@ namespace ConsumerModule
     {
         public ConsumerModuleControllerImpl(
             IConsumerModuleAuthorization consumerModuleAuthorization,
+			ILzNotificationRepo lzNotificationRepo,
+			ILzNotificationsPageRepo lzNotificationsPageRepo,
+			ILzSubscriptionRepo lzSubscriptionRepo,
 			IPreferencesRepo preferencesRepo,
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
-			IOrderRepo orderRepo,
-			ILzNotificationRepo lzNotificationRepo,
-			ILzNotificationsPageRepo lzNotificationsPageRepo,
-			ILzSubscriptionRepo lzSubscriptionRepo
+			IOrderRepo orderRepo
             ) 
         {
             this.consumerModuleAuthorization = consumerModuleAuthorization;
+			this.lzNotificationRepo = lzNotificationRepo;
+			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
+			this.lzSubscriptionRepo = lzSubscriptionRepo;
 			this.preferencesRepo = preferencesRepo;
 			this.categoryRepo = categoryRepo;
 			this.tagRepo = tagRepo;
 			this.petRepo = petRepo;
 			this.orderRepo = orderRepo;
-			this.lzNotificationRepo = lzNotificationRepo;
-			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
-			this.lzSubscriptionRepo = lzSubscriptionRepo;
 
             Init();
         }

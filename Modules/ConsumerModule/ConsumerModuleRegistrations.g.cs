@@ -13,10 +13,10 @@ namespace ConsumerModule
         {
             services.TryAddSingleton<IConsumerModuleAuthorization, ConsumerModuleAuthorization>();
             services.TryAddSingleton<IConsumerModuleController, ConsumerModuleControllerImpl>();
-            services.AddConsumerSchemaRepo();
+            services.AddLzMessagingSchemaRepo();
+			services.AddConsumerSchemaRepo();
 			services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
-			services.AddSubscriptionsSchemaRepo();
             CustomConfigurations(services);
             return services;            
         }

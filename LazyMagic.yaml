@@ -1,22 +1,138 @@
 LazyMagicDirectivesVersion: 2.0.0
 
 Directives:
-
-  # SCHEMAS - libraires for DTOs and CRUDL
+# Cross cutting directives
+  # SCHEMAS Default
   SchemaDefault:
     Type: Schema
-    IsDefault: true
+    IsDefault: true # this directive may be referenced by other Schema directives
     Artifacts:
-      SchemaProject:
-        Type: DotNetSchema
-        Template: ./ProjectTemplates/Schema
-        OutputFolder: Schemas
-      RepoProject:
-        Type: DotNetRepo
-        Template: ./ProjectTemplates/Repo
-        SchemaProject: SchemaProject
-        OutputFolder: Schemas
-        NameSuffix: Repo
+      DotNetSchemaProject: # system DTOs classes
+      DotNetRepoProject: # DynamoDB CRUDL methods for DTOs
+
+  # MODULES Default 
+  ModuleDefault:
+    Type: Module
+    IsDefault: true # this directive may be referenced by other Module directives
+    Artifacts:
+      DotNetControllerProject: # methods for each REST path operation
+
+  # CONTAINERS Default
+  AwsApiLambdaContainerDefault:
+    Type: Container
+    IsDefault: true # this directive may be referenced by other Container directives
+    Artifacts:
+      DotNetApiLambdaProject: # Lambda function that processes the HttpApi request
+      AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+
+  # API Default
+  ApiDefault:
+    Type: Api
+    IsDefault: true # this directive may be referenced by other Api directives
+    Artifacts:
+      AwsHttpApiResource: # AWS SAM template resource for the HttpApi
+      DotNetHttpApiSDKProject: # Client SDK for the Api
+
+  # WEBAPP Default
+  WebAppDefault:
+    Type: WebApp # this directive may be referenced by other WebApp directives
+    IsDefault: true
+
+  # TENANCY Default
+  TenancyDefaults:
+    Type: Tenancy
+    IsDefault: true # this directive may be referenced by other Tenancy directives
+    Service: Service
+    Artifacts:
+      AwsTenancyStackTemplate: # the AWS SAM template for the Tenancy
+
+  # AUTHENTICATORS - Authentication services
+  EmployeeAuth:
+    Type: Authentication
+    Artifacts:
+      AwsCognitoResource: 
+        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.managed.yaml
+
+  ConsumerAuth:
+    Type: Authentication
+    Artifacts:
+      AwsCognitoResource:
+        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.unmanaged.yaml
+
+# LzMessaging Subsystem Directives
+# This section contains the directives that define the LzMessaging subsystem which provides:
+# - WebSocket connections for clients to receive messages
+# - Use of DynamoDB to store subscription information  
+# - Use of SQS message broker to queue messages
+# - Use of Lambda to process messages and call a API Gateway WebSocket to send messages to subscribers
+ 
+  # Schemas
+  LzMessagingSchema:
+    # schemas include LzSubscriptions and LzNotifications
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs: # reads the schema section
+    - openapi.messaging-schema.yaml
+
+  # Modules
+  LzMessagingModule:
+    # path operations include subscribe, unsubscribe
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs: # reads the path section
+    - openapi.messaging.yaml
+
+  # # Containers
+  # LzMessagingWebSocketLambda:
+  #   # Handles websocket CONNECT, DISCONNECT, and MESSAGE events
+  #   # The only incoming message event is AUTHENTICATE.
+  #   # The only outgoing message is AUTHENTICATED.
+  #   # Note that the WebSocket it self may send DISCONNECT events. 
+  #   Type: Container
+  #   Artifacts:
+  #     DotNetWSApiLambdaProject:
+  #     AwsWSApiLambdaResource:
+  #       Authentications: # unlike HttpApi, we authenticate in the Lambda function
+  #       - ConsumerAuth
+  #       - EmployeeAuth
+  #       WebSocketApi: LzMessagingWebSocketApi # required to send AUTHENTICATED message to client
+
+  # # LzMessagingApi
+  # # Note the absence of Authentication. AWS WebSockets do not support authentication at the API Gateway level.
+  # # We do authentication in the Lambda function using an AUTHENTICATE message after connection. Connections not
+  # # authenticated after a few seconds are disconnected. 
+  # LzMessagingApi:
+  #   Type: Api
+  #   Containers:
+  #   - LzMessagingWebSocketLambda
+  #   Artifacts:
+  #     AwsWSApiResource: 
+  #     DotNetWSApiSDKProject:
+  
+  # # Message Queue
+  # # Schema Repos write to the message queue on Create Update and Delete (CUD) operations. 
+  # # The LzMessagingLambda reads from the queue and sends messages, with the CUD payload,
+  # # to subscribers using the WebSocket. CUD information is identified by a Topic.
+  # # Subscribers subscribe to Topics. The reason we use a message queue is to eliminate 
+  # # any latency in sending a response back to the client that performed the CUD operation.
+  # # Updates to subscribers are done asynchronously.
+  # LzMessagingQueue:
+  #   Type: Queue
+  #   Artifacts:
+  #     AwsSQSResource:
+      
+  # LzMessagingLambda:
+  #   # Reads message queue and sends messages to subscribers using WebSocket
+  #   # Subscribers subscribe to Topics and only receive messages for Topics 
+  #   # they are subscribed to.
+  #   Type: Container
+  #   Artifacts:
+  #     DotNetSQSLambdaProject:
+  #     AwsSQSLambdaResource:
+  #       Queue: LzMessagingQueue
+  #       WebSocketApi: LzMessagingApi 
+
+# Application Directives
 
   ConsumerSchema:
     Type: Schema
@@ -36,12 +152,6 @@ Directives:
     OpenApiSpecs:
     - openapi.store-schema.yaml
 
-  SubscriptionsSchema:
-    Type: Schema
-    Defaults: SchemaDefault
-    OpenApiSpecs:
-    - openapi.subscriptions-schema.yaml
-
   AdminSchema:
     Type: Schema
     Defaults: SchemaDefault
@@ -55,21 +165,6 @@ Directives:
     - openapi.public-schema.yaml
 
   # MODULES - libraries handling paths
-  ModuleDefault:
-    Type: Module
-    IsDefault: true
-    Artifacts:
-      ControllerProject:
-        Type: DotNetController
-        Template: ./ProjectTemplates/Controller
-        OutputFolder: Modules
-
-  SubscriptionsModule:
-    Type: Module
-    Defaults: ModuleDefault
-    OpenApiSpecs:
-    - openapi.subscriptions.yaml
-
   StoreModule:
     Type: Module
     Defaults: ModuleDefault
@@ -90,135 +185,60 @@ Directives:
     - openapi.public.yaml
 
   # CONTAINERS - executables
-  AwsLambdaContainerDefault:
-    Type: Container
-    IsDefault: true
-    Artifacts:
-      LambdaProject:
-        Type: DotNetLambda
-        Runtime: dotnet8
-        Template: ./ProjectTemplates/Lambda
-        OutputFolder: Containers   
-      AwsLambda:
-        Type: AwsLambdaResource
-        Template: AWSTemplates/Snippets/sam.service.lambda.yaml
-
-  WebSocketLambda:
-    Type: Container
-    Artifacts:
-      WebSocketProject:
-        Type: DotNetWebSocketLambda
-        Runtime: dotnet8
-        Template: ./ProjectTemplates/WebSocket
-        OutputFolder: Containers
-      WebSocketFunction:
-        Type: AwsLambdaResource
-        Authentication: EmployeeAuth # we pass UserPol as an Environmental variable so we need Authentication here
-        AuthenticationRequired: true # we pass this as an Environmental variable so we need this assigned here
-        Template: AWSTemplates/Snippets/sam.service.websocketlambda.yaml
-        Resource1: NotificationsFunction # Calls WebSocketLambda.PostToConnectionAsync()     
-
   StoreLambda:
     Type: Container
     ApiPrefix: Store
-    Defaults: AwsLambdaContainerDefault
+    Defaults: AwsApiLambdaContainerDefault
     Modules:
-    - SubscriptionsModule
+    - LzMessagingModule
     - StoreModule
 
   ConsumerLambda:
     Type: Container
     ApiPrefix: Consumer
-    Defaults: AwsLambdaContainerDefault
+    Defaults: AwsApiLambdaContainerDefault
     Modules:
-    - SubscriptionsModule
+    - LzMessagingModule
     - ConsumerModule
 
   PublicLambda:
     Type: Container
     ApiPrefix: Public
-    Defaults: AwsLambdaContainerDefault
+    Defaults: AwsApiLambdaContainerDefault
     Modules:
     - PublicModule
-
-  # AUTHENTICATORS - Authentication services
-  EmployeeAuth:
-    Type: Authentication
-    Artifacts:
-      CognitoUserPool:
-        Type: AwsCognitoResource
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.managed.yaml
-
-  ConsumerAuth:
-    Type: Authentication
-    Artifacts:
-      CognitoUserPool:
-        Type: AwsCognitoResource
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.unmanaged.yaml
 
   # APIS - API Gateways that proxy requests to containers
   StoreApi:
     Type: Api
+    Defaults: ApiDefault
     Authentication: EmployeeAuth
     Containers:
     - StoreLambda
-    Artifacts:
-      ApiGateway:
-        Type: AwsHttpApiResource
-      ApiClientSDK:
-        Type: DotNetSDK
-        Template: ./ProjectTemplates/ClientSDK
-        OutputFolder: ClientSDKs
 
   ConsumerApi:
     Type: Api
+    Defaults: ApiDefault
     Authentication: ConsumerAuth
     Containers:
     - ConsumerLambda
-    Artifacts:
-      ApiGateway:
-        Type: AwsHttpApiResource
-      ApiClientSDK:
-        Type: DotNetSDK
-        Template: ./ProjectTemplates/ClientSDK
-        OutputFolder: ClientSDKs
 
   PublicApi:
     Type: Api
+    Defaults: ApiDefault
     Containers:
     - PublicLambda
-    Artifacts:
-      ApiGateway:
-        Type: AwsHttpApiResource
-        Template: AWSTemplates/Snippets/sam.service.httpapi.yaml
-      ApiClientSDK:
-        Type: DotNetSDK
-        Template: ./ProjectTemplates/ClientSDK
-        OutputFolder: ClientSDKs
 
-  WebSocketApi:
-    Type: Api
-    # Authentication: None; For WebSockets the authentication is assigned at the Container level
-    Containers:
-    - WebSocketLambda
-    Artifacts:
-      ApiGateway:
-        Type: AwsWebSocketApiResource
-        Template: AWSTemplates/Snippets/sam.service.websocketapi.yaml
-  
-
-  # SERVICES - Aggregate Api endpoints to allow shared Authenticators and Containers.
+  # Service
   Service:
     Type: Service
     Apis: # remember that each Api has it's own ClientSDK
     - StoreApi
     - ConsumerApi
     - PublicApi
-    - WebSocketApi
+    #WSApi: LzMessagingApi
     Artifacts:
-      ServiceStack:
-        Type: AwsServiceStackTemplate
-        Template: AWSTemplates/Snippets/sam.service.yaml
+      AwsServiceStackTemplate:
 
   LocalWebService:
     Type: Service
@@ -227,16 +247,9 @@ Directives:
     - ConsumerApi
     - PublicApi
     Artifacts:
-      LocalWebApi:
-        Type: DotNetLocalWebApi
-        Template: ./ProjectTemplates/WebApi
-
+      DotNetLocalWebApiProject:
 
 # WEBAPPS
-  WebAppDefault:
-    Type: WebApp
-    IsDefault: true
-
   AdminApp:
     Type: WebApp
     Defaults: WebAppDefault
@@ -264,14 +277,6 @@ Directives:
     - PublicApi
 
 # TENANCIES
-  TenancyDefaults:
-    Type: Tenancy
-    IsDefault: true
-    Service: Service
-    Artifacts:
-      TenancyStack:
-        Type: AwsTenancyStackTemplate
-
   SystemTenancy:
     Type: Tenancy
     Defaults: TenancyDefaults

@@ -13,23 +13,23 @@ namespace PublicModule
     {
         public PublicModuleControllerImpl(
             IPublicModuleAuthorization publicModuleAuthorization,
+			ILzNotificationRepo lzNotificationRepo,
+			ILzNotificationsPageRepo lzNotificationsPageRepo,
+			ILzSubscriptionRepo lzSubscriptionRepo,
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
-			IOrderRepo orderRepo,
-			ILzNotificationRepo lzNotificationRepo,
-			ILzNotificationsPageRepo lzNotificationsPageRepo,
-			ILzSubscriptionRepo lzSubscriptionRepo
+			IOrderRepo orderRepo
             ) 
         {
             this.publicModuleAuthorization = publicModuleAuthorization;
+			this.lzNotificationRepo = lzNotificationRepo;
+			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
+			this.lzSubscriptionRepo = lzSubscriptionRepo;
 			this.categoryRepo = categoryRepo;
 			this.tagRepo = tagRepo;
 			this.petRepo = petRepo;
 			this.orderRepo = orderRepo;
-			this.lzNotificationRepo = lzNotificationRepo;
-			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
-			this.lzSubscriptionRepo = lzSubscriptionRepo;
 
             Init();
         }

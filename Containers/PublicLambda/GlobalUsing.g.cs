@@ -6,10 +6,10 @@
 
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
+global using LzMessagingSchema;
+global using LzMessagingSchemaRepo;
 global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
 global using StoreSchemaRepo;
-global using SubscriptionsSchema;
-global using SubscriptionsSchemaRepo;
 global using PublicModule;

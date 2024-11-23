@@ -9,11 +9,11 @@ global using System.Collections.Generic;
 global using System.Threading.Tasks;
 
 
-global using SharedSchema;
+global using LzMessagingSchema;
+global using LzMessagingSchemaRepo;
 global using ConsumerSchema;
-global using SharedSchemaRepo;
 global using ConsumerSchemaRepo;
+global using SharedSchema;
+global using SharedSchemaRepo;
 global using StoreSchema;
 global using StoreSchemaRepo;
-global using SubscriptionsSchema;
-global using SubscriptionsSchemaRepo;

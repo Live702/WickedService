@@ -13,6 +13,4 @@ global using Microsoft.Extensions.Configuration;
 global using LazyMagic.Shared;
 
 
-global using SharedSchema;
 global using ConsumerSchema;
-global using SharedSchemaRepo;

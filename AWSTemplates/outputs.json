@@ -1,17 +1,16 @@
 {
-  "ConsumerApiId": "lzoscirc33",
-  "PublicApiId": "zrzk10w0mj",
   "ConfigFunctionArn": "arn:aws:cloudfront::905418209108:function/lzm-config-500c154a-fb41-496a-bd90-27f541ff523b",
-  "ConsumerAuthSecurityLevel": "1",
-  "StoreApiId": "cwc43jpn8b",
-  "EmployeeAuthUserPoolName": "EmployeeAuth",
-  "ConsumerAuthUserPoolClientId": "1bt62na5kc5lu1tc3j3fcqh6d3",
-  "ConsumerAuthIdentityPoolId": "",
-  "ConsumerAuthUserPoolName": "ConsumerAuth",
+  "EmployeeAuthUserPoolId": "us-west-2_3cssT7wAv",
   "EmployeeAuthSecurityLevel": "1",
   "ConsumerAuthUserPoolId": "us-west-2_mG43O0OfP",
-  "EmployeeAuthUserPoolId": "us-west-2_3cssT7wAv",
-  "EmployeeAuthUserPoolClientId": "4lcihk6nddrpf58s1f2cv8f59n",
+  "ConsumerAuthUserPoolClientId": "1bt62na5kc5lu1tc3j3fcqh6d3",
   "EmployeeAuthIdentityPoolId": "",
-  "WebSocketApiId": "q1i25ovqpa"
+  "ConsumerAuthUserPoolName": "ConsumerAuth",
+  "PublicApiId": "zrzk10w0mj",
+  "EmployeeAuthUserPoolName": "EmployeeAuth",
+  "ConsumerApiId": "lzoscirc33",
+  "EmployeeAuthUserPoolClientId": "4lcihk6nddrpf58s1f2cv8f59n",
+  "StoreApiId": "cwc43jpn8b",
+  "ConsumerAuthIdentityPoolId": "",
+  "ConsumerAuthSecurityLevel": "1"
 }

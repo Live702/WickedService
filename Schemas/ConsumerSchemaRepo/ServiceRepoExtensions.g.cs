@@ -19,7 +19,6 @@ public static class ConsumerSchemaRepoExtensions
         services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IPreferencesRepo, PreferencesRepo>();
 
-		services.AddSharedSchemaRepo();
 
 
         return services;

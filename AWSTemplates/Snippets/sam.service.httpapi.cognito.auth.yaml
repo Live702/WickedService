@@ -1,0 +1,10 @@
+      Auth:
+        Authorizers:
+          OpenIdAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer:
+                Fn::Sub: https://cognito-idp.${AWS::Region}.amazonaws.com/${__CognitoResource__UserPool}
+              audience:
+              - Ref: __CognitoResource__UserPoolClient
+        DefaultAuthorizer: OpenIdAuthorizer

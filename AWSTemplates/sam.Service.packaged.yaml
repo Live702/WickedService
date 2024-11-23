@@ -23,11 +23,11 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/df6df26d0a75b2d3536ee0d6345c95ab
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/20de2b2e75d43a9ccf177cb1d274106e
       Handler: StoreLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
-      MemorySize: 512
+      MemorySize: 256
       Timeout: 30
       Tracing: Active
       Policies:
@@ -47,37 +47,15 @@ Resources:
         Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*
     Metadata:
       SamResourceId: StoreLambdaStoreApiPermissions
-  StoreLambdaConsumerApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: StoreLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*
-    Metadata:
-      SamResourceId: StoreLambdaConsumerApiPermissions
-  StoreLambdaPublicApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: StoreLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*
-    Metadata:
-      SamResourceId: StoreLambdaPublicApiPermissions
   ConsumerLambda:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/eefe95b4c4bac642e206b36ea11df2b2
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/7d01f4bc533b1d3ab87f24c226ba7bd2
       Handler: ConsumerLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
-      MemorySize: 512
+      MemorySize: 256
       Timeout: 30
       Tracing: Active
       Policies:
@@ -86,17 +64,6 @@ Resources:
           TableName: '*'
     Metadata:
       SamResourceId: ConsumerLambda
-  ConsumerLambdaStoreApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: ConsumerLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*
-    Metadata:
-      SamResourceId: ConsumerLambdaStoreApiPermissions
   ConsumerLambdaConsumerApiPermissions:
     Type: AWS::Lambda::Permission
     Properties:
@@ -108,26 +75,15 @@ Resources:
         Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*
     Metadata:
       SamResourceId: ConsumerLambdaConsumerApiPermissions
-  ConsumerLambdaPublicApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: ConsumerLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*
-    Metadata:
-      SamResourceId: ConsumerLambdaPublicApiPermissions
   PublicLambda:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/898f198f9b05de2dd67482ceb689123d
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/c0deb2d637bdcbb184479b2e7389689b
       Handler: PublicLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
-      MemorySize: 512
+      MemorySize: 256
       Timeout: 30
       Tracing: Active
       Policies:
@@ -136,28 +92,6 @@ Resources:
           TableName: '*'
     Metadata:
       SamResourceId: PublicLambda
-  PublicLambdaStoreApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: PublicLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*
-    Metadata:
-      SamResourceId: PublicLambdaStoreApiPermissions
-  PublicLambdaConsumerApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: PublicLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*
-    Metadata:
-      SamResourceId: PublicLambdaConsumerApiPermissions
   PublicLambdaPublicApiPermissions:
     Type: AWS::Lambda::Permission
     Properties:
@@ -169,86 +103,6 @@ Resources:
         Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*
     Metadata:
       SamResourceId: PublicLambdaPublicApiPermissions
-  WebSocketLambda:
-    Type: AWS::Serverless::Function
-    Properties:
-      PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/6db14c0e0dea17fc36d689e38ceb28a2
-      Handler: WebSocketLambda::LambdaFunc.Function::FunctionHandlerAsync
-      Runtime: dotnet8
-      Description: LazyMagic Generated WebSocket Function
-      MemorySize: 512
-      Timeout: 30
-      Tracing: Active
-      Policies:
-      - DynamoDBCrudPolicy:
-          TableName: '*'
-      - Statement:
-        - Effect: Allow
-          Action:
-          - execute-api:ManageConnections
-          Resource:
-          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
-          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsFunction}/*/*
-      - Statement:
-        - Effect: Allow
-          Action:
-          - cognito-idp:GetUser
-          Resource:
-            Fn::GetAtt:
-            - EmployeeAuthUserPool
-            - Arn
-      Environment:
-        Variables:
-          USER_POOL_ID:
-            Ref: EmployeeAuthUserPool
-          AUTHENTICATION_REQUIRED: true
-    Metadata:
-      SamResourceId: WebSocketLambda
-  WebSocketLambdaInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName:
-        Ref: WebSocketLambda
-      Principal: apigateway.amazonaws.com
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*
-    Metadata:
-      SamResourceId: WebSocketLambdaInvokePermission
-  WebSocketLambdaStoreApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: WebSocketLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${StoreApi}/*/*/*/*
-    Metadata:
-      SamResourceId: WebSocketLambdaStoreApiPermissions
-  WebSocketLambdaConsumerApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: WebSocketLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ConsumerApi}/*/*/*/*
-    Metadata:
-      SamResourceId: WebSocketLambdaConsumerApiPermissions
-  WebSocketLambdaPublicApiPermissions:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      FunctionName:
-        Ref: WebSocketLambda
-      SourceArn:
-        Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PublicApi}/*/*/*/*
-    Metadata:
-      SamResourceId: WebSocketLambdaPublicApiPermissions
   StoreApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -528,9 +382,28 @@ Resources:
   PublicApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      Description: Unsecuire HttpApi generated by LazyMagic
+      Description: HttpApi with Cognito Authentication generated by LazyMagic
       StageName:
         Ref: EnvironmentParameter
+      CorsConfiguration:
+        AllowOrigins:
+        - https://*
+        - http://*
+        AllowHeaders:
+        - Authorization
+        - '*'
+        AllowMethods:
+        - GET
+        - HEAD
+        - PUT
+        - OPTIONS
+        - POST
+        - DELETE
+        ExposeHeaders:
+        - Date
+        - x-api-id
+        MaxAge: 600
+        AllowCredentials: false
       DefinitionBody:
         openapi: 3.0.1
         paths:
@@ -592,121 +465,6 @@ Resources:
                 payloadFormatVersion: 2.0
     Metadata:
       SamResourceId: PublicApi
-  WebSocketApi:
-    Type: AWS::ApiGatewayV2::Api
-    Properties:
-      Name: WebSocketApi
-      ProtocolType: WEBSOCKET
-      RouteSelectionExpression: $request.body.eventType
-    Metadata:
-      SamResourceId: WebSocketApi
-  WebSocketApiConnectRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      RouteKey: $connect
-      AuthorizationType: NONE
-      Target:
-        Fn::Sub: integrations/${WebSocketApiConnectIntegration}
-    Metadata:
-      SamResourceId: WebSocketApiConnectRoute
-  WebSocketApiConnectIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      IntegrationType: AWS_PROXY
-      IntegrationUri:
-        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
-    Metadata:
-      SamResourceId: WebSocketApiConnectIntegration
-  WebSocketApiMessageRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      RouteKey: message
-      AuthorizationType: NONE
-      Target:
-        Fn::Sub: integrations/${WebSocketApiMessageIntegration}
-    Metadata:
-      SamResourceId: WebSocketApiMessageRoute
-  WebSocketApiMessageIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      IntegrationType: AWS_PROXY
-      IntegrationUri:
-        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
-    Metadata:
-      SamResourceId: WebSocketApiMessageIntegration
-  WebSocketApiDefaultRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      RouteKey: $default
-      AuthorizationType: NONE
-      Target:
-        Fn::Sub: integrations/${WebSocketApiDefaultIntegration}
-    Metadata:
-      SamResourceId: WebSocketApiDefaultRoute
-  WebSocketApiDefaultIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      IntegrationType: AWS_PROXY
-      IntegrationUri:
-        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
-    Metadata:
-      SamResourceId: WebSocketApiDefaultIntegration
-  WebSocketApiDisconnectRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      RouteKey: $disconnect
-      AuthorizationType: NONE
-      Target:
-        Fn::Sub: integrations/${WebSocketApiDisconnectIntegration}
-    Metadata:
-      SamResourceId: WebSocketApiDisconnectRoute
-  WebSocketApiDisconnectIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      IntegrationType: AWS_PROXY
-      IntegrationUri:
-        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WebSocketLambda.Arn}/invocations
-    Metadata:
-      SamResourceId: WebSocketApiDisconnectIntegration
-  WebSocketApiDeployment:
-    Type: AWS::ApiGatewayV2::Deployment
-    DependsOn:
-    - WebSocketApiMessageRoute
-    - WebSocketApiConnectRoute
-    - WebSocketApiDisconnectRoute
-    - WebSocketApiDefaultRoute
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-    Metadata:
-      SamResourceId: WebSocketApiDeployment
-  WebSocketApiStage:
-    Type: AWS::ApiGatewayV2::Stage
-    Properties:
-      ApiId:
-        Ref: WebSocketApi
-      DeploymentId:
-        Ref: WebSocketApiDeployment
-      StageName:
-        Ref: EnvironmentParameter
-    Metadata:
-      SamResourceId: WebSocketApiStage
   EmployeeAuthUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -781,161 +539,6 @@ Resources:
       - https://www.example.com
     Metadata:
       SamResourceId: ConsumerAuthUserPoolClient
-  NotificationsTable:
-    Type: AWS::DynamoDB::Table
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      TableName: notifications
-      TimeToLiveSpecification:
-        AttributeName: TTL
-        Enabled: true
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
-      AttributeDefinitions:
-      - AttributeName: PK
-        AttributeType: S
-      - AttributeName: SK
-        AttributeType: S
-      - AttributeName: SK1
-        AttributeType: S
-      - AttributeName: SK2
-        AttributeType: S
-      - AttributeName: SK3
-        AttributeType: S
-      - AttributeName: SK4
-        AttributeType: S
-      - AttributeName: SK5
-        AttributeType: S
-      - AttributeName: GSI1PK
-        AttributeType: S
-      - AttributeName: GSI1SK
-        AttributeType: S
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-      - AttributeName: PK
-        KeyType: HASH
-      - AttributeName: SK
-        KeyType: RANGE
-      LocalSecondaryIndexes:
-      - IndexName: PK-SK1-Index
-        KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK1
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-      - IndexName: PK-SK2-Index
-        KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK2
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-      - IndexName: PK-SK3-Index
-        KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK3
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-      - IndexName: PK-SK4-Index
-        KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK4
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-      - IndexName: PK-SK5-Index
-        KeySchema:
-        - AttributeName: PK
-          KeyType: HASH
-        - AttributeName: SK5
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-      GlobalSecondaryIndexes:
-      - IndexName: GSI1
-        KeySchema:
-        - AttributeName: GSI1PK
-          KeyType: HASH
-        - AttributeName: GSI1SK
-          KeyType: RANGE
-        Projection:
-          NonKeyAttributes:
-          - Status
-          - UpdateUtcTick
-          - CreateUtcTick
-          - General
-          ProjectionType: INCLUDE
-    Metadata:
-      SamResourceId: NotificationsTable
-  NotificationsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/51b0951e3b6d7a15f6195d59fa4ce071
-      Handler: NotificationsLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
-      Runtime: dotnet8
-      Description: Processes DynamoDB stream events
-      MemorySize: 256
-      Timeout: 20
-      Tracing: Active
-      Policies:
-      - DynamoDBStreamReadPolicy:
-          StreamName:
-            Fn::GetAtt:
-            - NotificationsTable
-            - StreamArn
-          TableName:
-            Ref: NotificationsTable
-      - Statement:
-        - Effect: Allow
-          Action:
-          - execute-api:ManageConnections
-          Resource:
-          - Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/*
-      Events:
-        Stream:
-          Type: DynamoDB
-          Properties:
-            Stream:
-              Fn::GetAtt:
-              - NotificationsTable
-              - StreamArn
-            BatchSize: 100
-            StartingPosition: LATEST
-    Metadata:
-      SamResourceId: NotificationsFunction
   ConfigFunction:
     Type: AWS::CloudFront::Function
     Properties:
@@ -950,12 +553,11 @@ Resources:
           \ caching\n        },\n        body: JSON.stringify(\n            {\n  \
           \              meta: {\n                    type: 'cloudfront',\n      \
           \              awsRegion: '${AWS::Region}',\n                    wsUrl:\
-          \ 'wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentParameter}',\n\
-          \                 },\n                 authConfigs: {\n                \
-          \    \n                    EmployeeAuth: {\n                        awsRegion:\
-          \ '${AWS::Region}',\n                        userPoolName: 'EmployeeAuth',\n\
-          \                        userPoolId: '${EmployeeAuthUserPool}',\n      \
-          \                  userPoolClientId: '${EmployeeAuthUserPoolClient}',\n\
+          \ '',\n                 },\n                 authConfigs: {\n          \
+          \          \n                    EmployeeAuth: {\n                     \
+          \   awsRegion: '${AWS::Region}',\n                        userPoolName:\
+          \ 'EmployeeAuth',\n                        userPoolId: '${EmployeeAuthUserPool}',\n\
+          \                        userPoolClientId: '${EmployeeAuthUserPoolClient}',\n\
           \                        userPoolSecurityLevel: 1,\n                   \
           \     identityPoolId: ''\n                    },\n\n                   \
           \ ConsumerAuth: {\n                        awsRegion: '${AWS::Region}',\n\
@@ -986,9 +588,6 @@ Outputs:
   PublicApiId:
     Value:
       Ref: PublicApi
-  WebSocketApiId:
-    Value:
-      Ref: WebSocketApi
   EmployeeAuthUserPoolName:
     Value: EmployeeAuth
   EmployeeAuthUserPoolId:
