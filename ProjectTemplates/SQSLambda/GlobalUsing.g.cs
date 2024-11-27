@@ -1,6 +1,5 @@
 ﻿global using Amazon.ApiGatewayManagementApi;
 global using Amazon.ApiGatewayManagementApi.Model;
-global using Amazon.DynamoDBv2.Model;
 global using Amazon.Lambda.APIGatewayEvents;
 global using Amazon.Lambda.Core;
 global using Amazon.Lambda.DynamoDBEvents;
@@ -10,7 +9,8 @@ global using System.Threading.Tasks;
 global using System.Collections.Generic;
 global using Microsoft.Extensions;
 global using Microsoft.Extensions.Logging;
-global using Newtonsoft.Json;
+global using Newtonsoft.Json;   
 global using System.Text;
 global using System.Text.Json;
-global using SubscriptionsSchemaRepo;
+global using LzMessagingSchemaRepo;
+

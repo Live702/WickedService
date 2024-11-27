@@ -23,7 +23,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/20de2b2e75d43a9ccf177cb1d274106e
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/56973204a0575c17c939e42789e4e65d
       Handler: StoreLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
@@ -51,7 +51,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/7d01f4bc533b1d3ab87f24c226ba7bd2
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/d793c4007a6d9febfb6a50f583b2f847
       Handler: ConsumerLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda
@@ -79,7 +79,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Zip
-      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/c0deb2d637bdcbb184479b2e7389689b
+      CodeUri: s3://lzm-artifacts-500c154a-fb41-496a-bd90-27f541ff523b/artifacts/9acead5b2ff032073ce4f85161b21f88
       Handler: PublicLambda::LambdaFunc.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnet8
       Description: LazyMagic Generated Lambda

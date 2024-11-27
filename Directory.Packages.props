@@ -22,13 +22,13 @@
     <PackageVersion Include="DeepCloner" Version="0.10.4" />
     <PackageVersion Include="FluentValidation" Version="11.10.0" />
     <PackageVersion Include="JsonSubTypes" Version="2.0.1" />
-    <PackageVersion Include="LazyMagic.Service.DynamoDBRepo" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Service.ControllerBase" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Service.Authorization" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Service.Notifications.FromStreams" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Service.Notifications.WebSocket" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Service.Notifications.WebSocketService" Version="0.10.0" />
-    <PackageVersion Include="LazyMagic.Shared" Version="0.10.0" />
+    <PackageVersion Include="LazyMagic.Service.DynamoDBRepo" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Service.ControllerBase" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Service.Authorization" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Service.Notifications.FromStreams" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Service.Notifications.WebSocket" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Service.Notifications.WebSocketService" Version="1.0.1" />
+    <PackageVersion Include="LazyMagic.Shared" Version="1.0.1" />
     <PackageVersion Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
