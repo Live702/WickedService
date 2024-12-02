@@ -22,6 +22,10 @@ Parameters:
     Description: "SubDomain"
     Type: String
 
+  DefaultPageUrlParameter:
+    Description: "Default page url"
+    Type: String
+
   # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
   GuidParameter:
     Description: "GuidParameter"
@@ -452,6 +456,17 @@ Resources:
                 if (uri !== "/") {
                     return request;
                 }
+
+            if('${DefaultPageUrlParameter}' !== 'none') {
+                return {
+                    statusCode: 302,
+                    statusDescription: 'Found',
+                    headers: {
+                        'location': { value: '${DefaultPageUrlParameter}' },
+                        'cache-control': { value: 'no-cache' }
+                    }
+                };
+            }
     
                 var html = `
             <!DOCTYPE html>
