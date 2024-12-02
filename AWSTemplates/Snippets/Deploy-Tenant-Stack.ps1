@@ -8,9 +8,17 @@ param(
     [string]$TenantKey, 
     [Parameter(Mandatory=$true)]
     [string]$SubDomain,
+    [string]$DefaultPageUrl,
     [string]$Guid,
     [string]$RootDomain
 )
+
+if (-not $PSBoundParameters.ContainsKey('DefaultPageUrl')) {
+    $DefaultPageUrl = Read-Host -Prompt "DefaultPageUrl [none]"
+    if ([string]::IsNullOrEmpty($DefaultPageUrl)) {
+        $DefaultPageUrl = "none"
+    }
+}
 
 Import-Module powershell-yaml
 Import-Module AWSPowerShell.NetCore

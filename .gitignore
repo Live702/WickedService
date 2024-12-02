@@ -362,3 +362,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# AWSTemplate intermediate Files
+AWSTemplates/sam.Service.packaged.yaml
+AWSTemplates/outputs.json
+AWSTemplates/config.json
+AWSTemplates/cloudfront_log_simplified.csv

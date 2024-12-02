@@ -40,7 +40,9 @@ if($SystemGuid -like "yourguid")
 # Get service stack outputs
 $targetStack = $config.SystemName + "-service"
 $ServiceStackOutputDict = Get-StackOutputs $targetStack
-$WebSocketApiIdParameter = $ServiceStackOutputDict["WebSocketApiId"]
+# Temporary removal of the websocket api id
+# $WebSocketApiIdParameter = $ServiceStackOutputDict["WebSocketApiId"]
+$WebSocketApiIdParameter = "none"
 
 Write-Host "Deploying the stack $StackName" 
 sam deploy `

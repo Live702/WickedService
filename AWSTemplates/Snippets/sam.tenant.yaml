@@ -22,6 +22,10 @@ Parameters:
     Description: "SubDomain"
     Type: String
 
+  DefaultPageUrlParameter:
+    Description: "Default page url"
+    Type: String
+
   # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
   GuidParameter:
     Description: "GuidParameter"

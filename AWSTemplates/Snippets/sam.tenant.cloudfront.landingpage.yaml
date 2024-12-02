@@ -13,6 +13,17 @@
                 if (uri !== "/") {
                     return request;
                 }
+
+            if('${DefaultPageUrlParameter}' !== 'none') {
+                return {
+                    statusCode: 302,
+                    statusDescription: 'Found',
+                    headers: {
+                        'location': { value: '${DefaultPageUrlParameter}' },
+                        'cache-control': { value: 'no-cache' }
+                    }
+                };
+            }
     
                 var html = `
             <!DOCTYPE html>
