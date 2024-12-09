@@ -45,6 +45,9 @@ if($AcmCertifcateArn -like "arn:aws:acm:us-east-1:account:certificate/guid")
 	exit
 }
 
+# Create the Packages folder if it doesn't existing
+mkdir ..\Packages -ErrorAction SilentlyContinue
+
 if(-not $DeployOnly)
 {
 

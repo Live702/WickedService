@@ -3,6 +3,26 @@ This folder contains templates that LazyMagic uses to create/update projects.
 
 You may modify these templates to suit your needs. LazyMagic will not overwrite these files when creating new projects. We suggest you copy the template you want to modify, give it a new name, and modify the copy so updating to new project templates provided by LazyMagic will be easier. Your modified templates can be placed in a different folder.
 
+## .NET Versions
+The templates in this folder generate .NET8 projects. This allows the latest LTS AWS Lambda containers to be used. AWS has a policy that only LTS versions of .NET are supported in Lambda containers. It is possible to roll your own containers with newer versions of .NET, but this is usually more pain than it is worth. Realistically, if you really need .NET9, you are probably working at a scale where you can afford to roll your own containers. Also, AWS has been slow in updating their containers to support the LTS versions, so we are often running a newer version of .NET on the client side than on the server side. This is annoying but not a show stopper.
+
+The practical effect of this is that all the "shared libraries" among the server side and client side should be .NET8 and we need to watch out for troublesome dependencies that are not .NET8 compatible.
+
+
+### Troublesome Dependencies
+There are some dependencies that are troublesome in .NET8. These are dependencies that are not .NET8 compatible. The ones currently known are:
+```
+    <!-- Microsoft.AspNetCore.Mvc.NewtonsoftJson 9.0.0 is not compatible with .NET8 -->
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
+```
+
+## Centralized Package Versions Management 
+We use the ```Directory.Packages.props``` file to manage package versions. This file allows us to manage package versions in one place. This makes it easier to update package versions across all projects and provides a single source of truth for package versions. When you update package versions in this file, be sure to check if the new package version is compatible with .NET8.
+
+In most cases, you can use Manage Nuget Packages for Solution to update the Directory.Packages.props file. However, its Update tab will suggest packages that are not compatible with .NET8. You will need to manually track which packages are not compatible with .NET8 and avoid updating to the suggested version.
+
+For the most part, I just update the Directory.Packages.props file manually and refer to a browser tab opened on nuget.org to check the latest version of a package and it's depdenencies.
+
 ## LazyMagic Directives
 LazyMagic directives, in the LazyMagic.yaml file, are used to control the generation of projects. The directive allows yo to specify the tempate to use. Note that LazyMagic generation relies on the template files having the types and core content provided in the ProjectTemplates folder.
 
@@ -10,70 +30,27 @@ LazyMagic directives, in the LazyMagic.yaml file, are used to control the genera
 Defaults:
 ```
   SchemaDefaults:
-	Type: SchemaDefaults
+    Type: SchemaDefaults
+    Default: true
     Properties:
-      DotNetSchemaProject:
-        Template: ./ProjectTemplates/Schema
-        OutputFolder: Schemas
-      DotNetRepoProject:
-        Template: ./ProjectTemplates/Repo
-        OutputFolder: Repos
+      Artifacts:
+        DotNetSchemaProject:
+        DotNetRepoProject:
 ```
 
 Specific Schema using the SchemaDefaults.
 ```
   NotificationsSchema:
-	Type: Schema
-	Properties:
-	  Defaults: SchemaDefaults
-	  OpenApiSpecs:
-	  - openapi.notifications-schema.yaml
+    Type: Schema
+    Defaults: SchemaDefaults
+    OpenApiSpecs:
+    - openapi.notifications-schema.yaml
 ```
-
-### Schema 
-Used to generate Schema projects. 
-- Referenced by SchemaDefaults.DotnetSchemaProject.Template.
-- Referenced by Schema.DotnetSchemaProject.Template.
-
-### Repo 
-Used to generate Repository projects. 
-- Referenced by SchemaDefaults.DotNetRepoProject.Template.
-- Referenced by Schema.DotNetRepoProject.Template.
-
-### Controller 
-Used to generate Controller projects. 
-- Referenced by ModuleDefaults.DotNetProject.Template.
-- Referenced by Module.DotNetProject.Template.
-
-### Lambda 
-Used to generate Lambda projects. 
-- Referenced by ContainerDefaults.DotNetProject.Template
-- Referenced by Container.DotNetProject.Template
-
-### WebApi 
-Used to generate WebApi projects. 
-- Referenced by WebApiDefaults.DotNetProject.Template
-- Referenced by WebApi.DotNetProject.Template
-
 
 ## Default Namespaces
 Each template uses a default namespace. This means you should not add a namespace to the project or any of its cs files.
 
 The templates do not contain a ```<RootNameSapce>``` definition. This means the csproj name (without the .csproj extension) will be used as the root namespace in the generated project. 
-
-Use the LazyMagic PropertyGroup attribute, for the DotNetProject, to specify your own root namespace.
-
-Generated Projects are named using the directive name. For example:
-```
-  NotificationsSchema:
-    Type: Schema
-    Properties:
-      Defaults: SchemaDefaults
-      OpenApiSpecs:
-      - openapi.notifications-schema.yaml
-```
-This directive will produce a project named NotificationsSchema.csproj and the root namespace will be the default of NotificationsSchema.
-
 
 ## GlobalUsings.cs 
 Each project uses a GlobalUsings.cs file to define global using statements. This file is included in each project and is used to define global using statements. LazyMagic project directives may add additional using statements to this file.
@@ -92,5 +69,17 @@ Any changes you make to files, in the generated project, with a .g.cs extension 
 ## Best Practice
 Try not to modifiy these tempalte projects. Instead, create a new template project. This will make it easier to update to newer versions of LazyMagic when new versions of the standard templates are released.
 
-Usually, you can just copy the extiing template, give it a meaning name, and modify it to suit your needs. 
+Usually, I just create a new project folder, say MyProjectTemplates, and then copy the extiing template into the new folder.
 
+You then specify the project template location in the LazyMagic.yaml file.
+```
+  SchemaDefaults:
+    Type: SchemaDefaults
+    Default: true
+    Properties:
+      Artifacts:
+        DotNetSchemaProject:
+          ProjectTemplate: MyProjectTemplates/Schema
+        DotNetRepoProject:
+          ProjectTemplate: MyProjectTemplates/Repo
+```

@@ -92,9 +92,23 @@ Resources:
             var request = event.request;
             var headers = request.headers;
             var origin = headers.origin && headers.origin.value;
+         
             function isLocalhost(origin) {
                 return  origin.startsWith('https://localhost:') || origin.startsWith('http://localhost:');
             }
+        
+            function removeLastPathSegment(uri) {
+                try {
+                    const url = new URL(uri);
+                    const pathSegments = url.pathname.split('/');
+                    pathSegments.pop(); // Remove last segment
+                    url.pathname = pathSegments.join('/');
+                    return url.toString();
+                } catch (e) {
+                    return uri.substring(0, uri.lastIndexOf('/'));
+                }
+            }
+
             // Check if it's a preflight request from localhost
             if (
                 request.method === 'OPTIONS' 
@@ -117,7 +131,8 @@ Resources:
             }
             // URI modification
             var uri = request.uri;
-            headers['x-custom-cache-key'] = { value: request.uri }; // CF uses the modified URI as the cache key so we use a header instead
+            if(uri.endsWith("Page")) uri = removeLastPathSegment(uri);
+            headers['x-custom-cache-key'] = { value: uri }; // CF uses the modified URI as the cache key so we use a header instead
             var secondSlash = uri.indexOf('/', 1);
             request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
             return request;
@@ -136,10 +151,24 @@ Resources:
       FunctionCode: |
         function handler(event) {
             var request = event.request;
+
+            function removeLastPathSegment(uri) {
+                try {
+                    const url = new URL(uri);
+                    const pathSegments = url.pathname.split('/');
+                    pathSegments.pop(); // Remove last segment
+                    url.pathname = pathSegments.join('/');
+                    return url.toString();
+                } catch (e) {
+                    return uri.substring(0, uri.lastIndexOf('/'));
+                }
+            }
+
             // URI modification
             var uri = request.uri;
+            if(uri.endsWith("Page")) uri = removeLastPathSegment(uri);
             var headers = request.headers;
-            headers['x-custom-cache-key'] = { value: request.uri}; // CF uses the modified URI as the cache key so we use a header instead
+            headers['x-custom-cache-key'] = { value: uri}; // CF uses the modified URI as the cache key so we use a header instead
             var secondSlash = uri.indexOf('/', 1);
             request.uri = secondSlash > 0 ? uri.slice(secondSlash) : "/";
             return request;

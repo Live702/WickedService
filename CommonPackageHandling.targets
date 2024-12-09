@@ -32,6 +32,9 @@
 	</PropertyGroup>
 
 	<!-- Target to copy dlls into the package. -->
+	<Target Name="CreateDirectories" BeforeTargets="Build">
+		<MakeDir Directories="$(SolutionDir)\Packages"/>
+	</Target>
 	<Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
 		<ItemGroup>
 			<_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
