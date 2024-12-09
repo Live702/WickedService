@@ -1,4 +1,7 @@
 <Project>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1507</NoWarn>
+	</PropertyGroup>
   <PropertyGroup>
     <RepoRootDir>$(MSBuildThisFileDirectory)</RepoRootDir>
     <CommonTargetsFile>$(RepoRootDir)CommonPackageHandling.targets</CommonTargetsFile>
