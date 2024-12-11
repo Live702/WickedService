@@ -154,6 +154,7 @@ $ParametersDict = @{
     "SystemAssetsBucketNameParameter" = $SystemAssetsStackOutputDict["AssetsBucketName"]
     "AssetsBucketNameParameter" = $AssetsStackOutputDict["AssetsBucketName"]
     "CDNLogBucketNameParameter" = $AssetsStackOutputDict["CDNLogBucketName"]
+    "DefaultPageUrlParameter" = $DefaultPageUrl
 
     # WebApps 
     "StoreAppBucketNameParameter" = $StoreAppStackOutputDict["AppBucket"]
