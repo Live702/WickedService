@@ -22,13 +22,10 @@ global using System.Text;
 global using System.ComponentModel;
 global using LazyMagic.Shared;
 
-global using LzMessagingSchema;
-global using LzMessagingSchemaRepo;
 global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
 global using StoreSchemaRepo;
-global using LzMessagingModule;
 global using AdminSchema;
 global using AdminSchemaRepo;
 global using StoreModule;

@@ -5,7 +5,6 @@ public partial class Startup
 {
     public void ConfigureSvcs(IServiceCollection services)
     {
-        services.AddLzMessagingModule();
-		services.AddStoreModule();
+        services.AddStoreModule();
     }
 }

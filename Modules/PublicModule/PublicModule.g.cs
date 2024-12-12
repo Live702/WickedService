@@ -179,9 +179,6 @@ namespace PublicModule
             return await tagRepo.ListAsync(callerInfo);
         }
 		protected IPublicModuleAuthorization publicModuleAuthorization;
-		protected ILzNotificationRepo lzNotificationRepo;
-		protected ILzNotificationsPageRepo lzNotificationsPageRepo;
-		protected ILzSubscriptionRepo lzSubscriptionRepo;
 		protected ICategoryRepo categoryRepo;
 		protected ITagRepo tagRepo;
 		protected IPetRepo petRepo;

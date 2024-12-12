@@ -335,9 +335,6 @@ namespace StoreModule
             return await petRepo.SeedAsync(callerInfo, store, numPets);
         }
 		protected IStoreModuleAuthorization storeModuleAuthorization;
-		protected ILzNotificationRepo lzNotificationRepo;
-		protected ILzNotificationsPageRepo lzNotificationsPageRepo;
-		protected ILzSubscriptionRepo lzSubscriptionRepo;
 		protected ICategoryRepo categoryRepo;
 		protected ITagRepo tagRepo;
 		protected IPetRepo petRepo;

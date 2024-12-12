@@ -163,42 +163,6 @@ Resources:
       DefinitionBody:
         openapi: 3.0.1
         paths:
-          '/Store/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}':
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Store/Notification':
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Store/lzSubscription/{id}':
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Store/lzSubscription':
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${StoreLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
           '/Store/callerInfo':
             get:
               x-amazon-apigateway-integration:
@@ -372,42 +336,6 @@ Resources:
       DefinitionBody:
         openapi: 3.0.1
         paths:
-          '/Consumer/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}':
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Consumer/Notification':
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Consumer/lzSubscription/{id}':
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
-          '/Consumer/lzSubscription':
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: POST
-                type: aws_proxy
-                uri:
-                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConsumerLambda.Arn}/invocations
-                payloadFormatVersion: 2.0
-
           'Consumer/preferences':
             get:
               x-amazon-apigateway-integration:

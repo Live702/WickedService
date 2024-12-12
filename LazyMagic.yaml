@@ -66,21 +66,21 @@ Directives:
 # - Use of SQS message broker to queue messages
 # - Use of Lambda to process messages and call a API Gateway WebSocket to send messages to subscribers
  
-  # Schemas
-  LzMessagingSchema:
-    # schemas include LzSubscriptions and LzNotifications
-    Type: Schema
-    Defaults: SchemaDefault
-    OpenApiSpecs: # reads the schema section
-    - openapi.messaging-schema.yaml
+  # # Schemas
+  # LzMessagingSchema:
+  #   # schemas include LzSubscriptions and LzNotifications
+  #   Type: Schema
+  #   Defaults: SchemaDefault
+  #   OpenApiSpecs: # reads the schema section
+  #   - openapi.messaging-schema.yaml
 
-  # Modules
-  LzMessagingModule:
-    # path operations include subscribe, unsubscribe
-    Type: Module
-    Defaults: ModuleDefault
-    OpenApiSpecs: # reads the path section
-    - openapi.messaging.yaml
+  # # Modules
+  # LzMessagingModule:
+  #   # path operations include subscribe, unsubscribe
+  #   Type: Module
+  #   Defaults: ModuleDefault
+  #   OpenApiSpecs: # reads the path section
+  #   - openapi.messaging.yaml
 
   # # Containers
   # LzMessagingWebSocketLambda:
@@ -190,7 +190,6 @@ Directives:
     ApiPrefix: Store
     Defaults: AwsApiLambdaContainerDefault
     Modules:
-    - LzMessagingModule
     - StoreModule
 
   ConsumerLambda:
@@ -198,7 +197,6 @@ Directives:
     ApiPrefix: Consumer
     Defaults: AwsApiLambdaContainerDefault
     Modules:
-    - LzMessagingModule
     - ConsumerModule
 
   PublicLambda:

@@ -20,16 +20,14 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
     // Microsoft DIwill select the constructor with the most parameters it can satisfy,
     // so this constructor will be used in lieu of the constructed defined in the
     // generated code.
-    public PetRepo(IAmazonDynamoDB client, ICategoryRepo categoryRepo, ITagRepo tagRepo, ILzNotificationRepo notificationsRepo) : base(client) { 
+    public PetRepo(IAmazonDynamoDB client, ICategoryRepo categoryRepo, ITagRepo tagRepo) : base(client) { 
         this.tagRepo = tagRepo; 
         this.categoryRepo = categoryRepo;
-        this.notificationsRepo = notificationsRepo;
-        UseNotifications = true;
+    // UseNotifications = true;
     }
 
     private ITagRepo tagRepo;
     private ICategoryRepo categoryRepo; 
-    private ILzNotificationRepo notificationsRepo;  
 
 
     // Implement the new method to satisfy the interface
@@ -89,50 +87,6 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
         }
 
         return new StatusCodeResult(200);
-    }
-
-    public override async Task WriteNotificationAsync(ICallerInfo callerInfo, string dataType, string data, string topics, long updatedUtcTick, string action)
-    {
-        // throw new NotImplementedException();
-        var notification = new LzNotification
-        {
-            Id = Guid.NewGuid().ToString(),
-            Topics = topics,
-            UserId = callerInfo.Table,
-            PayloadParentId = callerInfo.Table,
-            PayloadId = "",
-            PayloadType = dataType,
-            Payload = data,
-            PayloadAction = action,
-            SessionId = callerInfo.SessionId,
-            CreateUtcTick = updatedUtcTick,
-            UpdateUtcTick = updatedUtcTick
-        };
-        callerInfo.Table = "notifications";
-        await notificationsRepo.CreateAsync(callerInfo, notification);
-        return;
-    }
-
-    public override async Task WriteDeleteNotificationAsync(ICallerInfo callerInfo, string dataType, string sk, string topics, long updatedUtcTick)
-    {
-        //throw new NotImplementedException();
-        var notification = new LzNotification
-        {
-            Id = Guid.NewGuid().ToString(),
-            Topics = topics,
-            UserId = callerInfo.Table,
-            PayloadParentId = callerInfo.Table,
-            PayloadId = sk,
-            PayloadType = dataType,
-            PayloadAction = "Delete",
-            SessionId = callerInfo.SessionId,
-            CreateUtcTick = updatedUtcTick,
-            UpdateUtcTick = updatedUtcTick
-        };
-        callerInfo.Table = "notifications";
-        await notificationsRepo.CreateAsync(callerInfo, notification);
-        return;
-        
     }
 
 

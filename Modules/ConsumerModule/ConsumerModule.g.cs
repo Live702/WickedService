@@ -70,9 +70,6 @@ namespace ConsumerModule
             return await preferencesRepo.UpdateAsync(callerInfo, body);
         }
 		protected IConsumerModuleAuthorization consumerModuleAuthorization;
-		protected ILzNotificationRepo lzNotificationRepo;
-		protected ILzNotificationsPageRepo lzNotificationsPageRepo;
-		protected ILzSubscriptionRepo lzSubscriptionRepo;
 		protected IPreferencesRepo preferencesRepo;
 		protected ICategoryRepo categoryRepo;
 		protected ITagRepo tagRepo;
