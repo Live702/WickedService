@@ -13,6 +13,9 @@ namespace StoreModule
     {
         public StoreModuleControllerImpl(
             IStoreModuleAuthorization storeModuleAuthorization,
+			ILzNotificationRepo lzNotificationRepo,
+			ILzNotificationsPageRepo lzNotificationsPageRepo,
+			ILzSubscriptionRepo lzSubscriptionRepo,
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
@@ -21,6 +24,9 @@ namespace StoreModule
             ) 
         {
             this.storeModuleAuthorization = storeModuleAuthorization;
+			this.lzNotificationRepo = lzNotificationRepo;
+			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
+			this.lzSubscriptionRepo = lzSubscriptionRepo;
 			this.categoryRepo = categoryRepo;
 			this.tagRepo = tagRepo;
 			this.petRepo = petRepo;

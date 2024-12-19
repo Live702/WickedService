@@ -13,7 +13,8 @@ namespace StoreModule
         {
             services.TryAddSingleton<IStoreModuleAuthorization, StoreModuleAuthorization>();
             services.TryAddSingleton<IStoreModuleController, StoreModuleControllerImpl>();
-            services.AddSharedSchemaRepo();
+            services.AddLzMessagingSchemaRepo();
+			services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
 			services.AddAdminSchemaRepo();
             CustomConfigurations(services);

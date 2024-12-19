@@ -99,6 +99,8 @@ Parameters:
     Type: String
   PublicApiIdParameter:
     Type: String
+  LzMessagingApiIdParameter:
+    Type: String
   ConsumerAuthUserPoolNameParameter:
     Type: String
   ConsumerAuthUserPoolIdParameter:
@@ -325,6 +327,26 @@ Resources:
               # - EventType: 'viewer-response'
               #   FunctionARN: !Ref ResponseFunctionArnParameter
 
+          - PathPattern: /LzMessagingApi/*
+            TargetOriginId: LzMessagingApi-Origin
+            ViewerProtocolPolicy: 'https-only'
+            CachePolicyId: !Ref ApiCachePolicyIdParameter
+            OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
+            ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id 
+            AllowedMethods: 
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            FunctionAssociations:
+              - EventType: 'viewer-request'
+                FunctionARN: !Ref RequestPrefixFunctionArnParameter
+              # - EventType: 'viewer-response'
+              #   FunctionARN: !Ref ResponseFunctionArnParameter
+
           - PathPattern: /ConsumerApi/*
             TargetOriginId: ConsumerApi-Origin
             ViewerProtocolPolicy: 'https-only'
@@ -427,6 +449,19 @@ Resources:
 
           - Id: PublicApi-Origin
             DomainName: !Sub '${PublicApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${EnvironmentParameter}'
+            CustomOriginConfig: 
+              HTTPSPort: 443
+              HTTPPort: 80
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            OriginCustomHeaders:
+              - HeaderName: TenantKey
+                HeaderValue: !Ref TenantKeyParameter
+
+          - Id: LzMessagingApi-Origin
+            DomainName: !Sub '${LzMessagingApiIdParameter}.execute-api.${AWS::Region}.amazonaws.com'
             OriginPath: !Sub '/${EnvironmentParameter}'
             CustomOriginConfig: 
               HTTPSPort: 443

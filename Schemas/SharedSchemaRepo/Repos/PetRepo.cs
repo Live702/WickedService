@@ -7,7 +7,6 @@ namespace SharedSchemaRepo;
 // - Extended constructor to take other repos as parameters
 // - Implement a new method to seed the database
 
-
 // Extend the IPetRepo interface so new method can be seen by module(s).
 public partial interface IPetRepo
 {
@@ -23,12 +22,12 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
     public PetRepo(IAmazonDynamoDB client, ICategoryRepo categoryRepo, ITagRepo tagRepo) : base(client) { 
         this.tagRepo = tagRepo; 
         this.categoryRepo = categoryRepo;
-    // UseNotifications = true;
+        UseNotifications = true;
+        NotificationsSqsQueue = "notifications";
     }
 
     private ITagRepo tagRepo;
     private ICategoryRepo categoryRepo; 
-
 
     // Implement the new method to satisfy the interface
     public async Task<ActionResult> SeedAsync(ICallerInfo callerInfo, string store, int numPets )
@@ -89,5 +88,12 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
         return new StatusCodeResult(200);
     }
 
-
+    public async override Task WriteDeleteNotificationAsync(ICallerInfo callerInfo, string dataType, string sk, string topics, long updatedUtcTick)
+    {
+        await Task.CompletedTask;
+    }
+    public async override Task WriteNotificationAsync(ICallerInfo callerInfo, string dataType, string data, string topics, long updatedUtcTick, string action)
+    {
+        await Task.CompletedTask;   
+    }
 }

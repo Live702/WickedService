@@ -108,6 +108,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WSApiLamba", "ProjectTempla
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LzMessagingModule", "Modules\LzMessagingModule\LzMessagingModule.csproj", "{B34F42C1-A398-4955-BBDF-25A7B02BAEBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LzMessagingWebSocketLambda", "Containers\LzMessagingWebSocketLambda\LzMessagingWebSocketLambda.csproj", "{F025E857-7CA6-4686-B867-B3860FF71592}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LzMessagingLambda", "Containers\LzMessagingLambda\LzMessagingLambda.csproj", "{3BB41250-2490-46BB-ADAE-B2D13409535D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -250,6 +254,14 @@ Global
 		{B34F42C1-A398-4955-BBDF-25A7B02BAEBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B34F42C1-A398-4955-BBDF-25A7B02BAEBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B34F42C1-A398-4955-BBDF-25A7B02BAEBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F025E857-7CA6-4686-B867-B3860FF71592}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F025E857-7CA6-4686-B867-B3860FF71592}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F025E857-7CA6-4686-B867-B3860FF71592}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F025E857-7CA6-4686-B867-B3860FF71592}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BB41250-2490-46BB-ADAE-B2D13409535D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BB41250-2490-46BB-ADAE-B2D13409535D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BB41250-2490-46BB-ADAE-B2D13409535D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BB41250-2490-46BB-ADAE-B2D13409535D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -286,6 +298,8 @@ Global
 		{5047F97C-A9E5-4109-B90A-8CB3BD30BF67} = {AB5364B2-AFA3-45F1-BA33-98908617401C}
 		{643F6407-81DA-4FC2-879E-F98812F25B23} = {CB7F969B-7AA8-45AD-9AE4-9AB646E9C230}
 		{B34F42C1-A398-4955-BBDF-25A7B02BAEBF} = {57AACA63-0021-429A-B7F7-B2D489D454B7}
+		{F025E857-7CA6-4686-B867-B3860FF71592} = {FAF6C838-3B9D-4855-BA48-F09ADE9E29DD}
+		{3BB41250-2490-46BB-ADAE-B2D13409535D} = {FAF6C838-3B9D-4855-BA48-F09ADE9E29DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0513C17B-C55E-4C6F-90B2-29118935F219}

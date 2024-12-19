@@ -13,6 +13,9 @@ namespace ConsumerModule
     {
         public ConsumerModuleControllerImpl(
             IConsumerModuleAuthorization consumerModuleAuthorization,
+			ILzNotificationRepo lzNotificationRepo,
+			ILzNotificationsPageRepo lzNotificationsPageRepo,
+			ILzSubscriptionRepo lzSubscriptionRepo,
 			IPreferencesRepo preferencesRepo,
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
@@ -21,6 +24,9 @@ namespace ConsumerModule
             ) 
         {
             this.consumerModuleAuthorization = consumerModuleAuthorization;
+			this.lzNotificationRepo = lzNotificationRepo;
+			this.lzNotificationsPageRepo = lzNotificationsPageRepo;
+			this.lzSubscriptionRepo = lzSubscriptionRepo;
 			this.preferencesRepo = preferencesRepo;
 			this.categoryRepo = categoryRepo;
 			this.tagRepo = tagRepo;

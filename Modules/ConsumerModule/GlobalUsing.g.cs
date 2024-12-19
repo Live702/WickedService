@@ -9,6 +9,8 @@ global using System.Collections.Generic;
 global using System.Threading.Tasks;
 
 
+global using LzMessagingSchema;
+global using LzMessagingSchemaRepo;
 global using ConsumerSchema;
 global using ConsumerSchemaRepo;
 global using SharedSchema;

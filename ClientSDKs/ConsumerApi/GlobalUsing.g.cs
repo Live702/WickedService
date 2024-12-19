@@ -5,6 +5,7 @@
 // to add additional global usings.
 global using LazyMagic.Shared;
 
+global using LzMessagingSchema;
 global using ConsumerSchema;
 global using SharedSchema;
 global using StoreSchema;

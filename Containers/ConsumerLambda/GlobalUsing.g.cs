@@ -6,6 +6,8 @@
 
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
+global using LzMessagingSchema;
+global using LzMessagingSchemaRepo;
 global using ConsumerSchema;
 global using ConsumerSchemaRepo;
 global using SharedSchema;

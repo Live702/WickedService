@@ -175,6 +175,8 @@ $ParametersDict = @{
 
     "PublicApiIdParameter" = $ServiceStackOutputDict["PublicApiId"]
 
+    "LzMessagingApiIdParameter" = $ServiceStackOutputDict["LzMessagingApiId"]
+
 
     # Authentications 
     "EmployeeAuthUserPoolNameParameter" = $ServiceStackOutputDict["EmployeeAuthUserPoolName"]

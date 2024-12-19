@@ -22,6 +22,8 @@ global using System.Text;
 global using System.ComponentModel;
 global using LazyMagic.Shared;
 
+global using LzMessagingSchema;
+global using LzMessagingSchemaRepo;
 global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;

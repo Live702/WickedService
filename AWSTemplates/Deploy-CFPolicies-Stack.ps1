@@ -40,15 +40,12 @@ if($SystemGuid -like "yourguid")
 # Get service stack outputs
 $targetStack = $config.SystemName + "-service"
 $ServiceStackOutputDict = Get-StackOutputs $targetStack
-# Temporary removal of the websocket api id
-# $WebSocketApiIdParameter = $ServiceStackOutputDict["WebSocketApiId"]
-$WebSocketApiIdParameter = "none"
 
 Write-Host "Deploying the stack $StackName" 
 sam deploy `
 --template-file Templates/sam.cfpolicies.yaml `
 --stack-name $StackName `
---parameter-overrides SystemName=$SystemName GuidParameter=$SystemGuid EnvironmentParameter=$Environment WebSocketApiIdParameter=$WebSocketApiIdParameter `
+--parameter-overrides SystemName=$SystemName GuidParameter=$SystemGuid EnvironmentParameter=$Environment `
 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND `
 --profile $Profile 
 

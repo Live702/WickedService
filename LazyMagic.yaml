@@ -66,71 +66,73 @@ Directives:
 # - Use of SQS message broker to queue messages
 # - Use of Lambda to process messages and call a API Gateway WebSocket to send messages to subscribers
  
-  # # Schemas
-  # LzMessagingSchema:
-  #   # schemas include LzSubscriptions and LzNotifications
-  #   Type: Schema
-  #   Defaults: SchemaDefault
-  #   OpenApiSpecs: # reads the schema section
-  #   - openapi.messaging-schema.yaml
+  # Schemas
+  LzMessagingSchema:
+    # schemas include LzSubscriptions and LzNotifications
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs: # reads the schema section
+    - openapi.messaging-schema.yaml
 
-  # # Modules
-  # LzMessagingModule:
-  #   # path operations include subscribe, unsubscribe
-  #   Type: Module
-  #   Defaults: ModuleDefault
-  #   OpenApiSpecs: # reads the path section
-  #   - openapi.messaging.yaml
+  # Modules
+  LzMessagingModule:
+    # path operations include subscribe, unsubscribe
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs: # reads the path section
+    - openapi.messaging.yaml
 
-  # # Containers
-  # LzMessagingWebSocketLambda:
-  #   # Handles websocket CONNECT, DISCONNECT, and MESSAGE events
-  #   # The only incoming message event is AUTHENTICATE.
-  #   # The only outgoing message is AUTHENTICATED.
-  #   # Note that the WebSocket it self may send DISCONNECT events. 
-  #   Type: Container
-  #   Artifacts:
-  #     DotNetWSApiLambdaProject:
-  #     AwsWSApiLambdaResource:
-  #       Authentications: # unlike HttpApi, we authenticate in the Lambda function
-  #       - ConsumerAuth
-  #       - EmployeeAuth
-  #       WebSocketApi: LzMessagingWebSocketApi # required to send AUTHENTICATED message to client
+  # Containers
+  LzMessagingWebSocketLambda:
+    # Handles websocket CONNECT, DISCONNECT, and MESSAGE events
+    # The only incoming message event is AUTHENTICATE.
+    # The only outgoing message is AUTHENTICATED.
+    # Note that the WebSocket it self may send DISCONNECT events. 
+    Type: Container
+    Artifacts:
+      DotNetWSApiLambdaProject:
+      AwsWSApiLambdaResource:
+        Authentications: # unlike HttpApi, we authenticate in the Lambda function
+        - ConsumerAuth
+        - EmployeeAuth
+        WebSocketApi: LzMessagingApi # required to send AUTHENTICATED message to client
 
-  # # LzMessagingApi
-  # # Note the absence of Authentication. AWS WebSockets do not support authentication at the API Gateway level.
-  # # We do authentication in the Lambda function using an AUTHENTICATE message after connection. Connections not
-  # # authenticated after a few seconds are disconnected. 
-  # LzMessagingApi:
-  #   Type: Api
-  #   Containers:
-  #   - LzMessagingWebSocketLambda
-  #   Artifacts:
-  #     AwsWSApiResource: 
-  #     DotNetWSApiSDKProject:
-  
-  # # Message Queue
-  # # Schema Repos write to the message queue on Create Update and Delete (CUD) operations. 
-  # # The LzMessagingLambda reads from the queue and sends messages, with the CUD payload,
-  # # to subscribers using the WebSocket. CUD information is identified by a Topic.
-  # # Subscribers subscribe to Topics. The reason we use a message queue is to eliminate 
-  # # any latency in sending a response back to the client that performed the CUD operation.
-  # # Updates to subscribers are done asynchronously.
-  # LzMessagingQueue:
-  #   Type: Queue
-  #   Artifacts:
-  #     AwsSQSResource:
+  # LzMessagingApi
+  # Note the absence of Authentication. AWS WebSockets do not support authentication at the API Gateway level.
+  # We do authentication in the Lambda function using an AUTHENTICATE message after connection. Connections not
+  # authenticated after a few seconds are disconnected. 
+  LzMessagingApi:
+    Type: Api
+    Containers:
+    - LzMessagingWebSocketLambda
+    Artifacts:
+      AwsWSApiResource: 
+      DotNetWSApiSDKProject:
       
-  # LzMessagingLambda:
-  #   # Reads message queue and sends messages to subscribers using WebSocket
-  #   # Subscribers subscribe to Topics and only receive messages for Topics 
-  #   # they are subscribed to.
-  #   Type: Container
-  #   Artifacts:
-  #     DotNetSQSLambdaProject:
-  #     AwsSQSLambdaResource:
-  #       Queue: LzMessagingQueue
-  #       WebSocketApi: LzMessagingApi 
+  LzMessagingLambda:
+    # Reads message queue and sends messages to subscribers using WebSocket.
+    # Subscribers subscribe to Topics and only receive messages for Topics 
+    # they are subscribed to.
+    Type: Container
+    Artifacts:
+      DotNetSQSLambdaProject:
+      AwsSQSLambdaResource:
+        Queue: LzMessagingQueue
+        WebSocketApi: LzMessagingApi 
+
+  # Message Queue
+  # Schema Repos write to the message queue on Create Update and Delete (CUD) operations. 
+  # The LzMessagingLambda reads from the queue and sends messages, with the CUD payload,
+  # to subscribers using the WebSocket. CUD information is identified by a Topic.
+  # Subscribers subscribe to Topics. The reason we use a message queue is to eliminate 
+  # any latency in sending a response back to the client that performed the CUD operation.
+  # Updates to subscribers are done asynchronously.
+  LzMessagingQueue:
+    Type: Queue
+    Containers:
+    - LzMessagingLambda
+    Artifacts:
+      AwsSQSResource:
 
 # Application Directives
 
@@ -234,9 +236,12 @@ Directives:
     - StoreApi
     - ConsumerApi
     - PublicApi
-    #WSApi: LzMessagingApi
+    - LzMessagingApi
+    Queues:
+    - LzMessagingQueue
     Artifacts:
       AwsServiceStackTemplate:
+        MessagingWebSocketApi: LzMessagingApi # MessagingAPI
 
   LocalWebService:
     Type: Service
@@ -256,6 +261,7 @@ Directives:
     - StoreApi
     - ConsumerApi
     - PublicApi
+    - LzMessagingApi
 
   StoreApp:
     Type: WebApp
@@ -265,6 +271,7 @@ Directives:
     - StoreApi
     - ConsumerApi
     - PublicApi
+    - LzMessagingApi
 
   ConsumerApp:
     Type: WebApp
@@ -273,6 +280,7 @@ Directives:
     Apis:
     - ConsumerApi
     - PublicApi
+    - LzMessagingApi
 
 # TENANCIES
   SystemTenancy:
