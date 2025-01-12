@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: | 
+  This stack creates an artifacts bucket we use 
+  for deploying the system. It also creates the 
+  CloudFront KeyValueStore used by the system.
+
+Parameters:
+  SystemKeyParameter: 
+    Description: "SystemKey"
+    Type: String
+  SystemSuffixParameter:
+    Description: "SystemSuffix"
+    Type: String
+
+Resources:
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${SystemKeyParameter}---artifacts-${SystemSuffixParameter}"
+  
+  ArtifactsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DependsOn: ArtifactsBucket  
+    Properties:
+      Bucket: !Ref ArtifactsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowReadAndDeleteForAccountUsers
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+              Service: serverlessrepo.amazonaws.com
+            Condition: 
+               StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+            Action:
+              - 's3:GetObject'
+              - 's3:DeleteObject'
+              - 's3:PutObject'
+            Resource: !Sub 'arn:aws:s3:::${ArtifactsBucket}/*'
+
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${SystemKeyParameter}---assets-${SystemSuffixParameter}"
+
+  AssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AssetsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: 
+              - s3:GetObject
+            Resource: !Sub 'arn:aws:s3:::${AssetsBucket}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+
+  KeyValueStore:
+    Type: AWS::CloudFront::KeyValueStore
+    Properties:
+      Name: !Sub ${SystemKeyParameter}---kvs
+
+
+
+  # The System DynamoDb table is used like a separate database in DynamoDB
+  # See the LazyMagic documentation for more information on how to use this table
+  # with the LazyMagic.DynamoDBRepo library/package.
+  SystemDB:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${SystemKeyParameter}"
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      - AttributeName: SK1
+        AttributeType: S
+      - AttributeName: SK2
+        AttributeType: S
+      - AttributeName: SK3
+        AttributeType: S
+      - AttributeName: SK4
+        AttributeType: S
+      - AttributeName: SK5
+        AttributeType: S
+      - AttributeName: GSI1PK
+        AttributeType: S
+      - AttributeName: GSI1SK
+        AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+      LocalSecondaryIndexes:
+      - IndexName: PK-SK1-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK1
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK2-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK2
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK3-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK3
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK4-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK4
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      - IndexName: PK-SK5-Index
+        KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK5
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+      GlobalSecondaryIndexes:
+      - IndexName: GSI1
+        KeySchema:
+        - AttributeName: GSI1PK
+          KeyType: HASH
+        - AttributeName: GSI1SK
+          KeyType: RANGE
+        Projection:
+          NonKeyAttributes:
+          - Status
+          - UpdateUtcTick
+          - CreateUtcTick
+          - General
+          ProjectionType: INCLUDE
+
+
+Outputs:
+  KeyValueStoreArn:
+    Description: "The CloudFront KeyValueStore ARN"
+    Value: !GetAtt KeyValueStore.Arn
+
+

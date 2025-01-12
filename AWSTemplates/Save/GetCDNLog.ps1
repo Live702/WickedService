@@ -16,14 +16,14 @@ if(-not (Test-Path $filePath))
 }
 
 $config = Get-Content -Path $filePath | ConvertFrom-Yaml
-$SystemGuid = $config.SystemGuid
+$SystemSuffix = $config.SystemSuffix
 if(-not $Guid.HasValue) {
-	$Guid = $SystemGuid
+	$Guid = $SystemSuffix
 }
 $Profile = $config.Profile
-$SystemName = $config.SystemName
+$SystemKey = $config.SystemKey
 
-$bucketName = $SystemName + "-cdnlog-" + $TenantKey + "-" + $Guid
+$bucketName = $SystemKey + "-" + $TenantKey + "--cdnlog-" + $Guid
 Write-Host "Bucket Name: $bucketName"
 Import-Module powershell-yaml
 Import-Module AWSPowerShell.NetCore

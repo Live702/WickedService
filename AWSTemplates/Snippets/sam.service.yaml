@@ -15,17 +15,18 @@ Parameters:
     Type: String
     Description: The stage name for the API Gateway and controls some policies
   
-  SystemGuidParameter:
+  SystemSuffixParameter:
     Description: "System Guid. No spaces. Lower case."
     Type: String
 
-  SystemNameParameter:
+  SystemKeyParameter:
     Description: "System Name. No spaces. Lower case."
     Type: String    
 
 #LzParameters#
 
 Resources:
+
 
 #LzLambdas#
 
@@ -36,6 +37,7 @@ Resources:
 #LzAuthenticators#
 
 #LzConfigFunction#
+
 
 Outputs:
   ConfigFunctionArn:

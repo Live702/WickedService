@@ -1,8 +1,9 @@
-# This script deploys a Tenancy assets stack
+# This script deploys a Tenancy or Subtenancy assets stack
 # Note: This script is static. It is not generated.
 # https://docs.aws.amazon.com/powershell/latest/reference/
 param( 
     [Parameter(Mandatory=$true)] [string]$TenantKey, 
+    [string]$SubtenantKey, 
     [string]$Guid,
     [string]$RootDomain
 )
@@ -80,33 +81,32 @@ if(-not (Test-Path $filePath))
 }
 
 $config = Get-Content -Path $filePath | ConvertFrom-Yaml
-$SystemGuid = $config.SystemGuid
+$SystemSuffix = $config.SystemSuffix
 if(-not $Guid.HasValue) {
-	$Guid = $SystemGuid
+	$Guid = $SystemSuffix
 }
-$SystemName = $config.SystemName
-$StackName = $SystemName + "-assets-" + $TenantKey
+$SystemKey = $config.SystemKey
+$StackName = $SystemKey + "-" + $TenantKey + "-" + $SubtenantKey + "-assets"
 $Profile = $config.Profile
 
 
-if($SystemGuid -like "yourguid")
+if($SystemSuffix -like "yourguid")
 {
 	Write-Host "Please update the serviceconfig.yaml file with your system guid"
 	exit
 }
 
-
-$CreateAssetsBucket = CreateBucket -BucketName $SystemName-assets-$TenantKey-$Guid
-$CreateCDNLogBucket = CreateBucket -BucketName $SystemName-cdnlog-$TenantKey-$Guid
-$CreateTable = CreateTable -TableName $TenantKey 
+# check if need to create asset bucket or table
+$CreateAssetsBucket = CreateBucket -BucketName $SystemKey-$TenantKey--assets-$Guid
+$CreateTable = CreateTable -TableName $SystemKey-$TenantKey
 
 # Create the parameters dictionary
 $ParametersDict = @{
-    "SystemNameParameter" = $SystemName
+    "SystemKeyParameter" = $SystemKey
     "TenantKeyParameter" = $TenantKey
+    "SubtenantKeyParameter" = $SubtenantKey
     "GuidParameter" = $Guid
     "CreateAssetsBucketParameter" = $CreateAssetsBucket
-    "CreateCDNLogBucketParameter" = $CreateCDNLogBucket
     "CreateTenantDBParameter" = $CreateTable
 }
 #Display-OutputDictionary -Dictionary $ParametersDict -Title "Parameters Dictionary"

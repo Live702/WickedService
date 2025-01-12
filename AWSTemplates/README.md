@@ -1,26 +1,361 @@
-# AWS Templates
-This project provides a set of AWS CloudFormation SAM templates that can be used to create stacks that create and deploy all the resources our system requires.
+# Multi-Tenant SaaS System
+This sample system provides the deployment artifacts necessary to deploy a multi-tenant SaaS system to AWS. The system is designed to support multiple tenants, each with multiple subtenants. Developers may deploy the system to a dev environment for testing and development. These artifacts may be used in a CI/CD pipeline. 
 
-The templates are organized to support the incremental deployment of multiple tenancies in a CI/CD pipeline and to support  deployment to a dev environment.
+This SaaS platform uses three levels of service, asset, and configuration:
+- System Level 
+- Tenant Level 
+- Subtenant Level
 
-This set of templates describes a system where we have these tenancy types:
-- Consumer
-- Store
-- System
+## System Level 
+The system level provides:
+- A set of S3 asset buckets and S3 webapp buckets used by tenants and subtenants.
+- A set of APIs used by tenants and subtenants.
+- A CloudFront KeyValueStore resource used to hold system configuration information for the system and tenants.
+- CloudFront KeyValueStore entry used to hold system level configuration information.
+
+## Tenant Level
+The tenant level provides:
+- Tenant specific domain, hosted zone, and SSL certificate.
+- A set of tenant specific assets available to the tenant and the tenants' subtenants
+- CloudFront KeyValueStore entry used to hold tenant configuration information.
+
+## Subtenant Level
+The subtenant level provides:
+- A set of subtenant specific assets available only to the subtenant.
+- A set of subtenant specific APIs that are available only to the subtenant.
+- CloudFront KeyValueStore entry used to hold subtenant configuration informaiton.
 
 
-## LazyMagic MDD
-LazyMagic MDD generates SAM (Serverless Application Model) templates from the LazyMagic.yaml directives file and template snippets from the AWSTemplates/Snippets folder. 
+## System and Tenant Configurations
+The System and Tenant is configured using the systemconfig.yaml file.The systemconfig.yaml file is located in the folder above the solution folder. Here is an example template for the systemconfig.yaml file. 
+```
+# This is the config file holding the parameters for the deployment. Each deployment should have its own config file with 
+# unique SystemSuffix, RootDomain, HostedZoneId, and AcmCertificateArn.
+# AWSTemplates/config.yaml is a template. You should copy it to a new file located in the directory above the solution folder 
+# and modify the parameters to match your deployment.
+SystemSuffix: "496a-bd90 # You must provide your own guid here. This guid is used to uniquely identify the system. Note lower case.
 
-The stacks and scripts generated into ```AWSTemplates/Generated``` include:
-- Deploy-Tenancy-ConsumerTenancy-Stack.g.ps1
-- Deploy-Tenancy-StoreTenancy-Stack.g.ps1
-- Deploy-Tenancy-SystemTenancy-Stack.g.ps1
-- sam.Service.g.yaml 
-- sam.StoreTenancy.g.yaml
-- sam.ConsumerTenancy.g.yaml
+# You can modify the following parameters to customize the deployment, but the defaults will work for the tutorial.
+SystemKey: "lzm" # This is the name of the cloudformation stack that will be created to deploy the system.
+S3Prefix: "artifacts" # This is the folder in the s3 bucket where the artifacts are stored. 
+Profile: "lzm-dev" # This is the name of the profile in the aws credentials file that will be used to deploy the system.
+Environment: 'dev'
 
-## LazyMagic Stardard Templates
+# Webapps. This section is required only if you need to specify Guid values for the webapps. If you do include 
+# a WebApp entry, it should also be included ans a WebApp Directive in the LazyMagic.yaml file.
+# WebApps:
+#   - Name: "adminapp"
+#     Guid: "" # defaults to SystemSuffix if empty or unspecified
+#   - Name: "storeapp"
+#     Guid: "" # defaults to SystemSuffix if empty or unspecified
+#   - Name: "consumerapp"
+#     Guid: "" # defaults to SystemSuffix if empty or unspecified
+
+# Tenants. This section is used by the Deploy-System.ps1 script and intended for use in development environments. 
+# When deploying using a CI/CD pipeline or programmatically, you should may be drawing the values required by the 
+# individual deployment scripts from other sources.
+# Note that each tenant must have its own values for RootDomain, HostedZoneId, and AcmCertificateArn and you 
+# are responsible for creating the HostedZone and ACM certificate in the AWS console to get thiese values.
+Tenants:
+  mp:
+    RootDomain: "lazymagicdev.click" 
+    HostedZoneId: "Z100111837RSX13I494NG" 
+    AcmCertificateArn: "arn:aws:acm:us-east-1:905418209108:certificate/f19bd87a-1f5f-46b3-9acc-5ac2ee82b7df" 
+    TenantSuffix: "" # defaults to SystemSuffix if empty
+    DefaultPageUrl: "" 
+```
+
+## LzAws PowerShell Module
+The LzAws PowerShell module contains cmdlets used to configure and deploy your system. 
+In the following documentation, we assume the systemconfig.yaml from above is used, so we can demonstrate the naming of the various resources created.
+
+The avaiilable cmdlets include:
+- New-LzAwsSystemStack
+- New-LzAwsServiceStack
+- New-LzAwsCFPoliciesStack
+- New-LzAwsTenantConfig
+- New-LzAwsTenantAssets
+- New-LzAwsTenantStack
+
+
+### New-LzAwsSystemStack 
+Deploys the Templates/sam.system.yaml file to provision the following system resources:
+- S3 bucket for artifacts: <mark>lzm---artifacts-496a-bd90</mark>
+- S3 bucket for system assets: <mark>lzm---assets-496a-bd90</mark>
+- CloudFront KeyValueStore: <mark>lzm---kvs</mark>
+- DynamoDB table for system database: <mark>lzm</mark>
+
+You need to run this cmdlet only once for a system. 
+
+### New-LzAwsServiceStack 
+Deploys a stack using the Generated/sam.service.g.yaml file and Container binary artifacts (like Lambdas). The sam.service.g.yaml file is generated by LazyMagic based on the content of your LazyMagic.yaml file. Do not edit the sam.service.g.yaml file directly as your changes will be overwritten by the next run of LazyMagic.
+
+Make changes to the snippets of SAM resources in the Snippets folder. These snippets are read by the LazyMagic generator and used to generate the sam.service.g.yaml file.
+
+Run this cmdlet each time you regenerate the sam.service.g.yaml file or modify any of the lambda resources referenced by the stack.
+
+### New-LzAwsCFPoliciesStack
+Deploys a stack using the Templates/sam.cfpolicies.yaml file. This stack creates CloudFront Policies and CloudFront Functions. Each Tenant will have its own CloudFront distribution and use the CloudFront Policies and Functions created by this stack.
+
+Run this cmdlet once to set up the system. Run it again if you make changes the Templates/sam.cfpolicies.yaml file.
+
+### New-LzAwsTenantConfig 
+Generates the Generated/[tenantKey].json file used to configure the tenant. In the example systemconfig.yaml file, we define one tenant "mp", so the cmdlet will generate the Generated/mp.json file. The tenant configuration includes the tenant's domain, hosted zone id, SSL certificate ARN, behaviors and subtenant configurations.
+
+Run this cmdlet each time you add a new tenant or make changes to the tenant configuration. You will be prompted for the tenantKey. 
+
+### New-LzAwsTenantAssets 
+Creates tenant AWS assets. These include:
+- S3 bucket for the tenant assets
+- S3 buckets for system, tenant, subtenant webapps 
+- 
+
+### New-LzAwsTenantStack 
+
+
+
+
+The systemconfig.yaml file is referenced by most of the deployment scripts.
+
+### CloudFront KeyValueStore System Entry
+The Deploy-CFPolicies-Stack.ps1 script creates the CloudFront NameValueStore resource.
+
+The Deploy-Service-Stack.ps1 script takes the output from the created/updated stack and create/updates the account's CloundFront NameValueStore sytem system entry.
+
+CloudFront functions use these entries to route CloudFront behaviors to the appropriate system level origins.
+
+### CloudFront KeyValueStore Tenant Entries
+The Deploy-Tenant-Stack.ps1 script take the output from the created/updated stack and creates/updates the account's CloundFront NameValueStore tenant entry.
+
+CloudFront functions use these entries to route CloudFront behaviors to the appropriate tenant level origins.
+
+We store the tenant configuration as CloudFront Key/Value pairs. The key is the domain of the tenant. 
+Key: mydomain.com
+```
+{
+    "systemKey":"lzm",
+    "tenantKey":"mp",
+    "tenantSuffix": "",
+    "behaviors":
+    [
+        "/store/*",
+        "/app/*",
+        "/admin/*"
+   ]
+}
+```
+
+We use the domain of the tenant as the key in the CloudFront Key/Value store because that is the value the CloudFront function can extract from the an incoming request.
+
+When the tenantSuffix is empty, the SystemSuffix is used.
+
+The behaviors array is used to indicate which webapplications are available to the tenant. ...
+
+
+If a custom webapp is added to the system for a tenant, the behavior entry has two comma separated values where the second value is the S3 bucket containing
+the webapp:
+
+```"/store/*,lzm-webapp-customapp-cd939ca3-e2ec-435c-a8cd-885eaaefd4a5"``` # example only, not used in this sample system
+
+
+## Subtenant Configuration 
+Subtenants are configured by passing values to the Deploy-Subtenant-Stack.ps1 script. 
+
+The Deploy-Subtenant-Stack.ps1 script takes the output from the created/updated stack and creates/updates the account's CloundFront NameValueStore subtenant entry.
+
+CloudFront functions use these entries to route CloudFront behaviors to the appropriate subtenant level origins.
+
+We store the subtenant configurations as CloudFront Key/Value pairs. The key is the subdomain.domainand and the value is a JSON 
+of the following form:
+
+Key: uptown.mydomain.com
+```
+{
+    "subtenantKey":"uptown",
+    "subtenantSuffix": "",
+    "behaviors":
+    [
+        "/store/*",
+        "/app/*",
+        "/admin/*"
+    ]
+}
+```
+
+When the subtenantSuffix is empty, the tenantSuffix is used (which may be the SystemSuffix if no tenantSuffix is provided).
+
+We use the subdomain.domain as the key in the CloudFront Key/Value store because that is the value the CloudFront function can extract from the incoming request.
+
+Behaviors are NOT inherited from the tenant config. Each subtenant must have its own behaviors array.
+
+The behaviors array is used to indicate which webapplications are available to the subtenant. If a custom webapp is added to the system for a subtenant, the behavior entry has two comma separated values where the second value is the S3 bucket containing
+the webapp:
+
+```"/store/*,lzm-webapp-customapp-cd939ca3-e2ec-435c-a8cd-885eaaefd4a5"``` # example only, not used in this sample system
+
+
+## Asset Naming
+We have a strict naming convention for System, Tenant and Subtenant assets. Some of the asset types include:
+- Database Names (DynamoDB Tables)
+- Asset Buckets (S3 Buckets)
+
+### Database Names
+Database Names: ```systename{_tenantname}{_subtenantname}```
+Examples:
+- lzm
+- lzm_mp
+- lzm_mp_uptown
+- lzm_mp_downtown
+- lzm_mp_consumer
+
+Notes:
+- We use the '_' character to separate the system name, tenant name, and subtenant name in table names because the '-' character is problematic for database names in some databases.
+- In this AWS sample system, we isolate system, tenant, and subtenant data using DynamoDB tables. A DynamoDB table is not sematically equivelent to a database table in a relational database. It is more like a database in a relational database. 
+- There are various ways to isolate data by tenancy; we prefer the most strictly compliant method which is to use separate databases. We recommend you use separate database names as the top level abstraction; you can always translate this most granular level of isolation to a less granular level of isolation in your database access implementation. For instance, a tenant database name might be used as part of a key or a shard key.
+- We recommend that you keep database names under 63 characters to allow use with databases other than DynamoDB. DynamoDB table (database) names must be between 3 and 255 characters long start with a letter or number.
+
+
+### Asset Buckets
+Asset Buckets: ```systemkey-{tenantname}-{subtenantname}-{buckettype}{-bucketkey}-{guid}```
+Exmaples:
+- lzm---assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-adminapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-storeapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-consumerapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp--assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-uptown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-downtown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-consumer-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+
+Notes:
+- We use the "-" character to separate the system name, tenant name, and subtenant name in asset names. This is because the "-" character is allowed in S3 bucket names and is a common separator character in asset names. The "_" character is not allowed in S3 bucket names.
+- Asset bucket names must not exceed 63 characters.
+- The ```{guid}``` is necessary for S3 assets because they all share a global namespace in AWS. A full GUID is not necessary. A shorter GUID may be used when you want to use longer SystemKey, TenantName, or SubtenantName values.
+- The first three elements of the asset name are the system name, tenant name, and subtenant name. The tenant name and subtenant name are lower case alphanumeric strings that begin with an alphabetic character. 
+- We always have the '-' separating the system name, tenant name, and subtenant name. This helps when searching or sorting the assets and avoids any possible naming ambiguity. Consider the example ```lzm---assets-fcd582e0-cf11-45e2-bc3d-31d692882f53``` where the tenant name and subtenant names are empty, but the "-" characters are included. 
+- The '-' character is not allowed in the tenant name or subtenant name because it is used to separate the system name, tenant name, and subtenant name in asset names.
+
+## Tenant Roles 
+For an enterprise system, a tenant might be a region or line of business. For a SaaS system, a tenant might be a customer. 
+
+### SubTenant Roles
+For an enterprise system, a subtenant might be a department or team. For a SaaS system, a subtenant might be a customer. 
+
+Another possible way to use this system would be to create subtenants for different customers. Each subtenant would be a separate organization. Subtenants have their own set of assets, webapps, and data.
+
+### Tenant and SubTenant Agility
+You could use both Tenant Customers and SubTenant Customers. This would allow you to create subtenants for customers that don't need their own webdomains and/or custom CloudFront configurations. In a very general sense, the level of "customization" increases when you create a tenant for a customer. However, the associated costs of onboarding and maintenance of a tenant is higher than that associated with a subtenant.
+
+### Enterprise Systems
+Your system might just be designed for use in a single enterprise. In that case, the tenant might map to a region or line of business and the subtenants might map to departments or teams.
+
+## MagicPets System Example
+This sample system demonstrates the deployment of a multi-tenant SaaS system to AWS supporting a chain of stores. This tenant support multiple subtenants: 
+- uptown -- a store location
+- downtown -- a store location
+- consumer -- a consumer facting application
+
+In this example, each store is a subtenant. Each store has its own webapp, assets, and data. The consumer application is a subtenant that provides a consumer facing application and it also has its own webapp, assets, and data.
+
+
+## AWS Templates
+This project provides a set of AWS CloudFormation SAM templates and powershell deployment scripts used to deploy AWS stacks satisfying our system requirements.
+
+The templates are organized to support the incremental deployment of multiple tenancies and subtenancies in a CI/CD pipeline, and to support deployment to a dev environment.
+
+Each tenancy is deployed as a CloudFront Distribution. 
+Each subtenat is deployed as a subdomain of the tenancy domain.
+
+This set of templates describes a system with one tenant and many subtenants:
+- mp
+    -  uptown
+     - downtown
+     - consumer
+
+We use CloudFront as a reverse proxy to direct requests to the appropriate origins for each subtenant. In this system, subtenants have three types of configurable origins:
+- S3 buckets for static assets
+    - system assets
+    - tenancy assets
+    - subtenancy assets
+- S3 buckets for webapps
+    - store
+    - admin
+    - consumerapp
+- API Gateway for REST APIs
+    - PublicAPI
+    - ConsumerAPI
+    - StoreAPI
+
+### System Configuration 
+We pass the System cofiguration into the CloudFormation stack as parameters. The values 
+passed include:
+- SystemKey: lzm # example
+- SystemSuffix: fcd582e0-cf11-45e2-bc3d-31d692882f53 # example
+
+
+### S3 Origins
+System Level Origins:
+- \{systemKey}---assets-\{systemSuffix}
+- lzm---assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-adminapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-storeapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-consumerapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+
+Tenant Level Origins:
+- \{systemKey}-\{tenantKey}--assets-\{tenantSuffix}
+- lzm-mp--assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+
+SubTenant Level Origins:
+- \{systemKey}-\{tenantKey}-\{subtenantKey}-assets-\{subtenantSuffix}
+- lzm-mp-uptown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-downtown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+
+So, when you view a list of the S3 buckets in the AWS console, the default sorting makes finding specific buckets easy.
+- lzm---assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-adminapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-storeapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm---webapp-consumerapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp--assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-uptown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-downtown-assets-fcd582e0-cf11-45e2-bc3d-31d692882f53
+
+
+CloudFront functions retrieve and use the configuration values to route requests to the appropriate origins.
+
+In addition to the Key/Value configuration we also create CNAME records in Route53 for each subtenant. The CNAME records point to the CloudFront distribution for the tenant.
+
+### Tenant and SubTenant Notes
+A tenant name is associated with a unique domain name in a deployment. The tenant domain must be different for different environments. For example, the tenant mp might have the domain mydomaindev.com in the dev environment, mydomaintest.com in the test environment, and mydomain.com in the prod environment. Usually, each environment is hosted in a different account.
+
+Each domain has an associated SLL certificate issued by AWS Certificate Manager. The certificate is used by the CloudFront distribution for the tenant and usually has a wildcard for the subdomains.
+
+Each subtenant key can be associated with any subdomain you choose except the reserved values of ```tenancey``` and ```system```. We consider it best practice for the subtenant key and subdomain to be the same. For example, the ```uptown``` subtenant might have the subdomain ```uptown.mydomaindev.com```. 
+
+Each subtenant has a Route53 CNAME record that points to domain of the the tenant's CloudFront distribution.
+
+Creating a subtenant is done by:
+- Creating and seeding an S3 buckeet for the subtenant assets.
+- Adding the subtenant configuration to the CloudFront distribution's Key Value store.
+- Creating a CNAME record for the subtenant in Route53.
+
+Scripts and templates are provided to make creating a subtenant easy.
+
+### When to use Tenants and SubTenants
+The use of tenants and subtenants is a design decision based on these criteria:
+- Use tenants to accomodate custom domains and custom CloudFront configurations.
+- Use subtenants to configure asset, data, and webapp configuration for subdomains.
+
+Note that each tenant has its own set of subtenants.
+
+One of the most important reasons to use subtenants is to avoid the overhead and deployment delays of creating and updating CloudFront distributions. Subtenants can be created and deployed in seconds. CloudFront distributions can take hours.
+
+### Generated Scirpts and Templates 
+The stacks and scripts are generated into ```AWSTemplates/Generated``` folder:
+- Deploy-Tenancy-lzm-Stack.g.ps1
+- sam.lzm.g.yaml
+- sam.service.g.yaml
+
+### LazyMagic Static Templates
 In addition to generated snippets, the ```AWSTemplates\Templates``` folder contains these standard templates:
 - sam.artifactsbucket.yaml
 - sam.cfpolicies.yaml
@@ -28,20 +363,13 @@ In addition to generated snippets, the ```AWSTemplates\Templates``` folder conta
 - sam.assets.yaml
 - sam.webapp.yaml
 
-
-## Deployment Scripts
+## Deployment Static Scripts
 The following scripts are provided, in the ```AWSTemplates``` folder, to deploy the system:
 - Deploy-Artifacts-Stack.ps1
 - Deploy-Assets-Stack.ps1
 - Deploy-CFPolicies-Stack.ps1
 - Deploy-Service-Stack.ps1
 - Deploy-WebApp-Stack.ps1
-
-
-The following PowerShell scripts are generated into the ```AWSTemplates\Generated``` folder:
-- Generated/Deploy-Tenancy-StoreTenancy-Stack.g.ps1  // deploy once for each store. 
-- Generated/Deploy-Tenancy-SystemTenancy-Stack.g.ps1 
-- Generated/Deploy-Tenancy-ConsumerTenancy-Stack.g.ps1 
 
 
 ## Setting Expectations
@@ -55,66 +383,80 @@ The policies provided in the templates may be too permissive for some use cases.
 - A domian name registered with Route53 and the HostedZoneId for the domain name.
 - An SSL certificate for the domain name issued by AWS Certificate Manager (ACM) and the ARN for the certificate.
 
-Once you have these, update the serviceconfig.yaml file in the folder above the solution folder. This file is not included in the repository. Here ais the template for the serviceconfig.yaml file:
+Once you have these, update the systemconfig.yaml file in the folder above the solution folder. This file is not included in the repository. Here ais the template for the systemconfig.yaml file:
 ```
-# serviceconfig.yaml file
+# systemconfig.yaml file
 # This is the config file holding the parameters for the deployment. Each deployment should have its own config file with 
-# unique SystemGuid, RootDomain, HostedZoneId, and AcmCertificateArn.
+# unique SystemSuffix, RootDomain, HostedZoneId, and AcmCertificateArn.
 # AWSTemplates/config.yaml is a template. You should copy it to a new file located in the directory above the solution folder 
 # and modify the parameters to match your deployment.
 
-SystemGuid: "yourguid" # You must provide your own guid here. This guid is used to uniquely identify the system. Note lower case.
+SystemSuffix: "yourguid" # You must provide your own guid here. This guid is used to uniquely identify the system. Note lower case.
 RootDomain: "yourdomain" # You must provide your own root domain here. 
 HostedZoneId: "awssupplied" # You must provide your own hosted zone id here.
 AcmCertificateArn: "awssuppliedcertificationarn" # You must provide your own certificate arn here.
 
 # You can modify the following parameters to customize the deployment.
-SystemName: "lzm" # This is the name of the cloudformation stack that will be created to deploy the system.
+SystemKey: "lzm" # This is the name of the cloudformation stack that will be created to deploy the system.
 S3Prefix: "artifacts" # This is the folder in the s3 bucket where the artifacts are stored. 
 Profile: "lzm-dev" # This is the name of the profile in the aws credentials file that will be used to deploy the system.
 Environment: 'dev'
 ```
 
-### SystemName, GUID, and TenantKeys
-S3 bucket names are global in scope. They must be unique across all of AWS. To ensure uniqueness, we use a GUID in bucket names. By default, this GUID is the SystemGuid provided in the serviceconfig.yaml file.
+### SystemKey, GUID, and TenantKeys
+S3 bucket names are global in scope. They must be unique across all of AWS. To ensure uniqueness, we use a GUID in bucket names. By default, this GUID is the SystemSuffix provided in the systemconfig.yaml file.
 
-S3 bucket names are limited to 63 characters and a GUID is 32 characters long, leaving 31 characters for other bucket description. We use these remaining 31 characters in the following way:
-- \{systemName}-\{bucketType}-\{optionalkey-}\{guid}
+Bucket names are of the form:
+- \{systemKey}\{tenantKey}-\{bucketType}-\{optionalkey-}\{guid}
 
-Since the "\{systemName}-\{bucketType}-\{optionalkey-}" can't exceed 31 characters, our conventions are:
-- SystemName: 3 characters max
-- BucketType: artifacts, assets-\{tenatkey}, cdnlog-\{tenantkey}, webapp-\{appname}
-- TenantKey: 18 characters max
-- AppName: 18 characters max
+- SystemKey: identifies the system 
+- TenantKey: identifies the tenant
+- BucketType:
+    - "artifacts" - no optional key
+    - "cdnlog" - no optional key
+    - "assets" - optional key is subtenant key. There are two reserved subtenant keys: "system" and "tenancy"
+    - "webapp" - optional key is webapp name
+- OptionalKey: user provided. It is used to identify subtenants or webapp names.
+- S3 bucket names are limited to 63 characters.
+- The tenant key, subtenant key must be lower case alphanumeric and begin with an alphabetic character. 
 
-Here are the bucket names for the sample system, using the system name "lzm":
-- lzm-artifacts-\{guid}
-- lzm-assets-system-\{guid}
-- lzm-assets-uptown-\{guid}
-- lzm-assets-downtown-\{guid}
-- lzm-assets-consumer-\{guid}
-- lzm-cdnlog-system-\{guid}
-- lzm-cdnlog-uptown-\{guid}
-- lzm-cdnlog-downtown-\{guid}
-- lzm-cdnlog-consumer-\{guid}
-- lzm-webapp-adminapp-\{guid}
-- lzm-webapp-storeapp-\{guid}
-- lzm-webapp-consumerapp-\{guid}
+We can tailor the available maximum lengths of SystemKey, TenantKey, OptionalKey and GUID to fit within the 63 character limit.
+We generally start by deciding how long the Guid should be. 
+- A typical GUID is 37 characters long: example: -fcd582e0-cf11-45e2-bc3d-31d692882f53 (note our addition of the leading '-')
+- BucketType is 6 characters long: "-cdnlog" or "-assets" or "-webapp". Since we don't use optional keys for "-artifacts" or "-cdnlog", we can use 7 characters for the bucket type.
+- So we have 63 - 37 - 7 = 19 characters for the SystemKey, TenantKey and OptionalKey.
+- One strategy would be to allow the following:
+    - SystemKey: 3 characters (no leadning '-')
+    - TenantKey: 4 characters (including leading '-')
+    - OptionalKey: 12 characters (including leading -)
 
-Note that tenant keys may not be more than 18 characters long. The tenant keys are used in the bucket names and the DynamoDB table names.
+Here are the bucket names for the sample system, using the system name "lzm" and tenant key "mp". I've included a mesaure heading to help you see the length of the bucket names.
+```
+           1         2         3         4         5         6
+  123456789012345678901234567890123456789012345678901234567890123
+- lzm-mp-artifacts-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-cdnlog-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-assets-system-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-assets-uptown-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-assets-downtown-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-assets-consumer-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-webapp-adminapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-webapp-storeapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+- lzm-mp-webapp-consumerapp-fcd582e0-cf11-45e2-bc3d-31d692882f53
+```
 
-The system name, tenant keys, and GUId must be lower case.
-
-#### Using longer System Name and or longer Tenant Keys
-If you need a longer system name or tenant key, you can use a shorter GUID. Often, taking the middle portion of the GUID will be unqiue enough. For instance:
+#### Using shorter GUIDs
+If you need a longer system keys, tenant keys, or subtenant keys you can use a shorter GUID. Often, taking the middle portion of the GUID will be unqiue enough. For instance:
 - GUID: 500c154a-fb41-496a-bd90-27f541ff523b
-- Short GUID: fb41-496a-bd90
+- Short GUID: -fb41-496a-bd90 (15 characters including the leading '-')
+
+
 
 
 
 ## Deployment
 To deploy the system, follow these steps:
-1. Create and update the serviceconfig.yaml file in the folder above the solution folder.
+1. Create and update the systemconfig.yaml file in the folder above the solution folder.
 2. cd into the AWSTemplates folder.
 
 Service - API Gateways, Lambdas, Cognito, and Identity Pools
@@ -166,7 +508,7 @@ Note: After you delete the assets stack, you can't deploy it again without delet
 
 Note: One easy way to delete the S3 buckets and DynamoDB table is to use the Visual Studio AWS Explorer.
 For a tenancy, the S3 buckets are named:
-- \{systemname}-assets-\{tenantkey}-\{guid}
+- \{systemkey}-assets-\{tenantkey}-\{guid}
  
 The database table is named:
 - \{tenantkey}

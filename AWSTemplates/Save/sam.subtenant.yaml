@@ -1,74 +1,59 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: 
-  - 'AWS::Serverless-2016-10-31'
-  - 'AWS::LanguageExtensions'
-Description: | 
-  This stack is used to create tenancy assets
-    This includes
-      Tenancy Assets bucket
-      Tenancy CDNLog Bucket policy
-      Tenancy DynamoDb table (note that tables are used like separate databases in DynamoDB)
-
-# Note that this template doesn't allow the deletion of the assets bucket, CDN log bucket, and DynamoDB table
-# Also, if the reosurces exist, they are not updated or replaced
+Transform: 'AWS::Serverless-2016-10-31'
 
 Parameters:
-
-  SystemNameParameter:
+  SystemKeyParameter:
     Description: "System Name"
     Type: String
+    MinLength: 1
 
   TenantKeyParameter:
     Description: "Tenant Key. No spaces. Lower case."
     Type: String
+    MinLength: 1
 
-  # GuidParameter is usually the SystemGuid in the serviceconfig.yaml file
+  SubtenantKeyParameter:
+    Description: "Subtenant Key. No spaces. Lower case."
+    Type: String
+    MinLength: 1
+
   GuidParameter:
     Description: "GuidParameter"
     Type: String
 
-  CreateAssetsBucketParameter:
-    Description: "Create Assets Bucket"
+  RootDomainParameter:
+    Description: "RootDomain"
+    Type: String  
+ 
+  SubDomainParameter:
+    Description: "SubDomain"
     Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"
 
-  CreateCDNLogBucketParameter:
-    Description: "Create CDN Log Bucket"
+  HostedZoneIdParameter:
+    Type: String  
+
+  CloudFrontDistributionDomainNameParameter:
+    Description: "CloudFront Distribution DomainName"
     Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"
 
-  CreateTenantDBParameter:
-    Description: "Create Tenant DB"
-    Type: String
-    Default: "true"
-    AllowedValues:
-      - "true"
-      - "false"
 
-Conditions:
-  CreateAssetsBucket: !Equals [!Ref CreateAssetsBucketParameter, "true"]
-  CreateCDNLogBucket: !Equals [!Ref CreateCDNLogBucketParameter, "true"]
-  CreateTenantDB: !Equals [!Ref CreateTenantDBParameter, "true"]
+Description: | 
+  This stack creates the subtenant assets, and 
+  CNAME record.
 
 Resources:
+
   AssetsBucket:
     Type: AWS::S3::Bucket
-    Condition: CreateAssetsBucket
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      BucketName: !Sub "${SystemNameParameter}-assets-${TenantKeyParameter}-${GuidParameter}"
+      BucketName: !Sub "${SystemKeyParameter}-${TenantKeyParameter}-${SubtenantKeyParameter}-assets-${GuidParameter}"
 
   AssetsBucketPolicy:
     Type: AWS::S3::BucketPolicy
-    Condition: CreateAssetsBucket
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       Bucket: !Ref AssetsBucket
       PolicyDocument:
@@ -85,40 +70,6 @@ Resources:
               StringEquals:
                 AWS:SourceAccount: !Ref AWS::AccountId
 
-  CDNLogBucket:
-    Type: AWS::S3::Bucket
-    Condition: CreateCDNLogBucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      BucketName: !Sub "${SystemNameParameter}-cdnlog-${TenantKeyParameter}-${GuidParameter}"
-      OwnershipControls:
-        Rules: 
-          - ObjectOwnership: BucketOwnerPreferred   
-      AccessControl: LogDeliveryWrite
-
-  CDNLogBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Condition: CreateCDNLogBucket
-    DeletionPolicy: Retain
-    Properties:
-      Bucket: !Ref CDNLogBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service: "delivery.logs.amazonaws.com"
-            Action: "s3:PutObject"
-            Resource: !Sub "arn:aws:s3:::${CDNLogBucket}/*"
-            Condition:
-              StringEquals:
-                "s3:x-amz-acl": "bucket-owner-full-control"
-          - Effect: "Allow"
-            Principal:
-              Service: "delivery.logs.amazonaws.com"
-            Action: "s3:GetBucketAcl"
-            Resource: !Sub "arn:aws:s3:::${CDNLogBucket}"
 
   # The Tenancy DynamoDb table is used like a separate database in DynamoDB
   # See the LazyMagic documentation for more information on how to use this table
@@ -127,9 +78,8 @@ Resources:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
-    Condition: CreateTenantDB
     Properties:
-      TableName: !Ref TenantKeyParameter
+      TableName: !Sub "${SystemKeyParameter}-${TenantKeyParameter}-${SubtenantKeyParameter}"
       TimeToLiveSpecification:
         AttributeName: TTL
         Enabled: true
@@ -239,24 +189,18 @@ Resources:
           - General
           ProjectionType: INCLUDE
 
-Outputs:
-  AssetsBucketName:
-    Description: "Config Bucket Name"
-    Value: !If
-    - CreateAssetsBucket
-    - !Ref AssetsBucket
-    - !Sub "${SystemNameParameter}-assets-${TenantKeyParameter}-${GuidParameter}"
 
-  CDNLogBucketName:
-    Description: "CDN Logs Bucket Name"
-    Value: !If
-    - CreateCDNLogBucket
-    - !Ref CDNLogBucket
-    - !Sub "${SystemNameParameter}-cdnlog-${TenantKeyParameter}-${GuidParameter}"
+  Route53RecordSetGroup:
+    # Generated by __ResourceGenerator__
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedZoneIdParameter
+      RecordSets:
+      - Name: !Sub '${SubDomainParameter}.${RootDomainParameter}'
+        Type: 'A'
+        AliasTarget:
+          DNSName: !Ref CloudFrontDistributionDomainNameParameter
+          EvaluateTargetHealth: false
+          # The  following HostedZoneIdParameter is always used for alias records pointing to CF.
+          HostedZoneId: 'Z2FDTNDATAQYW2'
 
-  TenantDBName:
-    Description: "Tenant DB Name"
-    Value: !If
-    - CreateTenantDB
-    - !Ref TenantDB
-    - !Ref TenantKeyParameter

@@ -13,17 +13,17 @@ if(-not (Test-Path $filePath))
 }
 
 $config = Get-Content -Path $filePath | ConvertFrom-Yaml
-$SystemGuid = $config.SystemGuid
+$SystemSuffix = $config.SystemSuffix
 $RootDomain = $config.RootDomain
 $AcmCertifcateArn = $config.AcmCertifcateArn
 $HostedZoneId = $config.HostedZoneId
 $StackName = $config.StackName
-$BucketName = $config.BucketNamePrefix + $config.SystemGuid
+$BucketName = $config.BucketNamePrefix + $config.SystemSuffix
 $S3Prefix = $config.S3Prefix
 $Profile = $config.Profile
 $Environment = $config.Environment
 
-if($SystemGuid -like "yourguid")
+if($SystemSuffix -like "yourguid")
 {
 	Write-Host "Please update the serviceconfig.yaml file with your system guid"
 	exit
@@ -65,7 +65,7 @@ if($AcmCertifcateArn -like "arn:aws:acm:us-east-1:account:certificate/guid")
 #EnvironmentParameter=$Environment `
 #ArtifactsBucketParameter=$BucketName `
 #S3PrefixParameter=$S3Prefix `
-#SystemGuidParameter=$SystemGuid  `
+#SystemSuffixParameter=$SystemSuffix  `
 #RootDomainParameter=$RootDomain `
 #AcmCertifcateArnParameter=$AcmCertifcateArn `
 #HostedZoneIdParameter=$HostedZoneId `

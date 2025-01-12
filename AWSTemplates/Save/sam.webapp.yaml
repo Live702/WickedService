@@ -4,7 +4,7 @@ Description: |
   This stack creates the S3 bucket a web application
 
 Parameters:
-  SystemNameParameter:
+  SystemKeyParameter:
     Description: "System Name"
     Type: String
   AppNameParameter:
@@ -21,7 +21,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      BucketName: !Sub '${SystemNameParameter}-webapp-${AppNameParameter}-${GuidParameter}'
+      BucketName: !Sub '${SystemKeyParameter}---webapp-${AppNameParameter}-${GuidParameter}'
 
   AppBucketPolicy:
     Type: AWS::S3::BucketPolicy

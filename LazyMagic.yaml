@@ -43,21 +43,19 @@ Directives:
     Type: Tenancy
     IsDefault: true # this directive may be referenced by other Tenancy directives
     Service: Service
-    Artifacts:
-      AwsTenancyStackTemplate: # the AWS SAM template for the Tenancy
 
   # AUTHENTICATORS - Authentication services
-  EmployeeAuth:
+  TenantAuth:
     Type: Authentication
     Artifacts:
       AwsCognitoResource: 
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.managed.yaml
+        Template: AWSTemplates/Templates/sam.cognito.tenant.yaml
 
   ConsumerAuth:
     Type: Authentication
     Artifacts:
       AwsCognitoResource:
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.unmanaged.yaml
+        Template: AWSTemplates/Templates/sam.cognito.consumer.yaml
 
 # LzMessaging Subsystem Directives
 # This section contains the directives that define the LzMessaging subsystem which provides:
@@ -94,7 +92,7 @@ Directives:
       AwsWSApiLambdaResource:
         Authentications: # unlike HttpApi, we authenticate in the Lambda function
         - ConsumerAuth
-        - EmployeeAuth
+        - TenantAuth
         WebSocketApi: LzMessagingApi # required to send AUTHENTICATED message to client
 
   # LzMessagingApi
@@ -212,7 +210,7 @@ Directives:
   StoreApi:
     Type: Api
     Defaults: ApiDefault
-    Authentication: EmployeeAuth
+    Authentication: TenantAuth
     Containers:
     - StoreLambda
 
@@ -283,24 +281,11 @@ Directives:
     - LzMessagingApi
 
 # TENANCIES
-  SystemTenancy:
+  Tenancy:
     Type: Tenancy
     Defaults: TenancyDefaults
     WebApps:
     - AdminApp
     - StoreApp
-    - ConsumerApp
-
-  StoreTenancy:
-    Type: Tenancy
-    Defaults: TenancyDefaults
-    WebApps:
-    - StoreApp
-    - ConsumerApp
-
-  ConsumerTenancy:
-    Type: Tenancy
-    Defaults: TenancyDefaults
-    WebApps:
     - ConsumerApp
 
