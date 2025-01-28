@@ -7,8 +7,8 @@ namespace PublicModule
     /// This class is used to define the permissions for the PublicModule module.
     /// Since this module is public, it does not require authentication, we implement
     /// - authenticate = false
-    /// - GetUserPermissionsAsync to return an empty list of permissions.
-    /// - HasPermissionAsync to always return true.
+    /// - override GetUserPermissionsAsync to return an empty list of permissions.
+    /// - override HasPermissionAsync to always return true.
     /// </summary>
     public partial class PublicModuleAuthorization
     {
