@@ -6,10 +6,13 @@ Description: |
   to sign themselves up.
 
 Parameters:
+  SystemKeyParameter:
+    Type: String
+
   UserPoolNameParameter:
     Description: "UserPoolName"
     Type: String
-    Default: "Consumer_UserPool"    
+    Default: "Tenant_UserPool"    
 
   CallbackURLParameter:
     Description: "CallbackURL"
@@ -36,17 +39,22 @@ Parameters:
     Type: String
     Default: "cron(0 5 ? * * *)" # Daily at 5 AM UTC
 
+  SecurityLevelParameter:
+    Description: "SecurityLevel"
+    Type: Number
+    Default: 1
+
 Resources:
   BackupVault:
     Type: AWS::Backup::BackupVault
     Properties:
-      BackupVaultName: CognitoBackupVault
+      BackupVaultName: !Sub ${SystemKeyParameter}---${UserPoolNameParameter}CognitoBackupVault
 
   BackupPlan:
     Type: AWS::Backup::BackupPlan
     Properties:
       BackupPlan:
-        BackupPlanName: CognitoBackupPlan
+        BackupPlanName: !Sub ${SystemKeyParameter}---${UserPoolNameParameter}CognitoBackupPlan
         BackupPlanRule:
           - RuleName: DailyBackups
             TargetBackupVault: !Ref BackupVault
@@ -66,7 +74,7 @@ Resources:
       UserPoolName: !Ref UserPoolNameParameter
       AutoVerifiedAttributes:
       - email
-  CUserPoolClient:
+  UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       UserPoolId:
@@ -90,7 +98,11 @@ Resources:
       - !Ref LogoutURLParameter
 
 Outputs:
-    UserPoolId:
-        Value: UserPool
-    UserPoolClientId:
-        Value: UserPoolClient
+  UserPoolId:
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  UserPoolArn:
+    Value: !GetAtt UserPool.Arn
+  SecurityLevel:
+    Value: !Ref SecurityLevelParameter  

@@ -52,20 +52,6 @@ namespace PublicModule
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByStatus(System.Collections.Generic.IEnumerable<PetStatus> petStatus);
 
         /// <summary>
-        /// Find pet by ID
-        /// </summary>
-
-        /// <remarks>
-        /// Returns a single pet
-        /// </remarks>
-
-        /// <param name="petId">ID of pet to return</param>
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId);
-
-        /// <summary>
         /// Finds Pets by tags
         /// </summary>
 
@@ -95,6 +81,20 @@ namespace PublicModule
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Tag>>> GetPetTags();
 
+        /// <summary>
+        /// Find pet by ID
+        /// </summary>
+
+        /// <remarks>
+        /// Returns a single pet
+        /// </remarks>
+
+        /// <param name="petId">ID of pet to return</param>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId);
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.0.3.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.3.0))")]
@@ -103,7 +103,7 @@ namespace PublicModule
     {
 
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/publicTest")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("publicTest")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> PublicTest()
         {
             throw new NotImplementedException();
@@ -112,7 +112,7 @@ namespace PublicModule
         /// List all pets
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/listPets")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/listPets")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> ListPets()
         {
             var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -126,24 +126,10 @@ namespace PublicModule
         /// </remarks>
         /// <param name="petStatus">Status values that need to be considered for filter</param>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/findByStatus")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/findByStatus")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByStatus([Microsoft.AspNetCore.Mvc.FromQuery] System.Collections.Generic.IEnumerable<PetStatus> petStatus)
         {
             throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Find pet by ID
-        /// </summary>
-        /// <remarks>
-        /// Returns a single pet
-        /// </remarks>
-        /// <param name="petId">ID of pet to return</param>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/{petId}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId)
-        {
-            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await petRepo.ReadAsync(callerInfo, petId);
         }
         /// <summary>
         /// Finds Pets by tags
@@ -153,7 +139,7 @@ namespace PublicModule
         /// </remarks>
         /// <param name="tags">Tags to filter by</param>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/findByTags")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/findByTags")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Pet>>> FindPetsByTags([Microsoft.AspNetCore.Mvc.FromQuery] System.Collections.Generic.IEnumerable<string> tags)
         {
             throw new NotImplementedException();
@@ -162,7 +148,7 @@ namespace PublicModule
         /// Get all Pet Categories
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/categories")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/categories")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Category>>> GetPetCategories()
         {
             var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -172,11 +158,25 @@ namespace PublicModule
         /// Get all Pet Tags
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/tags")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/tags")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<Tag>>> GetPetTags()
         {
             var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await tagRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
+        /// Find pet by ID
+        /// </summary>
+        /// <remarks>
+        /// Returns a single pet
+        /// </remarks>
+        /// <param name="petId">ID of pet to return</param>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/{petId}")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> GetPetById(string petId)
+        {
+            var callerInfo = await publicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await petRepo.ReadAsync(callerInfo, petId);
         }
 		protected IPublicModuleAuthorization publicModuleAuthorization;
 		protected ILzNotificationRepo lzNotificationRepo;

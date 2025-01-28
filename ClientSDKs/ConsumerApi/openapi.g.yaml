@@ -1,6 +1,6 @@
 openapi: 3.0.1
 paths:
-  Consumer/preferences:
+  /preferences:
     get:
       summary: Get user preferences
       operationId: getPreferences

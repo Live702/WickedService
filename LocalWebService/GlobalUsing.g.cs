@@ -1,6 +1,3 @@
-global using Amazon.Runtime;
-global using Amazon.DynamoDBv2;
-global using Amazon.DynamoDBv2.Model;
 global using Amazon.Extensions.NETCore.Setup;
 global using Amazon.SecurityToken;
 global using Amazon.SecurityToken.Model;
@@ -8,19 +5,12 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
-global using Microsoft.Extensions.Logging;
 global using Microsoft.AspNetCore.Builder;
-global using Newtonsoft.Json;
-global using Newtonsoft.Json.Serialization;
 global using System;
-global using System.Collections.Generic;
 global using System.IO;
-global using System.Linq;
 global using System.Reflection;
 global using System.Threading.Tasks;
 global using System.Text;
-global using System.ComponentModel;
-global using LazyMagic.Shared;
 
 global using LzMessagingSchema;
 global using LzMessagingSchemaRepo;

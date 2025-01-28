@@ -1,7 +1,7 @@
 openapi: 3.0.1
 paths:
   # Test/Util
-  '/{prefix}/publicTest':
+  '/publicTest':
     get:
       operationId: publicTest
       responses:
@@ -12,7 +12,7 @@ paths:
               schema:
                 type: string
 
-  '/{prefix}/pet/listPets':
+  '/pet/listPets':
     get:
       summary: List all pets 
       operationId: listPets 
@@ -29,7 +29,7 @@ paths:
         '400':
           description: Invalid status value
           
-  '/{prefix}/pet/findByStatus':
+  '/pet/findByStatus':
     get:
       summary: Finds Pets by status
       description: Multiple status values can be provided with comma separated strings
@@ -58,7 +58,7 @@ paths:
         '400':
           description: Invalid status value
 
-  '/{prefix}/pet/{petId}':
+  '/pet/{petId}':
     get:
       summary: Find pet by ID
       description: Returns a single pet
@@ -83,7 +83,7 @@ paths:
         '404':
           description: Pet not found
 
-  '/{prefix}/pet/findByTags':
+  '/pet/findByTags':
     get:
       summary: Finds Pets by tags
       description: >-
@@ -112,7 +112,7 @@ paths:
         '400':
           description: Invalid tag value
   # Categories
-  '/{prefix}/pet/categories':
+  '/pet/categories':
     get:
       summary: Get all Pet Categories
       operationId: getPetCategories
@@ -127,7 +127,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Category'
   # Tags
-  '/{prefix}/pet/tags':
+  '/pet/tags':
     get:
       summary: Get all Pet Tags
       operationId: getPetTags

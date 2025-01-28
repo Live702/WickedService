@@ -32,7 +32,7 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
     // Implement the new method to satisfy the interface
     public async Task<ActionResult> SeedAsync(ICallerInfo callerInfo, string store, int numPets )
     {
-        callerInfo.Table = store;
+        callerInfo.DefaultDB = store;
 
         List<string> petNames = ["Luna", "Max", "Bella", "Charlie", "Lucy", "Cooper", "Daisy", "Milo", "Lily", "Oliver", "Molly", "Rocky", "Bailey", "Shadow", "Sophie", "Tucker", "Coco", "Bear", "Maggie", "Leo",
 "Ruby", "Oscar", "Sadie", "Zeus", "Penny", "Duke", "Chloe", "Winston", "Rosie", "Jack", "Lola", "Buddy", "Gracie", "Thor", "Nala", "Scout", "Hazel", "Bruno", "Millie", "Sam",

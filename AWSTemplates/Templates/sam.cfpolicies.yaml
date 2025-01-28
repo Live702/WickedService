@@ -58,15 +58,17 @@ Resources:
         async function handler(event) {
             const request = event.request;
             const headers = request.headers;
-            const uri = request.uri;  
+            let uri = request.uri;  
+            const originalUri = request.uri;
             const origin = headers.origin && headers.origin.value;
             const host = request.headers.host.value;
             const debug = false;
+            const log = true;
             if(debug) console.log("host: " + host);
-    
+
 
             // Grab the Config for the domain
-            var config = null;
+            let config = null;
             const kvsKey = host;  
             try {
                 config = await kvs.get(kvsKey);
@@ -79,11 +81,12 @@ Resources:
                     statusDescription: 'Not Found',
                     body: 'Missing Config'
                 };      
-            if(debug) console.log("config:" + config);
+
+    
             config = JSON.parse(config);
             if(!config || !config.behaviors)
                 return {
-                    statusCode: 404,
+                    statusCode: 200,
                     statusDescription: 'Not Found',
                     body: 'Bad Config'
                 };   
@@ -117,9 +120,9 @@ Resources:
             const ts = config.ts;
             const sts = config.sts;
 
-            var behavior = null;
-            var found = false;
-            var b = 0;
+            let behavior = null;
+            let found = false;
+            let b = 0;
             if(config.behaviors) {
                 if(debug) console.log("Matching uri: " + uri);
 
@@ -130,17 +133,17 @@ Resources:
                     // prefix is a comma separated string where each of the elements
                     // can be a valid prefix match. A prefix is just the beginning 
                     // of the path that we want to match on.
-                    var prefixes = value[0].split(',');
+                    const prefixes = value[0].split(',');
                     for(let p = 0; p < prefixes.length; p++) {
                         behaviorsRef[b++] = [prefixes[p], i];
                     }
                 }
-        
+
                 // Sort the behaviors descending by the path length
                 behaviorsRef.sort(function(a, b) {
                     return b[0].length - a[0].length;
                 });
-        
+
                 if(debug) {
                     for(let br = 0; br < b; br++) {
                         const item = config.behaviors[behaviorsRef[br][1]];
@@ -169,14 +172,14 @@ Resources:
             }
 
             const assetType = behavior[1];
-            const awssuffix = '.awsamazon.com';
-            var originPath = "";
-            var removePrefix = false;
-            var addCacheHeader = false;
-            var assetName = "";
-            var behaviorLevel = 0;
-            var assetTenantKey = "";
-            var assetSubtenantKey = "";
+            const awssuffix = '.amazonaws.com';
+            let originPath = "";
+            let removePrefix = false;
+            let addCacheHeader = false;
+            let assetName = "";
+            let behaviorLevel = 0;
+            let assetTenantKey = "";
+            let assetSubtenantKey = "";
             switch(assetType) {
                 case "api":
                     // behavior array
@@ -188,7 +191,12 @@ Resources:
                     // maps into
                     // [apiName].execute-api.[region].amazonaws.com
                     assetName = behavior[2] + '.execute-api.' + behavior[3] + awssuffix;
-                    originPath = config.env; // used to set stage name
+                    removePrefix = true;
+                    originPath = "/" + config.env; // used to set stage name
+                    // Add headers used by service-side code
+                    headers['systemkey'] = { value: config.systemKey };
+                    headers['tenantkey'] = { value: assetTenantKey };
+                    headers['subtenantkey'] = { value: assetSubtenantKey };
                     break;
                 case "assets":
                     // behavior array
@@ -199,12 +207,13 @@ Resources:
                     //   4 level:
                     // maps into
                     // [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[guid].s3.[region].amazonaws.com
-                    behaviorLevel = behavior[4]
-                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : ''
-                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : ''
-                    assetName = config.systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '.s3.' + behavior[3] + awssuffix;
+                    behaviorLevel = behavior[4];
+                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
+                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
+                    assetName = systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '.s3.' + behavior[3] + awssuffix;
                     removePrefix = true;
                     addCacheHeader = true;
+                    originPath = "";
                     break;
                 case "webapp":
                     // behavior array
@@ -216,18 +225,18 @@ Resources:
                     //   5 level:
                     // maps into
                     // [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[appName]-[guid].s3.[region].amazonaws.com            
-                    behaviorLevel = behavior[4]
-                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : ''
-                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : ''
-                    assetName = config.systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '-' + behavior[3] + '.s3.' + behavior[4] + awssuffix;
+                    behaviorLevel = behavior[4];
+                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
+                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
+                    assetName = systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '-' + behavior[3] + '.s3.' + behavior[4] + awssuffix;
                     removePrefix = true;
                     addCacheHeader = true;
-                    originPath = "/wwwroot"
+                    originPath = "/wwwroot";
                     break;
             }
 
             // perform any replacements in assetName
-            assetName = assetName.replaceAll('{sts', sts);
+            assetName = assetName.replaceAll('{sts}', sts);
             assetName = assetName.replaceAll('{ts}', ts);
             assetName = assetName.replaceAll('{ss}', ss);
 
@@ -265,17 +274,43 @@ Resources:
             // /system/something -> /something
             // /store/index.html -> /index.html
             if(removePrefix) {
-                var secondSlash = uri.indexOf('/', 1); 
+                const secondSlash = uri.indexOf('/', 1); 
                 request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
             }
             if(debug) console.log("uri: " + request.uri);
             if(addCacheHeader) {
-                headers['x-custom-cache-key'] = { value: assetName + '-' + request.uri }; // We use a header to do caching of assets    
+                const key = assetName + '-' + request.uri;
+                headers['x-custom-cache-key'] = { value: key }; // We use a header to do caching of assets    
+                if(debug) console.log("x-custom-cache-key: " + key);
             }
+            if(log) {
+                console.log("request: " + host + originalUri + "\nredirect: " + assetName + originPath + request.uri);
+            }
+    
             return request;
         }
 
-
+  CloudFrontFunctionLoggingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${SystemKey}-CloudFrontFunctionLogging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/cloudfront/function/*
 
   CacheByHeaderDevPolicy:
     Type: 'AWS::CloudFront::CachePolicy'

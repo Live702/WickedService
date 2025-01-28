@@ -1,7 +1,7 @@
 openapi: 3.0.1
 paths:
  # User
-  '/{prefix}/suspendUser/{user}':
+  '/suspendUser/{user}':
     get:
       summary: Suspend EmployeeLambda user 
       operationId: suspendUser 
@@ -16,7 +16,7 @@ paths:
         '200':
           description: Success     
 
-  '/{prefix}/user/{userId}':
+  '/user/{userId}':
     get:
       summary: Find user by ID
       operationId: getUserById
@@ -41,7 +41,7 @@ paths:
           description: User not found
 
 
-  '/{prefix}/user':
+  '/user':
     post:
       summary: Add a new user to the store
       operationId: addUser
@@ -83,7 +83,7 @@ paths:
         '405':
           description: Validation exception
 
-  '/{prefix}/user/listUsers':
+  '/user/listUsers':
     get:
       summary: List all users 
       operationId: listUsers
@@ -100,7 +100,7 @@ paths:
         '400':
           description: Invalid status value
 
-  '/{prefix}/pet/seedPets/{store}/{numPets}':
+  '/pet/seedPets/{store}/{numPets}':
     get:
       summary: See pet database
       operationId: seedPets

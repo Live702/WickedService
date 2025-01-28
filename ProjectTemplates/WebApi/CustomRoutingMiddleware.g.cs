@@ -1,10 +1,14 @@
 
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class CustomRoutingMiddleware
 {
     private readonly RequestDelegate _next;
+    private const string SystemKeyHeader = "systemkey";
+    private const string TenantKeyHeader = "tenantkey";
+    private const string SubTenantKeyHeader = "subtenantkey";
 
     public CustomRoutingMiddleware(RequestDelegate next)
     {
@@ -12,15 +16,26 @@ public class CustomRoutingMiddleware
     }
 
     /// <summary>
-    /// Remove the /apiPrefix/containerPrefix/ from the path.
+    /// Add required Headers to pass along to the controlers.
+    /// "systemkey"
+    /// "tenantkey"
+    /// "subtenantkey"
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
     public async Task InvokeAsync(HttpContext context)
     {
         var path = context.Request.Path.Value;
-        var newPath = "/" + string.Join("/", path.Split('/').Skip(3));
-        context.Request.Path = "/api" + newPath;
+
+        context.Request.Headers.Remove(SystemKeyHeader);
+        context.Request.Headers.Remove(TenantKeyHeader);
+        context.Request.Headers.Remove(SubTenantKeyHeader);
+
+        // Add headers with new values
+        context.Request.Headers.Add(SystemKeyHeader, "lzm");
+        context.Request.Headers.Add(TenantKeyHeader, "lzm-mp");
+        context.Request.Headers.Add(SubTenantKeyHeader, "lzm-mp-uptown");
+
         await _next(context);
     }
 }

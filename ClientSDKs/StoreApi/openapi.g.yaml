@@ -1,6 +1,6 @@
 openapi: 3.0.1
 paths:
-  /Store/callerInfo:
+  /callerInfo:
     get:
       operationId: callerInfo
       responses:
@@ -10,7 +10,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /Store/test:
+  /test:
     get:
       summary: Test
       operationId: testEmployee
@@ -28,7 +28,7 @@ paths:
             application/json:
               schema:
                 type: string
-  /Store/pet:
+  /pet:
     post:
       summary: Add a new pet to the store
       operationId: addPet
@@ -69,7 +69,7 @@ paths:
           description: Pet not found
         405:
           description: Validation exception
-  /Store/order/inventory:
+  /order/inventory:
     get:
       summary: Returns pet inventories by status
       description: Returns a map of status codes to quantities
@@ -84,7 +84,7 @@ paths:
                 additionalProperties:
                   type: integer
                   format: int32
-  /Store/order:
+  /order:
     post:
       summary: Place an order for a pet
       operationId: placeOrder
@@ -105,7 +105,7 @@ paths:
                 $ref: '#/components/schemas/Order'
         400:
           description: Invalid Order
-  /Store/user:
+  /user:
     post:
       summary: Add a new user to the store
       operationId: addUser
@@ -146,7 +146,7 @@ paths:
           description: User not found
         405:
           description: Validation exception
-  /Store/user/listUsers:
+  /user/listUsers:
     get:
       summary: List all users
       operationId: listUsers
@@ -162,7 +162,7 @@ paths:
                   $ref: '#/components/schemas/User'
         400:
           description: Invalid status value
-  '/Store/pet/{petId}':
+  '/pet/{petId}':
     delete:
       summary: Deletes a pet
       operationId: deletePet
@@ -181,7 +181,7 @@ paths:
           description: Invalid ID supplied
         404:
           description: Pet not found
-  '/Store/order/{orderId}':
+  '/order/{orderId}':
     get:
       summary: Find purchase order by ID
       description: For valid response try integer IDs with value >= 1 and <= 10.\ \ Other values will generated exceptions
@@ -225,7 +225,7 @@ paths:
           description: Invalid ID supplied
         404:
           description: Order not found
-  '/Store/suspendUser/{user}':
+  '/suspendUser/{user}':
     get:
       summary: Suspend EmployeeLambda user
       operationId: suspendUser
@@ -239,7 +239,7 @@ paths:
       responses:
         200:
           description: Success
-  '/Store/user/{userId}':
+  '/user/{userId}':
     get:
       summary: Find user by ID
       operationId: getUserById
@@ -262,7 +262,7 @@ paths:
           description: Invalid ID supplied
         404:
           description: User not found
-  '/Store/pet/seedPets/{store}/{numPets}':
+  '/pet/seedPets/{store}/{numPets}':
     get:
       summary: See pet database
       operationId: seedPets

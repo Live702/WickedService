@@ -56,16 +56,6 @@ namespace StoreModule
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> UpdatePet(Pet body);
 
         /// <summary>
-        /// Deletes a pet
-        /// </summary>
-
-        /// <param name="petId">Pet id to delete</param>
-
-        /// <returns>Success</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId);
-
-        /// <summary>
         /// Returns pet inventories by status
         /// </summary>
 
@@ -86,6 +76,42 @@ namespace StoreModule
         /// <returns>successful operation</returns>
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Order>> PlaceOrder(Order body);
+
+        /// <summary>
+        /// Add a new user to the store
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser(User body);
+
+        /// <summary>
+        /// Update an existing user
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser(User body);
+
+        /// <summary>
+        /// List all users
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers();
+
+        /// <summary>
+        /// Deletes a pet
+        /// </summary>
+
+        /// <param name="petId">Pet id to delete</param>
+
+        /// <returns>Success</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId);
 
         /// <summary>
         /// Find purchase order by ID
@@ -132,32 +158,6 @@ namespace StoreModule
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> GetUserById(string userId);
 
         /// <summary>
-        /// Add a new user to the store
-        /// </summary>
-
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser(User body);
-
-        /// <summary>
-        /// Update an existing user
-        /// </summary>
-
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser(User body);
-
-        /// <summary>
-        /// List all users
-        /// </summary>
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers();
-
-        /// <summary>
         /// See pet database
         /// </summary>
 
@@ -177,7 +177,7 @@ namespace StoreModule
     {
 
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/callerInfo")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("callerInfo")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> CallerInfo()
         {
             throw new NotImplementedException();
@@ -186,7 +186,7 @@ namespace StoreModule
         /// Test
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/test")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("test")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<string>> TestEmployee()
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -196,7 +196,7 @@ namespace StoreModule
         /// Add a new pet to the store
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("pet")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> AddPet([Microsoft.AspNetCore.Mvc.FromBody] Pet body)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -206,22 +206,11 @@ namespace StoreModule
         /// Update an existing pet
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet")]
+        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("pet")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Pet>> UpdatePet([Microsoft.AspNetCore.Mvc.FromBody] Pet body)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await petRepo.UpdateAsync(callerInfo, body);
-        }
-        /// <summary>
-        /// Deletes a pet
-        /// </summary>
-        /// <param name="petId">Pet id to delete</param>
-        /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpDelete, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/{petId}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await petRepo.DeleteAsync(callerInfo, petId);
         }
         /// <summary>
         /// Returns pet inventories by status
@@ -230,7 +219,7 @@ namespace StoreModule
         /// Returns a map of status codes to quantities
         /// </remarks>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/order/inventory")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("order/inventory")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.IDictionary<string, int>>> GetInventory()
         {
             throw new NotImplementedException();
@@ -240,11 +229,52 @@ namespace StoreModule
         /// </summary>
         /// <param name="body">order placed for purchasing the pet</param>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/order")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("order")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Order>> PlaceOrder([Microsoft.AspNetCore.Mvc.FromBody] Order body)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await orderRepo.CreateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// Add a new user to the store
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("user")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
+        {
+            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await userRepo.CreateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// Update an existing user
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("user")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
+        {
+            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await userRepo.UpdateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// List all users
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("user/listUsers")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers()
+        {
+            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await userRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
+        /// Deletes a pet
+        /// </summary>
+        /// <param name="petId">Pet id to delete</param>
+        /// <returns>Success</returns>
+        [Microsoft.AspNetCore.Mvc.HttpDelete, Microsoft.AspNetCore.Mvc.Route("pet/{petId}")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId)
+        {
+            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await petRepo.DeleteAsync(callerInfo, petId);
         }
         /// <summary>
         /// Find purchase order by ID
@@ -254,7 +284,7 @@ namespace StoreModule
         /// </remarks>
         /// <param name="orderId">ID of pet that needs to be fetched</param>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/order/{orderId}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("order/{orderId}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Order>> GetOrderById(string orderId)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -265,7 +295,7 @@ namespace StoreModule
         /// </summary>
         /// <param name="orderId">ID of the order that needs to be deleted</param>
         /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpDelete, Microsoft.AspNetCore.Mvc.Route("{prefix}/order/{orderId}")]
+        [Microsoft.AspNetCore.Mvc.HttpDelete, Microsoft.AspNetCore.Mvc.Route("order/{orderId}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeleteOrder(string orderId)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -276,7 +306,7 @@ namespace StoreModule
         /// </summary>
         /// <param name="user">user login</param>
         /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/suspendUser/{user}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("suspendUser/{user}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SuspendUser(string user)
         {
             throw new NotImplementedException();
@@ -286,41 +316,11 @@ namespace StoreModule
         /// </summary>
         /// <param name="userId">ID of user that needs to be fetched</param>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/user/{userId}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("user/{userId}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> GetUserById(string userId)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await userRepo.ReadAsync(callerInfo, userId);
-        }
-        /// <summary>
-        /// Add a new user to the store
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/user")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.CreateAsync(callerInfo, body);
-        }
-        /// <summary>
-        /// Update an existing user
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("{prefix}/user")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.UpdateAsync(callerInfo, body);
-        }
-        /// <summary>
-        /// List all users
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/user/listUsers")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers()
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.ListAsync(callerInfo);
         }
         /// <summary>
         /// See pet database
@@ -328,10 +328,11 @@ namespace StoreModule
         /// <param name="store">Store to seed</param>
         /// <param name="numPets">Number of pets to seed</param>
         /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/pet/seedPets/{store}/{numPets}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/seedPets/{store}/{numPets}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SeedPets(string store, int numPets)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
+            store = store.Replace("-", "_"); // replace hyphens with underscores to satisfy DynamoDB table name requirements
             return await petRepo.SeedAsync(callerInfo, store, numPets);
         }
 		protected IStoreModuleAuthorization storeModuleAuthorization;

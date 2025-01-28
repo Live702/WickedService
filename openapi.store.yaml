@@ -1,7 +1,7 @@
 openapi: 3.0.1
 paths:
   # Test/Util
-  '/{prefix}/callerInfo':
+  '/callerInfo':
     get:
       operationId: callerInfo
       responses:
@@ -13,7 +13,7 @@ paths:
                 type: string
 
   # TestEmployee
-  '/{prefix}/test':
+  '/test':
     get:
       summary: Test
       operationId: testEmployee
@@ -33,7 +33,7 @@ paths:
                 type: string
 
   # Pet
-  '/{prefix}/pet':
+  '/pet':
     post:
       summary: Add a new pet to the store
       operationId: addPet
@@ -76,7 +76,7 @@ paths:
           description: Validation exception
 
 
-  '/{prefix}/pet/{petId}':
+  '/pet/{petId}':
     delete:
       summary: Deletes a pet
       operationId: deletePet
@@ -97,7 +97,7 @@ paths:
           description: Pet not found
 
   # Inventory
-  '/{prefix}/order/inventory':
+  '/order/inventory':
     get:
       summary: Returns pet inventories by status
       description: Returns a map of status codes to quantities
@@ -113,7 +113,7 @@ paths:
                   type: integer
                   format: int32
   # Order
-  '/{prefix}/order':
+  '/order':
     post:
       summary: Place an order for a pet
       operationId: placeOrder
@@ -135,7 +135,7 @@ paths:
         '400':
           description: Invalid Order
 
-  '/{prefix}/order/{orderId}':
+  '/order/{orderId}':
     get:
       summary: Find purchase order by ID
       description: >-

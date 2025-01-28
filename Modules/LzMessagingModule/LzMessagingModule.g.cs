@@ -25,16 +25,6 @@ namespace LzMessagingModule
     public interface ILzMessagingModuleController
     {
 
-        /// <remarks>
-        /// list LzNotifications for current subscriptionId from specified dateTime
-        /// </remarks>
-
-
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotificationsPage>> LzNotificationsPageListSessionIdDateTimeTicks(string subscriptionId, long dateTimeTicks);
-
         /// <summary>
         /// Create a Notification record for testing
         /// </summary>
@@ -45,20 +35,30 @@ namespace LzMessagingModule
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotification>> AddNotificaiton(LzNotification body);
 
         /// <remarks>
-        /// GetLzSubscription record
-        /// </remarks>
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> GetLzSubscriptionById(string sessionId);
-
-        /// <remarks>
         /// subscribe to topics
         /// </remarks>
 
         /// <returns>successful operation</returns>
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> Subscribe(LzSubscription body);
+
+        /// <remarks>
+        /// list LzNotifications for current subscriptionId from specified dateTime
+        /// </remarks>
+
+
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotificationsPage>> LzNotificationsPageListSessionIdDateTimeTicks(string subscriptionId, long dateTimeTicks);
+
+        /// <remarks>
+        /// GetLzSubscription record
+        /// </remarks>
+
+        /// <returns>successful operation</returns>
+
+        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> GetLzSubscriptionById(string sessionId);
 
     }
 
@@ -67,43 +67,43 @@ namespace LzMessagingModule
     public abstract partial class LzMessagingModuleController : Microsoft.AspNetCore.Mvc.Controller,ILzMessagingModuleController
     {
 
-        /// <remarks>
-        /// list LzNotifications for current subscriptionId from specified dateTime
-        /// </remarks>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotificationsPage>> LzNotificationsPageListSessionIdDateTimeTicks(string subscriptionId, long dateTimeTicks)
-        {
-            throw new NotImplementedException();
-        }
         /// <summary>
         /// Create a Notification record for testing
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/Notification")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("Notification")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotification>> AddNotificaiton([Microsoft.AspNetCore.Mvc.FromBody] LzNotification body)
         {
             var callerInfo = await lzMessagingModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await lzNotificationRepo.CreateAsync(callerInfo,body);
         }
         /// <remarks>
+        /// subscribe to topics
+        /// </remarks>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("lzSubscription")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> Subscribe([Microsoft.AspNetCore.Mvc.FromBody] LzSubscription body)
+        {
+            throw new NotImplementedException();
+        }
+        /// <remarks>
+        /// list LzNotifications for current subscriptionId from specified dateTime
+        /// </remarks>
+        /// <returns>successful operation</returns>
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}")]
+        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzNotificationsPage>> LzNotificationsPageListSessionIdDateTimeTicks(string subscriptionId, long dateTimeTicks)
+        {
+            throw new NotImplementedException();
+        }
+        /// <remarks>
         /// GetLzSubscription record
         /// </remarks>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/lzSubscription/{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("lzSubscription/{id}")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> GetLzSubscriptionById(string sessionId)
         {
             var callerInfo = await lzMessagingModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await lzSubscriptionRepo.ReadAsync(callerInfo,sessionId);
-        }
-        /// <remarks>
-        /// subscribe to topics
-        /// </remarks>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/lzSubscription")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<LzSubscription>> Subscribe([Microsoft.AspNetCore.Mvc.FromBody] LzSubscription body)
-        {
-            throw new NotImplementedException();
         }
 		protected ILzMessagingModuleAuthorization lzMessagingModuleAuthorization;
 		protected ILzNotificationRepo lzNotificationRepo;

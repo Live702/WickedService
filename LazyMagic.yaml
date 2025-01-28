@@ -49,13 +49,13 @@ Directives:
     Type: Authentication
     Artifacts:
       AwsCognitoResource: 
-        Template: AWSTemplates/Templates/sam.cognito.tenant.yaml
+        Template: Templates/sam.cognito.tenant.yaml
 
   ConsumerAuth:
     Type: Authentication
     Artifacts:
       AwsCognitoResource:
-        Template: AWSTemplates/Templates/sam.cognito.consumer.yaml
+        Template: Templates/sam.cognito.consumer.yaml
 
 # LzMessaging Subsystem Directives
 # This section contains the directives that define the LzMessaging subsystem which provides:

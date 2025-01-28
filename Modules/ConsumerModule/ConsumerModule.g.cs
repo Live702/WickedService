@@ -53,7 +53,7 @@ namespace ConsumerModule
         /// Get user preferences
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("{prefix}/preferences")]
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("preferences")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Preferences>> GetPreferences()
         {
             var callerInfo = await consumerModuleAuthorization.GetCallerInfoAsync(this.Request);
@@ -63,7 +63,7 @@ namespace ConsumerModule
         /// Update user preferences
         /// </summary>
         /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("{prefix}/preferences")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("preferences")]
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Preferences>> UpdatePreferences([Microsoft.AspNetCore.Mvc.FromBody] Preferences body)
         {
             var callerInfo = await consumerModuleAuthorization.GetCallerInfoAsync(this.Request);

@@ -278,7 +278,7 @@ Resources:
 
 
           - Id: ApiOrigin
-            DomainName: 'junk.com'
+            DomainName: !Ref RootDomainParameter
             OriginPath: !Sub '/${EnvironmentParameter}'
             CustomOriginConfig: 
               HTTPSPort: 443
@@ -292,7 +292,16 @@ Resources:
     Properties:
       HostedZoneId: !Ref HostedZoneIdParameter
       RecordSets:
+      # Root domain
       - Name: !Ref RootDomainParameter
+        Type: 'A'
+        AliasTarget:
+          DNSName: !GetAtt 'CloudFrontDistribution.DomainName'
+          EvaluateTargetHealth: false
+          # The  following HostedZoneIdParameter is always used for alias records pointing to CF.
+          HostedZoneId: 'Z2FDTNDATAQYW2' 
+      # We also need a wildcard subdomain to allow for subtenants
+      - Name: !Sub "*.${RootDomainParameter}"
         Type: 'A'
         AliasTarget:
           DNSName: !GetAtt 'CloudFrontDistribution.DomainName'

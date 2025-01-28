@@ -1,6 +1,6 @@
 openapi: 3.0.1
 paths:
-  '/{prefix}/publicTest':
+  /publicTest:
     get:
       operationId: publicTest
       responses:
@@ -10,7 +10,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  '/{prefix}/pet/listPets':
+  /pet/listPets:
     get:
       summary: List all pets
       operationId: listPets
@@ -26,7 +26,7 @@ paths:
                   $ref: '#/components/schemas/Pet'
         400:
           description: Invalid status value
-  '/{prefix}/pet/findByStatus':
+  /pet/findByStatus:
     get:
       summary: Finds Pets by status
       description: Multiple status values can be provided with comma separated strings
@@ -53,31 +53,7 @@ paths:
                   $ref: '#/components/schemas/Pet'
         400:
           description: Invalid status value
-  '/{prefix}/pet/{petId}':
-    get:
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      x-lz-gencall: petRepo.ReadAsync(callerInfo, petId)
-      parameters:
-      - name: petId
-        in: path
-        description: ID of pet to return
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        400:
-          description: Invalid ID supplied
-        404:
-          description: Pet not found
-  '/{prefix}/pet/findByTags':
+  /pet/findByTags:
     get:
       summary: Finds Pets by tags
       description: Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
@@ -103,7 +79,7 @@ paths:
                   $ref: '#/components/schemas/Pet'
         400:
           description: Invalid tag value
-  '/{prefix}/pet/categories':
+  /pet/categories:
     get:
       summary: Get all Pet Categories
       operationId: getPetCategories
@@ -117,7 +93,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
-  '/{prefix}/pet/tags':
+  /pet/tags:
     get:
       summary: Get all Pet Tags
       operationId: getPetTags
@@ -131,6 +107,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Tag'
+  '/pet/{petId}':
+    get:
+      summary: Find pet by ID
+      description: Returns a single pet
+      operationId: getPetById
+      x-lz-gencall: petRepo.ReadAsync(callerInfo, petId)
+      parameters:
+      - name: petId
+        in: path
+        description: ID of pet to return
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Pet not found
 components:
   schemas:
     LzNotification:
