@@ -3,11 +3,18 @@ using System.Runtime.CompilerServices;
 
 namespace PublicModule
 {
+    /// <summary>
+    /// This class is used to define the permissions for the PublicModule module.
+    /// Since this module is public, it does not require authentication, we implement
+    /// - authenticate = false
+    /// - GetUserPermissionsAsync to return an empty list of permissions.
+    /// - HasPermissionAsync to always return true.
+    /// </summary>
     public partial class PublicModuleAuthorization
     {
         public PublicModuleAuthorization ()
         {
-            authenticate = false;
+            authenticate = false; // This module does not require authentication
         }
         protected override async Task<List<string>> GetUserPermissionsAsync(string lzUserId, string userName, string table)
         {
