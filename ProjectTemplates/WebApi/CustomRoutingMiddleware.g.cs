@@ -31,10 +31,14 @@ public class CustomRoutingMiddleware
         context.Request.Headers.Remove(TenantKeyHeader);
         context.Request.Headers.Remove(SubTenantKeyHeader);
 
+        var SystemKeyValue = Environment.GetEnvironmentVariable("SYSTEMKEY");
+        var TenantKeyValue = Environment.GetEnvironmentVariable("TENANTKEY");
+        var SubtenantKeyValue = Environment.GetEnvironmentVariable("SUBTENANTKEY");
+
         // Add headers with new values
-        context.Request.Headers.Add(SystemKeyHeader, "lzm");
-        context.Request.Headers.Add(TenantKeyHeader, "lzm-mp");
-        context.Request.Headers.Add(SubTenantKeyHeader, "lzm-mp-uptown");
+        context.Request.Headers.Add(SystemKeyHeader, SystemKeyValue);
+        context.Request.Headers.Add(TenantKeyHeader, TenantKeyValue);
+        context.Request.Headers.Add(SubTenantKeyHeader, SubtenantKeyValue);
 
         await _next(context);
     }

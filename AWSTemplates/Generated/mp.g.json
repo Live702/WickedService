@@ -1,0 +1,238 @@
+{
+  "mp": {
+    "KvsEntry": {
+      "tenantKey": "mp",
+      "env": "dev",
+      "systemKey": "lzm",
+      "ts": "{ss}",
+      "region": "us-west-2",
+      "behaviors": [
+        [
+          "/store/,/store,/",
+          "webapp",
+          "storeapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/admin/,/admin",
+          "webapp",
+          "adminapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/app/,/app",
+          "webapp",
+          "consumerapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/tenancy/",
+          "assets",
+          "{ts}",
+          "us-west-2",
+          1
+        ],
+        [
+          "/PublicApi",
+          "api",
+          "xo5ghktbwg",
+          "us-west-2"
+        ],
+        [
+          "/ConsumerApi",
+          "api",
+          "5nd6hytpa1",
+          "us-west-2"
+        ],
+        [
+          "/StoreApi",
+          "api",
+          "ls1enkfeza",
+          "us-west-2"
+        ],
+        [
+          "/system/",
+          "assets",
+          "{ss}",
+          "us-west-2",
+          0
+        ]
+      ],
+      "ss": "496a-bd90"
+    },
+    "Level": 1,
+    "Domain": "lazymagicdev.click"
+  },
+  "uptown-mp": {
+    "KvsEntry": {
+      "ss": "496a-bd90",
+      "subtenantKey": "uptown",
+      "behaviors": [
+        [
+          "/subtenancy/",
+          "assets",
+          "{sts}",
+          "us-west-2",
+          2
+        ],
+        [
+          "/ConsumerApi",
+          "api",
+          "5nd6hytpa1",
+          "us-west-2"
+        ],
+        [
+          "/app/,/app",
+          "webapp",
+          "consumerapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/system/",
+          "assets",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/StoreApi",
+          "api",
+          "ls1enkfeza",
+          "us-west-2"
+        ],
+        [
+          "/store/,/store,/",
+          "webapp",
+          "storeapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/admin/,/admin",
+          "webapp",
+          "adminapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/store/,/store",
+          "webapp",
+          "storeapp",
+          "{sts}",
+          "us-west-2",
+          2
+        ],
+        [
+          "/PublicApi",
+          "api",
+          "xo5ghktbwg",
+          "us-west-2"
+        ],
+        [
+          "/tenancy/",
+          "assets",
+          "{ts}",
+          "us-west-2",
+          1
+        ]
+      ],
+      "tenantKey": "mp",
+      "env": "dev",
+      "sts": "{ts}",
+      "systemKey": "lzm",
+      "ts": "{ss}",
+      "region": "us-west-2"
+    },
+    "Level": 2,
+    "Domain": "uptown.lazymagicdev.click"
+  },
+  "downtown-mp": {
+    "KvsEntry": {
+      "ss": "496a-bd90",
+      "subtenantKey": "downtown",
+      "behaviors": [
+        [
+          "/subtenancy/",
+          "assets",
+          "{sts}",
+          "us-west-2",
+          2
+        ],
+        [
+          "/ConsumerApi",
+          "api",
+          "5nd6hytpa1",
+          "us-west-2"
+        ],
+        [
+          "/app/,/app",
+          "webapp",
+          "consumerapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/system/",
+          "assets",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/StoreApi",
+          "api",
+          "ls1enkfeza",
+          "us-west-2"
+        ],
+        [
+          "/store/,/store,/",
+          "webapp",
+          "storeapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/admin/,/admin",
+          "webapp",
+          "adminapp",
+          "{ss}",
+          "us-west-2",
+          0
+        ],
+        [
+          "/PublicApi",
+          "api",
+          "xo5ghktbwg",
+          "us-west-2"
+        ],
+        [
+          "/tenancy/",
+          "assets",
+          "{ts}",
+          "us-west-2",
+          1
+        ]
+      ],
+      "tenantKey": "mp",
+      "env": "dev",
+      "sts": "{ts}",
+      "systemKey": "lzm",
+      "ts": "{ss}",
+      "region": "us-west-2"
+    },
+    "Level": 2,
+    "Domain": "downtown.lazymagicdev.click"
+  }
+}
