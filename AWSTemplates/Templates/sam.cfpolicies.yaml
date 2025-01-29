@@ -82,7 +82,7 @@ Resources:
                     body: 'Missing Config'
                 };      
 
-    
+
             config = JSON.parse(config);
             if(!config || !config.behaviors)
                 return {
@@ -99,7 +99,6 @@ Resources:
                 && (origin.startsWith('https://localhost:') || origin.startsWith('http://localhost:')) 
                 && headers['access-control-request-method']
             ) {
-                // Return a 204 No Content for preflight
                 return {
                     statusCode: 204,
                     statusDescription: 'No Content',
@@ -113,9 +112,12 @@ Resources:
                 };
             }
 
-            const tenantKey = config.tenantKey;
-            const subtenantKey = config.subtenantKey;
             const systemKey = config.systemKey;
+            const systemKeyValue = config.systemKey;
+            const tenantKey = config.tenantKey;
+            const tenantKeyValue = (config.tenantKey && config.tenantKey.trim()) ? systemKeyValue + '-' + tenantKey : '';
+            const subtenantKey = config.subtenantKey;
+            const subtenantKeyValue = (config.subtenantKey && config.subtenantKey.trim()) ? tenantKeyValue + '-' + subtenantKey : '';
             const ss = config.ss;
             const ts = config.ts;
             const sts = config.sts;
@@ -129,10 +131,6 @@ Resources:
                 const behaviorsRef = new Array(100);
                 for (let i = 0; i < config.behaviors.length; i++) {
                     const value = config.behaviors[i]; 
-                    // behaviors are an array begining with [path, ..]
-                    // prefix is a comma separated string where each of the elements
-                    // can be a valid prefix match. A prefix is just the beginning 
-                    // of the path that we want to match on.
                     const prefixes = value[0].split(',');
                     for(let p = 0; p < prefixes.length; p++) {
                         behaviorsRef[b++] = [prefixes[p], i];
@@ -182,31 +180,15 @@ Resources:
             let assetSubtenantKey = "";
             switch(assetType) {
                 case "api":
-                    // behavior array
-                    //   0 path: 
-                    //   1 assetType:
-                    //   2 apiName: 
-                    //   3 region:
-                    //   4 level:
-                    // maps into
-                    // [apiName].execute-api.[region].amazonaws.com
                     assetName = behavior[2] + '.execute-api.' + behavior[3] + awssuffix;
                     removePrefix = true;
                     originPath = "/" + config.env; // used to set stage name
                     // Add headers used by service-side code
-                    headers['systemkey'] = { value: config.systemKey };
-                    headers['tenantkey'] = { value: assetTenantKey };
-                    headers['subtenantkey'] = { value: assetSubtenantKey };
+                    headers['systemkey'] = { value: systemKeyValue };
+                    headers['tenantkey'] = { value: tenantKeyValue};
+                    headers['subtenantkey'] = { value: subtenantKeyValue };
                     break;
                 case "assets":
-                    // behavior array
-                    //   0 path:
-                    //   1 assetType:
-                    //   2 guid:
-                    //   3 region:
-                    //   4 level:
-                    // maps into
-                    // [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[guid].s3.[region].amazonaws.com
                     behaviorLevel = behavior[4];
                     assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
                     assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
@@ -216,15 +198,6 @@ Resources:
                     originPath = "";
                     break;
                 case "webapp":
-                    // behavior array
-                    //   0 path:
-                    //   1 assetType:
-                    //   2 appName:
-                    //   3 guid:
-                    //   4 region:
-                    //   5 level:
-                    // maps into
-                    // [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[appName]-[guid].s3.[region].amazonaws.com            
                     behaviorLevel = behavior[4];
                     assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
                     assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
@@ -256,7 +229,6 @@ Resources:
 
             if(debug) console.log("originDomainName: " + assetName + ", originPath: " + originPath);
 
-            // Webapp page navigation intercept
             if(assetType == 'webapp' && uri.endsWith("Page")) {
                 try {
                     const url = new URL(uri);
@@ -269,10 +241,6 @@ Resources:
                 }             
             }
 
-            // Remove the prefix form the path. examples
-            // /tenancy/something -> /something
-            // /system/something -> /something
-            // /store/index.html -> /index.html
             if(removePrefix) {
                 const secondSlash = uri.indexOf('/', 1); 
                 request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
@@ -284,9 +252,9 @@ Resources:
                 if(debug) console.log("x-custom-cache-key: " + key);
             }
             if(log) {
-                console.log("request: " + host + originalUri + "\nredirect: " + assetName + originPath + request.uri);
+                console.log("request: " + host + originalUri  + "\nredirect: " + assetName + originPath + request.uri  + "\nsystemkey: " + systemKeyValue + " , tenantkey: " + tenantKeyValue + " , subtenantkey: " + subtenantKeyValue);
             }
-    
+
             return request;
         }
 

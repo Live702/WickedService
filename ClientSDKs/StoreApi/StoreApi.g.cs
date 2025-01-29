@@ -325,8 +325,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "callerInfo"
-                    urlBuilder_.Append("callerInfo");
+                    // Operation Path: "StoreApi/callerInfo"
+                    urlBuilder_.Append("StoreApi/callerInfo");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -406,8 +406,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "test"
-                    urlBuilder_.Append("test");
+                    // Operation Path: "StoreApi/test"
+                    urlBuilder_.Append("StoreApi/test");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -504,8 +504,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet"
-                    urlBuilder_.Append("pet");
+                    // Operation Path: "StoreApi/pet"
+                    urlBuilder_.Append("StoreApi/pet");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -598,8 +598,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet"
-                    urlBuilder_.Append("pet");
+                    // Operation Path: "StoreApi/pet"
+                    urlBuilder_.Append("StoreApi/pet");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -706,8 +706,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "order/inventory"
-                    urlBuilder_.Append("order/inventory");
+                    // Operation Path: "StoreApi/order/inventory"
+                    urlBuilder_.Append("StoreApi/order/inventory");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -799,8 +799,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "order"
-                    urlBuilder_.Append("order");
+                    // Operation Path: "StoreApi/order"
+                    urlBuilder_.Append("StoreApi/order");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -893,8 +893,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "user"
-                    urlBuilder_.Append("user");
+                    // Operation Path: "StoreApi/user"
+                    urlBuilder_.Append("StoreApi/user");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -987,8 +987,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "user"
-                    urlBuilder_.Append("user");
+                    // Operation Path: "StoreApi/user"
+                    urlBuilder_.Append("StoreApi/user");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1089,8 +1089,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "user/listUsers"
-                    urlBuilder_.Append("user/listUsers");
+                    // Operation Path: "StoreApi/user/listUsers"
+                    urlBuilder_.Append("StoreApi/user/listUsers");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1183,8 +1183,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/{petId}"
-                    urlBuilder_.Append("pet/");
+                    // Operation Path: "StoreApi/pet/{petId}"
+                    urlBuilder_.Append("StoreApi/pet/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(petId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -1286,8 +1286,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "order/{orderId}"
-                    urlBuilder_.Append("order/");
+                    // Operation Path: "StoreApi/order/{orderId}"
+                    urlBuilder_.Append("StoreApi/order/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -1387,8 +1387,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "order/{orderId}"
-                    urlBuilder_.Append("order/");
+                    // Operation Path: "StoreApi/order/{orderId}"
+                    urlBuilder_.Append("StoreApi/order/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(orderId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -1483,8 +1483,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "suspendUser/{user}"
-                    urlBuilder_.Append("suspendUser/");
+                    // Operation Path: "StoreApi/suspendUser/{user}"
+                    urlBuilder_.Append("StoreApi/suspendUser/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(user, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -1568,8 +1568,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "user/{userId}"
-                    urlBuilder_.Append("user/");
+                    // Operation Path: "StoreApi/user/{userId}"
+                    urlBuilder_.Append("StoreApi/user/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -1674,8 +1674,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/seedPets/{store}/{numPets}"
-                    urlBuilder_.Append("pet/seedPets/");
+                    // Operation Path: "StoreApi/pet/seedPets/{store}/{numPets}"
+                    urlBuilder_.Append("StoreApi/pet/seedPets/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(store, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(numPets, System.Globalization.CultureInfo.InvariantCulture)));

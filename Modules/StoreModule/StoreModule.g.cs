@@ -332,7 +332,6 @@ namespace StoreModule
         public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SeedPets(string store, int numPets)
         {
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            store = store.Replace("-", "_"); // replace hyphens with underscores to satisfy DynamoDB table name requirements
             return await petRepo.SeedAsync(callerInfo, store, numPets);
         }
 		protected IStoreModuleAuthorization storeModuleAuthorization;

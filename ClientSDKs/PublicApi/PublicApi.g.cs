@@ -201,8 +201,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "publicTest"
-                    urlBuilder_.Append("publicTest");
+                    // Operation Path: "PublicApi/publicTest"
+                    urlBuilder_.Append("PublicApi/publicTest");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -282,8 +282,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/listPets"
-                    urlBuilder_.Append("pet/listPets");
+                    // Operation Path: "PublicApi/pet/listPets"
+                    urlBuilder_.Append("PublicApi/pet/listPets");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -383,8 +383,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/findByStatus"
-                    urlBuilder_.Append("pet/findByStatus");
+                    // Operation Path: "PublicApi/pet/findByStatus"
+                    urlBuilder_.Append("PublicApi/pet/findByStatus");
                     urlBuilder_.Append('?');
                     foreach (var item_ in petStatus) { urlBuilder_.Append(System.Uri.EscapeDataString("petStatus")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
                     urlBuilder_.Length--;
@@ -487,8 +487,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/findByTags"
-                    urlBuilder_.Append("pet/findByTags");
+                    // Operation Path: "PublicApi/pet/findByTags"
+                    urlBuilder_.Append("PublicApi/pet/findByTags");
                     urlBuilder_.Append('?');
                     foreach (var item_ in tags) { urlBuilder_.Append(System.Uri.EscapeDataString("tags")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(item_, System.Globalization.CultureInfo.InvariantCulture))).Append('&'); }
                     urlBuilder_.Length--;
@@ -580,8 +580,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/categories"
-                    urlBuilder_.Append("pet/categories");
+                    // Operation Path: "PublicApi/pet/categories"
+                    urlBuilder_.Append("PublicApi/pet/categories");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -664,8 +664,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/tags"
-                    urlBuilder_.Append("pet/tags");
+                    // Operation Path: "PublicApi/pet/tags"
+                    urlBuilder_.Append("PublicApi/pet/tags");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -759,8 +759,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "pet/{petId}"
-                    urlBuilder_.Append("pet/");
+                    // Operation Path: "PublicApi/pet/{petId}"
+                    urlBuilder_.Append("PublicApi/pet/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(petId, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);

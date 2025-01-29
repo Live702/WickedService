@@ -40,6 +40,9 @@ public class CustomRoutingMiddleware
         context.Request.Headers.Add(TenantKeyHeader, TenantKeyValue);
         context.Request.Headers.Add(SubTenantKeyHeader, SubtenantKeyValue);
 
+        var newPath = "/" + string.Join("/", path.Split('/').Skip(2));
+        context.Request.Path = newPath;
+
         await _next(context);
     }
 }

@@ -38,14 +38,12 @@ public partial class Startup
             });
         });
 
-        services.AddControllers().AddNewtonsoftJson();
+        services
+            .AddControllers()
+            .AddNewtonsoftJson();
 
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "PetStoreAPI", Version = "v1" });
-        });
     }
-    
+
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -54,33 +52,17 @@ public partial class Startup
             app.UseDeveloperExceptionPage();
         }
 
-        // app.UseMiddleware<SubdomainMiddleware>();  Moved the subdomain handling to ControlerUtil 
-
         app.UseCustomRouting();
         app.UseRouting();
-
         app.UseCors();
-
-        var webSocketOptions = new WebSocketOptions()
+        app.UseWebSockets(new WebSocketOptions()
         {
             KeepAliveInterval = TimeSpan.FromSeconds(120)
-        };
-
-        app.UseWebSockets(webSocketOptions);    
-            
+        });
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
         });
-
-        app.UseSwagger();
-
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "PetStore V1");
-        });
-
-        app.Run(async (context) => await Task.Run(() => context.Response.Redirect("/swagger")));
 
     }
 }

@@ -35,12 +35,13 @@ public class CustomRoutingMiddleware
         var TenantKeyValue = Environment.GetEnvironmentVariable("TENANTKEY");
         var SubtenantKeyValue = Environment.GetEnvironmentVariable("SUBTENANTKEY");
 
-
-
         // Add headers with new values
         context.Request.Headers.Add(SystemKeyHeader, SystemKeyValue);
         context.Request.Headers.Add(TenantKeyHeader, TenantKeyValue);
         context.Request.Headers.Add(SubTenantKeyHeader, SubtenantKeyValue);
+
+        var newPath = "/" + string.Join("/", path.Split('/').Skip(2));
+        context.Request.Path = newPath;
 
         await _next(context);
     }

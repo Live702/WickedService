@@ -114,8 +114,8 @@ namespace ConsumerApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "preferences"
-                    urlBuilder_.Append("preferences");
+                    // Operation Path: "ConsumerApi/preferences"
+                    urlBuilder_.Append("ConsumerApi/preferences");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -202,8 +202,8 @@ namespace ConsumerApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "preferences"
-                    urlBuilder_.Append("preferences");
+                    // Operation Path: "ConsumerApi/preferences"
+                    urlBuilder_.Append("ConsumerApi/preferences");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
