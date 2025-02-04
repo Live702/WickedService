@@ -22,6 +22,62 @@ Conditions:
   IsDev: !Equals [!Ref EnvironmentParameter, "dev"]
 
 Resources:
+
+  # The AuthConfig function is used to return the authentication informaiton 
+  # necessary to connect to the system.
+  AuthConfigFunction:  
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub ${SystemKey}---authconfig
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Handle authconfig Requests.'
+        Runtime: cloudfront-js-2.0
+        KeyValueStoreAssociations:
+          - KeyValueStoreARN: !Ref KeyValueStoreArnParameter
+      FunctionCode: |
+        import cf from 'cloudfront';
+        const kvs = cf.kvs(); 
+        async function handler(event) {
+            const request = event.request;
+            const headers = request.headers;
+            let uri = request.uri;  
+            const originalUri = request.uri;
+            const origin = headers.origin && headers.origin.value;
+            const debug = false;
+            const log = true;
+            if(debug) console.log("host: " + host);
+            let config = {
+                meta: {
+                    type: "",
+                    awsRegion: "",
+                    wsUrl: ""
+                },
+                authConfigs: {}
+            };
+            try {
+                const authConfigs = await kvs.get("AuthConfigs");
+                config.authConfigs = JSON.parse(authConfigs);
+
+                return {
+                    statusCode: 200,
+                    statusDescription: "Success",
+                    headers: {
+                        'content-type': { value: 'application/json' }, // Set the content type to application/json
+                        'cache-control': { value: 'max-age=0, no-cache, no-store, must-revalidate' } // Set caching headers to prevent caching
+                    },            
+                    body: JSON.stringify(config, null, 0)
+                }
+
+            } catch (err) {
+                console.log("Error listing KVS entries:", err);
+                return {
+                    statusCode: 500,
+                    statusDescription: 'Internal Server Error'
+                };
+            }
+        }
+
   # The Request function is used to update S3 origins on the fly using
   # an associated CloudFront KeyValueStore. This function reads kvs  
   # using the [subdomain.]domain as the key. The value returned 
@@ -42,7 +98,7 @@ Resources:
   # Each Behavior entry is an array of strings. See the AssetType switch 
   # statement in the function for documentatio of each type of behavior entry.
   # 
-  Request:  
+  RequestFunction:  
     Type: AWS::CloudFront::Function
     Properties:
       Name: !Sub ${SystemKey}---request
@@ -180,6 +236,9 @@ Resources:
             let assetSubtenantKey = "";
             switch(assetType) {
                 case "api":
+                    //  0    1         2       3      4
+                    // [path,assetType,apiname,region,env]
+                    // ==> [apiName].execute-api.[region].amazonaws.com
                     assetName = behavior[2] + '.execute-api.' + behavior[3] + awssuffix;
                     removePrefix = true;
                     originPath = "/" + config.env; // used to set stage name
@@ -189,6 +248,9 @@ Resources:
                     headers['subtenantkey'] = { value: subtenantKeyValue };
                     break;
                 case "assets":
+                    //  0    1         2         3      4
+                    // [path,assetType,assetname,suffix,region,level]
+                    // ==> [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[suffix].s3.[region].amazonaws.com
                     behaviorLevel = behavior[4];
                     assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
                     assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
@@ -198,6 +260,9 @@ Resources:
                     originPath = "";
                     break;
                 case "webapp":
+                    //  0    1         2         3      4      5
+                    // [path,assetType,assetname,suffix,region,level]
+                    // ==> [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[appName]-[suffix].s3.[region].amazonaws.com
                     behaviorLevel = behavior[4];
                     assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
                     assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
@@ -441,8 +506,11 @@ Outputs:
     Value: !Ref WebSocketOriginRequestPolicy
 
   RequestFunctionArn:
-    Value: !GetAtt Request.FunctionARN
-  
+    Value: !GetAtt RequestFunction.FunctionARN
+
   ApiRequestFunctionArn:
-    Value: !GetAtt Request.FunctionARN
+    Value: !GetAtt RequestFunction.FunctionARN  
+  
+  AuthConfigFunctionArn:
+    Value: !GetAtt AuthConfigFunction.FunctionARN
 

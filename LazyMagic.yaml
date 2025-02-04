@@ -250,6 +250,12 @@ Directives:
     Artifacts:
       DotNetLocalWebApiProject:
 
+# DEPLOYMENT 
+  Deployment:
+    Type: Deployment
+    Artifacts:
+      AwsDeploymentConfig:
+
 # WEBAPPS
   AdminApp:
     Type: WebApp

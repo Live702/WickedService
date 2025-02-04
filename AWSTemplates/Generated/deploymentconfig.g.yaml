@@ -1,4 +1,4 @@
-Authenticators:
+Authentications:
 - Name: TenantAuth
   Template: Templates/sam.cognito.tenant.yaml
   CallbackURL: https://www.example.com
@@ -15,3 +15,5 @@ Authenticators:
   StartWindowMinutes: 60
   ScheduleExpression: cron(0 5 ? * * *)
   SecurityLevel: 1
+Services:
+- Name: Service

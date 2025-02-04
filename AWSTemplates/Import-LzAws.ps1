@@ -21,12 +21,12 @@ while ($currentPath -ne "") {
 
     if (Test-Path $directPath) {
         Write-Host "Importing LzAws from $directPath"
-        Import-Module $directPath
+        Import-Module $directPath -Force
         break;
     }
     elseif (Test-Path $nestedPath) {
         Write-Host "Importing LzAws from $nestedPath"
-        Import-Module $nestedPath
+        Import-Module $nestedPath -Force
         break;
     }
     

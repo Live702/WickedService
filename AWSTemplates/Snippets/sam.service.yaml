@@ -33,12 +33,8 @@ Resources:
 
 #LzApis#
 
-#LzConfigFunction#
-
 
 Outputs:
-  ConfigFunctionArn:
-    Value: !GetAtt ConfigFunction.FunctionARN
 
 #LzOutputs#
 
