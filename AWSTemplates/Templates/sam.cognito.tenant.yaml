@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: | 
-  This stack creates a tenant user pool and 
-  user pool client. This user pool requires
-  users to be invited by an admin.
+  This stack creates a consumer user pool and 
+  user pool client. This user pool requires 
+  admin to invite the user.
 
 Parameters:
   SystemKeyParameter:
@@ -67,7 +67,7 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: false
+        AllowAdminCreateUserOnly: true
       AliasAttributes:
       - email
       - preferred_username
@@ -103,6 +103,6 @@ Outputs:
   UserPoolClientId:
     Value: !Ref UserPoolClient
   UserPoolArn:
-    Value: !GetAtt UserPool.Arn 
+    Value: !GetAtt UserPool.Arn
   SecurityLevel:
-    Value: !Ref SecurityLevelParameter          
+    Value: !Ref SecurityLevelParameter  

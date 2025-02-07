@@ -1,10 +1,6 @@
-# Find and install the LzAws module
-# This script allows you to load different versions of the LzAws 
-# powershell module for different system implementations.
-#
-# Also, since this script removes the module if it already exists,
-# you can run this script to pick up any changes you have made to 
-# the scripts in the module.
+# This script will search for the LzAws module in the current directory 
+# and all parent directories. It installs the first one it finds
+# and installs it into the current session.
 
 # First remove existing module
 Remove-Module LzAws -Force -ErrorAction SilentlyContinue
