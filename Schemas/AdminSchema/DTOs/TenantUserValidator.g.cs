@@ -13,7 +13,7 @@ namespace AdminSchema
     using System = global::System;
     
 
-public partial class UserValidator : FluentValidation.AbstractValidator<User>
+public partial class TenantUserValidator : FluentValidation.AbstractValidator<TenantUser>
 {
 }
 

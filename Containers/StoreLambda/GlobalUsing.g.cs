@@ -6,10 +6,9 @@
 
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
-global using SharedSchema;
+global using LazyMagic.Shared;
+global using LazyMagic.Service.AwsTenancyConfigService;global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
 global using StoreSchemaRepo;
-global using AdminSchema;
-global using AdminSchemaRepo;
 global using StoreModule;

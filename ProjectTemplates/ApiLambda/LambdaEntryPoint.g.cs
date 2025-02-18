@@ -1,4 +1,9 @@
+using Amazon.Lambda.APIGatewayEvents;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
 namespace LambdaFunc;
+
 /// <summary>
 /// This class extends from APIGatewayProxyFunction which contains the method FunctionHandlerAsync which is the 
 /// actual Lambda function entry point. The Lambda handler field should be set to
@@ -6,7 +11,6 @@ namespace LambdaFunc;
 /// PetStoreOrderFunc::PetStoreOrderFunc.LambdaEntryPoint::FunctionHandlerAsync
 /// </summary>
 public partial class LambdaEntryPoint :
-
     // The base class must be set to match the AWS service invoking the Lambda function. If not Amazon.Lambda.AspNetCoreServer
     // will fail to convert the incoming request correctly into a valid ASP.NET Core request.
     //
@@ -17,7 +21,6 @@ public partial class LambdaEntryPoint :
     // 
     // Note: When using the AWS::Serverless::Function resource with an event type of "HttpApi" then payload version 2.0
     // will be the default and you must make Amazon.Lambda.AspNetCoreServer.APIGatewayHttpApiV2ProxyFunction the base class.
-
     Amazon.Lambda.AspNetCoreServer.APIGatewayHttpApiV2ProxyFunction
 {
     /// <summary>
@@ -28,17 +31,62 @@ public partial class LambdaEntryPoint :
     protected override void Init(IWebHostBuilder builder)
     {
         builder
-            .UseStartup<Startup>();
+           .UseStartup<Startup>()
+           .ConfigureServices(services =>
+           {
+               services.AddSingleton<IStartupFilter, CognitoHeadersStartupFilter>();
+           });
     }
 
-    /// <summary>
-    /// Use this override to customize the services registered with the IHostBuilder. 
-    /// 
-    /// It is recommended not to call ConfigureWebHostDefaults to configure the IWebHostBuilder inside this method.
-    /// Instead customize the IWebHostBuilder in the Init(IWebHostBuilder) overload.
-    /// </summary>
-    /// <param name="builder"></param>
-    protected override void Init(IHostBuilder builder)
+    private class CognitoHeadersStartupFilter : IStartupFilter
     {
+        private static readonly Regex IssuerPattern = new(@"https://cognito-idp\.(.*?)\.amazonaws\.com/(.*?)$",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private const string RegionHeader = "lz-cognito-region";
+        private const string UserPoolHeader = "lz-cognito-userpool-id";
+
+        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+        {
+            Console.WriteLine("Adding Cognito headers Filter to request pipeline");
+            return app =>
+            {
+                app.Use(async (context, nextMiddleware) =>
+                {
+                    try
+                    {
+                        // Check if the user is authenticated and retrieve the 'iss' claim from the JWT
+                        if (context.User?.Identity?.IsAuthenticated == true)
+                        {
+                            var issuer = context.User.Claims.FirstOrDefault(c => c.Type == "iss")?.Value;
+                            if (!string.IsNullOrEmpty(issuer))
+                            {
+                                var match = IssuerPattern.Match(issuer);
+                                if (match.Success && match.Groups.Count >= 3)
+                                {
+                                    var region = match.Groups[1].Value;
+                                    var userPoolId = match.Groups[2].Value;
+
+                                    if (!string.IsNullOrEmpty(region) && !string.IsNullOrEmpty(userPoolId))
+                                    {
+                                        Console.WriteLine($"Setting headers {RegionHeader}={region} and {UserPoolHeader}={userPoolId}");
+                                        context.Request.Headers.TryAdd(RegionHeader, region);
+                                        context.Request.Headers.TryAdd(UserPoolHeader, userPoolId);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error adding Cognito headers: {ex.Message}");
+                        // Consider using a proper logging framework instead of Console.WriteLine for production scenarios.
+                    }
+
+                    await nextMiddleware();
+                });
+
+                next(app);
+            };
+        }
     }
 }

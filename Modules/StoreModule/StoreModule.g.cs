@@ -78,42 +78,6 @@ namespace StoreModule
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<Order>> PlaceOrder(Order body);
 
         /// <summary>
-        /// Add a new user to the store
-        /// </summary>
-
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser(User body);
-
-        /// <summary>
-        /// Update an existing user
-        /// </summary>
-
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser(User body);
-
-        /// <summary>
-        /// List all users
-        /// </summary>
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers();
-
-        /// <summary>
-        /// Deletes a pet
-        /// </summary>
-
-        /// <param name="petId">Pet id to delete</param>
-
-        /// <returns>Success</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId);
-
-        /// <summary>
         /// Find purchase order by ID
         /// </summary>
 
@@ -136,38 +100,6 @@ namespace StoreModule
         /// <returns>Success</returns>
 
         System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeleteOrder(string orderId);
-
-        /// <summary>
-        /// Suspend EmployeeLambda user
-        /// </summary>
-
-        /// <param name="user">user login</param>
-
-        /// <returns>Success</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SuspendUser(string user);
-
-        /// <summary>
-        /// Find user by ID
-        /// </summary>
-
-        /// <param name="userId">ID of user that needs to be fetched</param>
-
-        /// <returns>successful operation</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> GetUserById(string userId);
-
-        /// <summary>
-        /// See pet database
-        /// </summary>
-
-        /// <param name="store">Store to seed</param>
-
-        /// <param name="numPets">Number of pets to seed</param>
-
-        /// <returns>Success</returns>
-
-        System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SeedPets(string store, int numPets);
 
     }
 
@@ -236,47 +168,6 @@ namespace StoreModule
             return await orderRepo.CreateAsync(callerInfo, body);
         }
         /// <summary>
-        /// Add a new user to the store
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("user")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> AddUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.CreateAsync(callerInfo, body);
-        }
-        /// <summary>
-        /// Update an existing user
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpPut, Microsoft.AspNetCore.Mvc.Route("user")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> UpdateUser([Microsoft.AspNetCore.Mvc.FromBody] User body)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.UpdateAsync(callerInfo, body);
-        }
-        /// <summary>
-        /// List all users
-        /// </summary>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("user/listUsers")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<System.Collections.Generic.ICollection<User>>> ListUsers()
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.ListAsync(callerInfo);
-        }
-        /// <summary>
-        /// Deletes a pet
-        /// </summary>
-        /// <param name="petId">Pet id to delete</param>
-        /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpDelete, Microsoft.AspNetCore.Mvc.Route("pet/{petId}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> DeletePet(string petId)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await petRepo.DeleteAsync(callerInfo, petId);
-        }
-        /// <summary>
         /// Find purchase order by ID
         /// </summary>
         /// <remarks>
@@ -301,45 +192,11 @@ namespace StoreModule
             var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await orderRepo.DeleteAsync(callerInfo, orderId);
         }
-        /// <summary>
-        /// Suspend EmployeeLambda user
-        /// </summary>
-        /// <param name="user">user login</param>
-        /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("suspendUser/{user}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SuspendUser(string user)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Find user by ID
-        /// </summary>
-        /// <param name="userId">ID of user that needs to be fetched</param>
-        /// <returns>successful operation</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("user/{userId}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.ActionResult<User>> GetUserById(string userId)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await userRepo.ReadAsync(callerInfo, userId);
-        }
-        /// <summary>
-        /// See pet database
-        /// </summary>
-        /// <param name="store">Store to seed</param>
-        /// <param name="numPets">Number of pets to seed</param>
-        /// <returns>Success</returns>
-        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("pet/seedPets/{store}/{numPets}")]
-        public virtual async System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SeedPets(string store, int numPets)
-        {
-            var callerInfo = await storeModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await petRepo.SeedAsync(callerInfo, store, numPets);
-        }
 		protected IStoreModuleAuthorization storeModuleAuthorization;
 		protected ICategoryRepo categoryRepo;
 		protected ITagRepo tagRepo;
 		protected IPetRepo petRepo;
 		protected IOrderRepo orderRepo;
-		protected IUserRepo userRepo;
 		protected virtual void Init() { }
     }
 

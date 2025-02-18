@@ -1,1 +1,5 @@
-<Project></Project>
+<Project>
+	<ItemGroup>
+		<PackageReference Include="AWSSDK.CognitoIdentityProvider" />
+	</ItemGroup>
+</Project>

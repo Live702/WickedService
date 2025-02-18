@@ -22,7 +22,6 @@ Conditions:
   IsDev: !Equals [!Ref EnvironmentParameter, "dev"]
 
 Resources:
-
   # The AuthConfig function is used to return the authentication informaiton 
   # necessary to connect to the system.
   AuthConfigFunction:  
@@ -78,6 +77,52 @@ Resources:
             }
         }
 
+  DevConfigFunction:  
+    Type: AWS::CloudFront::Function
+    Condition: IsDev
+    Properties:
+      Name: !Sub ${SystemKey}---devconfig
+      AutoPublish: true
+      FunctionConfig:
+        Comment: 'Handle devconfig Requests.'
+        Runtime: cloudfront-js-2.0
+        KeyValueStoreAssociations:
+          - KeyValueStoreARN: !Ref KeyValueStoreArnParameter
+      FunctionCode: !Sub |
+        async function handler(event) {
+            const request = event.request;
+            const headers = request.headers;
+            let uri = request.uri;  
+            const originalUri = request.uri;
+            const origin = headers.origin && headers.origin.value;
+            const debug = false;
+            const log = true;
+            if(debug) console.log("host: " + host);
+            let config = {
+                kvsArn: "${KeyValueStoreArnParameter}"
+            };
+            try {
+
+                return {
+                    statusCode: 200,
+                    statusDescription: "Success",
+                    headers: {
+                        'content-type': { value: 'application/json' }, // Set the content type to application/json
+                        'cache-control': { value: 'max-age=0, no-cache, no-store, must-revalidate' } // Set caching headers to prevent caching
+                    },            
+                    body: JSON.stringify(config, null, 0)
+                }
+
+            } catch (err) {
+                console.log("Error listing KVS entries:", err);
+                return {
+                    statusCode: 500,
+                    statusDescription: 'Internal Server Error'
+                };
+            }
+        }
+
+
   # The Request function is used to update S3 origins on the fly using
   # an associated CloudFront KeyValueStore. This function reads kvs  
   # using the [subdomain.]domain as the key. The value returned 
@@ -108,8 +153,9 @@ Resources:
         Runtime: cloudfront-js-2.0
         KeyValueStoreAssociations:
           - KeyValueStoreARN: !Ref KeyValueStoreArnParameter
-      FunctionCode: |
+      FunctionCode: !Sub |
         import cf from 'cloudfront';
+        const kvsARN = "${KeyValueStoreArnParameter}";
         const kvs = cf.kvs(); 
         async function handler(event) {
             const request = event.request;
@@ -243,9 +289,17 @@ Resources:
                     removePrefix = true;
                     originPath = "/" + config.env; // used to set stage name
                     // Add headers used by service-side code
-                    headers['systemkey'] = { value: systemKeyValue };
-                    headers['tenantkey'] = { value: tenantKeyValue};
-                    headers['subtenantkey'] = { value: subtenantKeyValue };
+                    headers['lz-config-systemkey'] = { value: systemKeyValue }; 
+                    headers['lz-config-tenantkey'] = { value: tenantKeyValue};
+                    headers['lz-config-subtenantkey'] = { value: subtenantKeyValue };
+                    // Handle old API Gateway that doesn't pass the Authorization header
+                    let authheader = headers['authorization'] && headers['authorization'].value;
+                    if(authheader.startsWith('AWS4-HMAC-SHA256 Credential=') {
+                        headers['lz-config-authorization'] = { value: authheader };
+                    }
+                    // Pass aws specific headers
+                    headers['lz-aws-kvskey'] = { value: host };
+                    headers['lz-aws-kvsarn'] = { value: kvsARN };
                     break;
                 case "assets":
                     //  0    1         2         3      4
@@ -319,7 +373,6 @@ Resources:
             if(log) {
                 console.log("request: " + host + originalUri  + "\nredirect: " + assetName + originPath + request.uri  + "\nsystemkey: " + systemKeyValue + " , tenantkey: " + tenantKeyValue + " , subtenantkey: " + subtenantKeyValue);
             }
-
             return request;
         }
 
@@ -513,4 +566,7 @@ Outputs:
   
   AuthConfigFunctionArn:
     Value: !GetAtt AuthConfigFunction.FunctionARN
+
+  DevConfigFunctionArn:
+    Value: !If [IsDev, !GetAtt DevConfigFunction.FunctionARN, ""]
 

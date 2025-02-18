@@ -11,6 +11,7 @@ global using System.IO;
 global using System.Reflection;
 global using System.Threading.Tasks;
 global using System.Text;
+global using YamlDotNet.Serialization;  
 
 global using SharedSchema;
 global using SharedSchemaRepo;
@@ -18,6 +19,7 @@ global using StoreSchema;
 global using StoreSchemaRepo;
 global using AdminSchema;
 global using AdminSchemaRepo;
+global using AdminModule;
 global using StoreModule;
 global using ConsumerSchema;
 global using ConsumerSchemaRepo;

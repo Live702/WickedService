@@ -154,7 +154,10 @@ components:
       - placed
       - approved
       - delivered
-    User:
+    Subtenant:
+      type: object
+      x-csharp-type: TenancyConfig
+    TenantUser:
       type: object
       properties:
         id:
@@ -179,6 +182,12 @@ components:
         updateUtcTick:
           type: integer
           format: int64
+      x-lz-genrepo: true
+    TenantUserStatus:
+      type: object
+      properties:
+        isAdmin:
+          type: boolean
       x-lz-genrepo: true
     Bada:
       type: object

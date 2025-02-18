@@ -13,7 +13,7 @@ namespace StoreModule;
 /// You then register your implementation BEFORE calling this projects service registration method. Note that we use TryAddSingleton to avoid
 /// registering multiple implementations of the same interface; the first registration wins.
 /// </summary>
-public interface IStoreModuleAuthorization : ILzAuthorization 
+public partial interface IStoreModuleAuthorization : ILzAuthorization 
 { 
 }
 

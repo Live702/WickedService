@@ -11,7 +11,7 @@
 // </auto-generated>
 //----------------------
 namespace StoreSchemaRepo;
-public static class StoreSchemaRepoExtensions
+public static partial class StoreSchemaRepoExtensions
 {
     public static IServiceCollection AddStoreSchemaRepo(this IServiceCollection services)
     {
@@ -20,7 +20,13 @@ public static class StoreSchemaRepoExtensions
 		services.TryAddSingleton<IOrderRepo, OrderRepo>();
 
 
-
+        AddCustom(services);    
         return services;
     }
+    // Implement this partial method in a separate file to add custom service registrations
+    // Note that this method doesn't return services as partial methods don't allow return 
+    // values other than void. Returning the collection is normally implemented to support 
+    // method chaining, but that is not required here.
+    static partial void AddCustom(IServiceCollection services);
+
 }

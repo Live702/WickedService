@@ -2,6 +2,7 @@ LazyMagicDirectivesVersion: 2.0.0
 
 Directives:
 # Cross cutting directives
+
   # SCHEMAS Default
   SchemaDefault:
     Type: Schema
@@ -17,13 +18,17 @@ Directives:
     Artifacts:
       DotNetControllerProject: # methods for each REST path operation
 
-  # CONTAINERS Default
+  # CONTAINERS Default  
   AwsApiLambdaContainerDefault:
     Type: Container
     IsDefault: true # this directive may be referenced by other Container directives
     Artifacts:
       DotNetApiLambdaProject: # Lambda function that processes the HttpApi request
       AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+        ManagedPolicyArns: 
+        # You can further restict this using the Perms stack
+        # if you want to restrict db access by lambda
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
 
   # API Default
   ApiDefault:
@@ -90,12 +95,18 @@ Directives:
     - openapi.public-schema.yaml
 
   # MODULES - libraries handling paths
+ 
+  AdminModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.admin.yaml
+
   StoreModule:
     Type: Module
     Defaults: ModuleDefault
     OpenApiSpecs:
     - openapi.store.yaml
-    - openapi.admin.yaml
 
   ConsumerModule:
     Type: Module
@@ -110,6 +121,23 @@ Directives:
     - openapi.public.yaml
 
   # CONTAINERS - executables
+ 
+  AdminLambda:
+    Type: Container
+    ApiPrefix: Admin
+    Defaults: AwsApiLambdaContainerDefault
+    Modules:
+    - AdminModule
+    Artifacts:
+      AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+        ManagedPolicyArns:
+        # You can further restict permissions using the Perms stack but 
+        # generally the admin module has full access to most services.
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonCognitoPowerUser
+        - arn:aws:iam::aws:policy/CloudFrontFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
   StoreLambda:
     Type: Container
     ApiPrefix: Store
@@ -132,12 +160,22 @@ Directives:
     - PublicModule
 
   # APIS - API Gateways that proxy requests to containers
+ 
+  AdminApi:
+    Type: Api
+    Defaults: ApiDefault
+    Authentication: TenantAuth
+    Containers:
+    - AdminLambda
+
   StoreApi:
     Type: Api
     Defaults: ApiDefault
     Authentication: TenantAuth
     Containers:
     - StoreLambda
+    - ConsumerLambda
+    - PublicLambda
 
   ConsumerApi:
     Type: Api
@@ -145,6 +183,7 @@ Directives:
     Authentication: ConsumerAuth
     Containers:
     - ConsumerLambda
+    - PublicLambda
 
   PublicApi:
     Type: Api
@@ -156,6 +195,7 @@ Directives:
   Service:
     Type: Service
     Apis: # remember that each Api has it's own ClientSDK
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi
@@ -165,6 +205,7 @@ Directives:
   LocalWebService:
     Type: Service
     Apis:
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi
@@ -183,6 +224,7 @@ Directives:
     Defaults: WebAppDefault
     Path: admin
     Apis:
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi

@@ -20,8 +20,8 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="FluentValidation" />
-		<PackageReference Include="LazyMagic.Shared" />
 		<PackageReference Include="DeepCloner" />
+		<PackageReference Include="LazyMagic.Shared" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="DTOs\" />

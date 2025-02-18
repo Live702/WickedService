@@ -2,7 +2,11 @@ openapi: 3.0.1
 components:
   schemas:
 
-    User:
+    Subtenant:
+      type: object
+      x-csharp-type: TenancyConfig
+
+    TenantUser:
       type: object
       x-lz-genrepo: true
       properties:
@@ -29,3 +33,10 @@ components:
           type: integer
           format: int64
 
+    TenantUserStatus:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        isAdmin:
+          type: boolean
+        

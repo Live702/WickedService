@@ -11,7 +11,20 @@
       MemorySize: __MemorySize__
       Timeout: __Timeout__
       Tracing: __Tracing__
-      Policies:
-      - AWSXrayWriteOnlyAccess
-      - DynamoDBCrudPolicy:
-          TableName: '*'
+      Role: !GetAtt __LambdaName__ExecutionRole.Arn
+
+  __LambdaName__ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-__LambdaName__ExecutionRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+__ManagedPolicyArns__

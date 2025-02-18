@@ -13,5 +13,3 @@ global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
 global using StoreSchemaRepo;
-global using AdminSchema;
-global using AdminSchemaRepo;

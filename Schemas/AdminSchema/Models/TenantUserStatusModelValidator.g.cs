@@ -13,11 +13,11 @@ namespace AdminSchema
     using System = global::System;
     
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-public partial class UserModelValidator : FluentValidation.AbstractValidator<UserModel>
+public partial class TenantUserStatusModelValidator : FluentValidation.AbstractValidator<TenantUserStatusModel>
 {
-    public UserModelValidator()
+    public TenantUserStatusModelValidator()
     {
-        Include(new UserValidator());
+        Include(new TenantUserStatusValidator());
         CustomValidation();
     }
     partial void CustomValidation();

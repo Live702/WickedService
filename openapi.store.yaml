@@ -76,25 +76,25 @@ paths:
           description: Validation exception
 
 
-  '/pet/{petId}':
-    delete:
-      summary: Deletes a pet
-      operationId: deletePet
-      x-lz-gencall: petRepo.DeleteAsync(callerInfo, petId)    
-      parameters:
-      - name: petId
-        in: path
-        description: Pet id to delete
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
+  # '/pet/{petId}':
+  #   delete:
+  #     summary: Deletes a pet
+  #     operationId: deletePet
+  #     x-lz-gencall: petRepo.DeleteAsync(callerInfo, petId)    
+  #     parameters:
+  #     - name: petId
+  #       in: path
+  #       description: Pet id to delete
+  #       required: true
+  #       schema:
+  #         type: string
+  #     responses:
+  #       '200':
+  #         description: Success
+  #       '400':
+  #         description: Invalid ID supplied
+  #       '404':
+  #         description: Pet not found
 
   # Inventory
   '/order/inventory':

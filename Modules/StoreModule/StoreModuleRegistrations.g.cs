@@ -15,7 +15,6 @@ namespace StoreModule
             services.TryAddSingleton<IStoreModuleController, StoreModuleControllerImpl>();
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
-			services.AddAdminSchemaRepo();
             CustomConfigurations(services);
             return services;            
         }

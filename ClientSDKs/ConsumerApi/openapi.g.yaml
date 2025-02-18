@@ -28,6 +28,137 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Preferences'
+  /publicTest:
+    get:
+      operationId: publicTest
+      responses:
+        200:
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+  /pet/listPets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      x-lz-gencall: petRepo.ListAsync(callerInfo)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid status value
+  /pet/findByStatus:
+    get:
+      summary: Finds Pets by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      parameters:
+      - name: petStatus
+        in: query
+        description: Status values that need to be considered for filter
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetStatus'
+          default: available
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid status value
+  /pet/findByTags:
+    get:
+      summary: Finds Pets by tags
+      description: Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
+      operationId: findPetsByTags
+      parameters:
+      - name: tags
+        in: query
+        description: Tags to filter by
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid tag value
+  /pet/categories:
+    get:
+      summary: Get all Pet Categories
+      operationId: getPetCategories
+      x-lz-gencall: categoryRepo.ListAsync(callerInfo)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /pet/tags:
+    get:
+      summary: Get all Pet Tags
+      operationId: getPetTags
+      x-lz-gencall: tagRepo.ListAsync(callerInfo)
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+  '/pet/{petId}':
+    get:
+      summary: Find pet by ID
+      description: Returns a single pet
+      operationId: getPetById
+      x-lz-gencall: petRepo.ReadAsync(callerInfo, petId)
+      parameters:
+      - name: petId
+        in: path
+        description: ID of pet to return
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Pet not found
 components:
   schemas:
     Preferences:
@@ -154,7 +285,10 @@ components:
       - placed
       - approved
       - delivered
-    User:
+    Subtenant:
+      type: object
+      x-csharp-type: TenancyConfig
+    TenantUser:
       type: object
       properties:
         id:
@@ -179,6 +313,12 @@ components:
         updateUtcTick:
           type: integer
           format: int64
+      x-lz-genrepo: true
+    TenantUserStatus:
+      type: object
+      properties:
+        isAdmin:
+          type: boolean
       x-lz-genrepo: true
     Bada:
       type: object

@@ -13,7 +13,7 @@ namespace AdminSchema
     using System = global::System;
     
 
-public partial class UserModel : User,IRegisterObservables
+public partial class TenantUserModel : TenantUser,IRegisterObservables
 {
 }
 

@@ -7,7 +7,10 @@
 	</PropertyGroup>
 	<Import Project="User.props"  Condition="Exists('User.props')" />
 	<ItemGroup>
+		<PackageReference Include="AWSSDK.CloudFront" />
+		<PackageReference Include="AWSSDK.CloudFrontKeyValueStore" />
 		<PackageReference Include="AWSSDK.DynamoDBv2"/>
+		<PackageReference Include="AWSSDK.Extensions.CrtIntegration" />
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
 		<PackageReference Include="AWSSDK.SSO" />
 		<PackageReference Include="AWSSDK.SSOOIDC" />
@@ -16,6 +19,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
 		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
+		<PackageReference  Include="YamlDotNet" />
+
 	</ItemGroup>
 	<Import Project="Projects.g.props"  Condition="Exists('Projects.g.props')"  />
 	<Import Project="Packages.g.props"  Condition="Exists('Packages.g.props')"  />

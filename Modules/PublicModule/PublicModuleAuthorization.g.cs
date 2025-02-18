@@ -13,7 +13,7 @@ namespace PublicModule;
 /// You then register your implementation BEFORE calling this projects service registration method. Note that we use TryAddSingleton to avoid
 /// registering multiple implementations of the same interface; the first registration wins.
 /// </summary>
-public interface IPublicModuleAuthorization : ILzAuthorization 
+public partial interface IPublicModuleAuthorization : ILzAuthorization 
 { 
 }
 

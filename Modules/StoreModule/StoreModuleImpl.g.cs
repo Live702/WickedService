@@ -16,8 +16,7 @@ namespace StoreModule
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
-			IOrderRepo orderRepo,
-			IUserRepo userRepo
+			IOrderRepo orderRepo
             ) 
         {
             this.storeModuleAuthorization = storeModuleAuthorization;
@@ -25,7 +24,6 @@ namespace StoreModule
 			this.tagRepo = tagRepo;
 			this.petRepo = petRepo;
 			this.orderRepo = orderRepo;
-			this.userRepo = userRepo;
 
             Init();
         }

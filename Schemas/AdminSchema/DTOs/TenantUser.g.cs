@@ -20,7 +20,7 @@ namespace AdminSchema
 {
     using System = global::System;
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.3.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.3.0))")]
-    public partial class User : System.ComponentModel.INotifyPropertyChanged,IItem    {
+    public partial class TenantUser : System.ComponentModel.INotifyPropertyChanged,IItem    {
         private string _id;
         private string _login;
         private string _name;
