@@ -1,21 +1,30 @@
 ﻿namespace AdminSchemaRepo;
-using LazyMagic.Service.AwsTenancyConfigService;
+using Amazon.CloudFront;
 
-public class SubtenantEnvelope : DataEnvelope<Subtenant> { }    
+using Amazon.CloudFrontKeyValueStore;
+using Amazon.CloudFrontKeyValueStore.Model;
+using Amazon.CloudFront.Model;
 
-public interface ISubtenantRepo : IDYDBRepository<SubtenantEnvelope, Subtenant>
+
+public interface ISubtenantRepo : IDocumentRepo<Subtenant>
 {
     Task<IActionResult> SeedPetsAsync(ICallerInfo callerinfo, string store, int numPets);
 }
 
-public class SubtenantRepo : DYDBRepository<SubtenantEnvelope, Subtenant>, ISubtenantRepo
+public class SubtenantRepo : DYDBRepository<Subtenant>, ISubtenantRepo
 {
-    public SubtenantRepo(IAmazonDynamoDB client, ITenancyConfigService tenancyConfigService) : base(client) 
+    public SubtenantRepo(
+        IAmazonDynamoDB client,
+        IAmazonCloudFrontKeyValueStore cloudFrontKvs,
+        IAmazonCloudFront cloudFront
+        ) : base(client) 
     {
-        this.tenancyConfigService = tenancyConfigService;
+        _cloudFront = cloudFront;
+        _cloudFrontKeyValueStore = cloudFrontKvs;
     }
-    
-    ITenancyConfigService tenancyConfigService;
+
+    private readonly IAmazonCloudFrontKeyValueStore _cloudFrontKeyValueStore;
+    private readonly IAmazonCloudFront _cloudFront;
 
     protected override void ConstructorExtensions()
     {
@@ -34,14 +43,19 @@ public class SubtenantRepo : DYDBRepository<SubtenantEnvelope, Subtenant>, ISubt
         };
     }
 
-    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo)
+    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo, int limit = 0)
     {  
-        // We update the Subtenant records each time we list them. This is 
-        // a mid-term solution as we start moving subtenant creation from 
-        // the PowerShell cmd creation model to subtenants managed by 
-        // this repo.
+        // We update the Subtenant records from the kvs entries each time we list
+        // them. This is a mid-term solution as we start moving subtenant
+        // creation from the PowerShell cmd creation model to subtenants managed
+        // by this repo.
         Console.WriteLine("SubtenantRepo.ListAsync");
-        if (callerInfo.Headers != null && callerInfo.Headers.TryGetValue("lz-aws-kvskey", out var kvskey))
+
+
+        if (callerInfo.Headers != null 
+            && callerInfo.Headers.TryGetValue("lz-tenantid", out var kvskey)
+            && callerInfo.Headers.TryGetValue("lz-aws-kvsarn", out var kvsarn)
+            )
         {
             // kvskey is either "subdomain.domain.tld" or "domain.tld". In either case,
             // we only want the domain.tld part as we are processing all subtenants for 
@@ -51,33 +65,43 @@ public class SubtenantRepo : DYDBRepository<SubtenantEnvelope, Subtenant>, ISubt
             // as a surogate for the subdomain.
             var hostParts = kvskey.Split('.');
             var tenantKvsKey = string.Join(".", hostParts[^2..]);
-            Console.WriteLine($"Processing all subtenants for tenant {tenantKvsKey}");
-            var kvsEntries = await tenancyConfigService.GetSubtenancyConfigsAsync(callerInfo, tenantKvsKey);
 
-            foreach (var kvsEntryItem in kvsEntries)
+            var request = new ListKeysRequest
             {
-                //var key = kvsEntryItem.Key;
-                //Console.WriteLine($"Processing subtenant {key}");
-                //var value = kvsEntryItem.Value;
-                //var subtenantDomain = key.Split('.').First();
-                //var subtenantData = new Subtenant
-                //{
-                //    SubDomain = subtenantDomain,
-                //    KvsEntry = value
-                //};
-                //try
-                //{
-                //    ExtractFromKvsEntry(value, subtenantData);
-                //    Console.WriteLine($"Subtenant {key} has {subtenantData.Apis.Count} APIs, {subtenantData.Assets.Count} Assets, and {subtenantData.WebApps.Count} WebApps");
-                //    await UpdateAsync(callerInfo, subtenantData);
-                //}
-                //catch (Exception e)
-                //{
-                //    Console.WriteLine($"Failed to process subtenant {key}: {e.Message}");
-                //}
-            }
+                KvsARN = kvsarn,
+                MaxResults = 50,
+                NextToken = null
+            };
+
+            do
+            {
+                var response = await _cloudFrontKeyValueStore!.ListKeysAsync(request);
+                request.NextToken = response.NextToken;
+                foreach (var entry in response.Items)
+                {
+                    var entryKey = entry.Key;
+                    if (!entryKey.EndsWith(tenantKvsKey)) continue;
+                    var value = entry.Value;
+
+                    // Update the Subtenant record
+                    var subtenant = new Subtenant(value, entryKey);
+                    try
+                    {
+                        try
+                        {
+                            await CreateAsync(callerInfo, subtenant);
+                        } catch
+                        {
+                            await UpdateAsync(callerInfo, subtenant);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error updating subtenant {subtenant.TenantKey}: {e.Message}");
+                    }
+                }
+            } while (request.NextToken != null);
         }
         return await base.ListAsync(callerInfo);
     }
-
 }

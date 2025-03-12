@@ -12,7 +12,7 @@ namespace PublicModule
         public static IServiceCollection AddPublicModule(this IServiceCollection services) 
         {
             services.TryAddSingleton<IPublicModuleAuthorization, PublicModuleAuthorization>();
-            services.TryAddSingleton<IPublicModuleController, PublicModuleControllerImpl>();
+            services.TryAddSingleton<IPublicModuleController, PublicModuleController>();
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
             CustomConfigurations(services);

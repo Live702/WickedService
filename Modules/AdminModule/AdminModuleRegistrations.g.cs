@@ -12,7 +12,7 @@ namespace AdminModule
         public static IServiceCollection AddAdminModule(this IServiceCollection services) 
         {
             services.TryAddSingleton<IAdminModuleAuthorization, AdminModuleAuthorization>();
-            services.TryAddSingleton<IAdminModuleController, AdminModuleControllerImpl>();
+            services.TryAddSingleton<IAdminModuleController, AdminModuleController>();
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
 			services.AddAdminSchemaRepo();

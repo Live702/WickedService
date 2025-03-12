@@ -11,5 +11,9 @@ global using System.IO;
 global using System.Reflection;
 global using System.Threading.Tasks;
 global using System.Text;
-global using YamlDotNet.Serialization;  
+global using YamlDotNet.Serialization;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Logging.Console;
+global using Microsoft.Extensions.Logging.Debug;
+global using LazyMagic.Service;
 

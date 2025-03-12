@@ -4,8 +4,7 @@ paths:
   '/subtenant/seedPets/{store}/{numPets}':
     get:
       summary: See pet database
-      operationId: seedPets
-      x-lz-gencall:  subtenantRepo.SeedPetsAsync(callerInfo, store, numPets)
+      operationId: seedPets 
       parameters:
       - name: store
         in: path
@@ -57,7 +56,7 @@ paths:
     get:
       summary: Find tenantUser by ID
       operationId: getTenantUserById
-      x-lz-gencall: tenantUserRepo.ReadAsync(callerInfo, tenantUserId)  
+      x-lz-gencall: TenantUserRepo.ReadAsync(callerInfo, tenantUserId)  
       parameters:
       - name: tenantUserId
         in: path
@@ -82,7 +81,7 @@ paths:
     post:
       summary: Add a new tenantUser
       operationId: addTenantUser
-      x-lz-gencall: tenantUserRepo.CreateAsync(callerInfo, body)
+      x-lz-gencall: TenantUserRepo.CreateAsync(callerInfo, body)
       requestBody:
         content:
           application/json:
@@ -100,7 +99,7 @@ paths:
     put: 
       summary: Update an existing tenantUser
       operationId: updateTenantUser
-      x-lz-gencall: tenantUserRepo.UpdateAsync(callerInfo, body)   
+      x-lz-gencall: TenantUserRepo.UpdateAsync(callerInfo, body)   
       requestBody:
         content:
           application/json:
@@ -124,7 +123,7 @@ paths:
     delete:
       summary: Delete tenantUser by ID
       operationId: deleteTenantUser
-      x-lz-gencall: tenantUserRepo.DeleteAsync(callerInfo, tenantUserId) 
+      x-lz-gencall: TenantUserRepo.DeleteAsync(callerInfo, tenantUserId) 
       parameters:
       - name: tenantUserId
         in: path
@@ -144,7 +143,7 @@ paths:
     get:
       summary: List all tenantUsers 
       operationId: listTenantUsers
-      x-lz-gencall: tenantUserRepo.ListAsync(callerInfo) 
+      x-lz-gencall: TenantUserRepo.ListAsync(callerInfo) 
       responses:
         '200':
           description: successful operation
@@ -164,7 +163,6 @@ paths:
     get:
       summary: Find Subtenant by ID
       operationId: getSubtenantById
-      x-lz-gencall: subtenantRepo.ReadAsync(callerInfo, subtenantId)  
       parameters:
       - name: SubtenantId
         in: path
@@ -189,7 +187,6 @@ paths:
     post:
       summary: Add a new Subtenant
       operationId: addSubtenant
-      x-lz-gencall: subtenantRepo.CreateAsync(callerInfo, body)
       requestBody:
         content:
           application/json:
@@ -207,7 +204,6 @@ paths:
     put: 
       summary: Update an existing Subtenant
       operationId: updateSubtenant
-      x-lz-gencall: subtenantRepo.UpdateAsync(callerInfo, body)   
       requestBody:
         content:
           application/json:
@@ -231,7 +227,6 @@ paths:
     delete:
       summary: Delete Subtenant by ID
       operationId: deleteSubtenant
-      x-lz-gencall: subtenantRepo.DeleteAsync(callerInfo, subtenantId) 
       parameters:
       - name: SubtenantId
         in: path
@@ -251,7 +246,6 @@ paths:
     get:
       summary: List all Subtenants 
       operationId: listSubtenants
-      x-lz-gencall: subtenantRepo.ListAsync(callerInfo) 
       responses:
         '200':
           description: successful operation

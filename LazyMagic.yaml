@@ -160,7 +160,6 @@ Directives:
     - PublicModule
 
   # APIS - API Gateways that proxy requests to containers
- 
   AdminApi:
     Type: Api
     Defaults: ApiDefault

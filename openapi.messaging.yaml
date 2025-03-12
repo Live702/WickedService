@@ -31,7 +31,7 @@ paths:
     post:
       summary: Create a Notification record for testing 
       operationId: addNotificaiton
-      x-lz-gencall: lzNotificationRepo.CreateAsync(callerInfo,body)
+      x-lz-gencall: LzNotificationRepo.CreateAsync(callerInfo,body)
       requestBody:
         content:
           application/json:
@@ -48,7 +48,7 @@ paths:
   '/lzSubscription/{id}':
     get:
       operationId: getLzSubscriptionById
-      x-lz-gencall: lzSubscriptionRepo.ReadAsync(callerInfo,sessionId)   
+      x-lz-gencall: LzSubscriptionRepo.ReadAsync(callerInfo,sessionId)   
       description: GetLzSubscription record 
       parameters:
       - name: sessionId

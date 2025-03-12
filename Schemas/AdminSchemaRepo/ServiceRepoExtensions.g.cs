@@ -16,7 +16,7 @@ public static partial class AdminSchemaRepoExtensions
     public static IServiceCollection AddAdminSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<ITenantUserRepo, TenantUserRepo>();
 
 

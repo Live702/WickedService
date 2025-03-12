@@ -16,7 +16,7 @@ public static partial class SharedSchemaRepoExtensions
     public static IServiceCollection AddSharedSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<ICategoryRepo, CategoryRepo>();
 		services.TryAddSingleton<ITagRepo, TagRepo>();
 		services.TryAddSingleton<IPetRepo, PetRepo>();

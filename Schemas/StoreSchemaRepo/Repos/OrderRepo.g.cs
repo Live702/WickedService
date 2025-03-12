@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace StoreSchemaRepo;
-public partial class OrderEnvelope : DataEnvelope<Order>{}
-public partial interface IOrderRepo : IDYDBRepository<OrderEnvelope, Order> {}
-public partial class OrderRepo : DYDBRepository<OrderEnvelope, Order>, IOrderRepo
+public partial interface IOrderRepo : IDocumentRepo<Order> {}
+public partial class OrderRepo : DYDBRepository<Order>, IOrderRepo
 {
     public OrderRepo(IAmazonDynamoDB client) : base(client) {}
 }

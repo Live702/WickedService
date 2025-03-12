@@ -3,6 +3,5 @@
 		<PackageReference Include="AWSSDK.CloudFront" />
 		<PackageReference Include="AWSSDK.CloudFrontKeyValueStore" />
 		<PackageReference Include="AWSSDK.Extensions.CrtIntegration" />
-		<PackageReference Include="LazyMagic.Service.AwsTenancyConfigService" />
 	</ItemGroup>
 </Project>

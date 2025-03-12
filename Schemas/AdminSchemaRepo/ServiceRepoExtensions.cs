@@ -1,10 +1,13 @@
-﻿using LazyMagic.Service.AwsTenancyConfigService;    
+﻿using Amazon.CloudFront;
+using Amazon.CloudFrontKeyValueStore;
 namespace AdminSchemaRepo;
 
 public static partial class AdminSchemaRepoExtensions
 {
     static partial void AddCustom(IServiceCollection services)
     {
-        services.TryAddSingleton<ITenancyConfigService, AwsTenancyConfigService>();   
+        services.TryAddAWSService<IAmazonCloudFrontKeyValueStore>();
+        services.TryAddAWSService<IAmazonCloudFront>();
+        services.TryAddSingleton<ISubtenantRepo, SubtenantRepo>();
     }
 }

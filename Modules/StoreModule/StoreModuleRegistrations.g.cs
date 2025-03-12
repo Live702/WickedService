@@ -12,7 +12,7 @@ namespace StoreModule
         public static IServiceCollection AddStoreModule(this IServiceCollection services) 
         {
             services.TryAddSingleton<IStoreModuleAuthorization, StoreModuleAuthorization>();
-            services.TryAddSingleton<IStoreModuleController, StoreModuleControllerImpl>();
+            services.TryAddSingleton<IStoreModuleController, StoreModuleController>();
             services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();
             CustomConfigurations(services);

@@ -1,43 +1,57 @@
 openapi: 3.0.1
 paths:
-  # Test/Util
-  '/callerInfo':
-    get:
-      operationId: callerInfo
-      responses:
-        '200':
-          description: successful operation
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  # TestEmployee
-  '/test':
-    get:
-      summary: Test
-      operationId: testEmployee
-      x-lz-gencall: Task.FromResult("Hello World")
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: string
-        '206':
-          description: successful operation, partial return
-          content:
-            application/json:
-              schema:
-                type: string
-
   # Pet
+  '/pet/listPets':
+    get:
+      summary: List all pets 
+      operationId: listPets 
+      x-lz-gencall: PetRepo.ListAsync(callerInfo) 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid status value
+  '/pet/findByStatus':
+    get:
+      summary: Finds Pets by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      # x-lz-gencall: petRepo.FindPetsByStatusAsync(callerInfo, petStatus)
+      parameters:
+      - name: petStatus
+        in: query
+        description: Status values that need to be considered for filter
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/PetStatus'
+          default: available
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid status value
+
+
   '/pet':
     post:
       summary: Add a new pet to the store
       operationId: addPet
-      x-lz-gencall: petRepo.CreateAsync(callerInfo, body)
+      x-lz-gencall: PetRepo.CreateAsync(callerInfo, body)
       requestBody:
         content:
           application/json:
@@ -55,7 +69,7 @@ paths:
     put:
       summary: Update an existing pet
       operationId: updatePet
-      x-lz-gencall: petRepo.UpdateAsync(callerInfo, body)   
+      x-lz-gencall: PetRepo.UpdateAsync(callerInfo, body)   
       requestBody:
         content:
           application/json:
@@ -76,26 +90,107 @@ paths:
           description: Validation exception
 
 
-  # '/pet/{petId}':
-  #   delete:
-  #     summary: Deletes a pet
-  #     operationId: deletePet
-  #     x-lz-gencall: petRepo.DeleteAsync(callerInfo, petId)    
-  #     parameters:
-  #     - name: petId
-  #       in: path
-  #       description: Pet id to delete
-  #       required: true
-  #       schema:
-  #         type: string
-  #     responses:
-  #       '200':
-  #         description: Success
-  #       '400':
-  #         description: Invalid ID supplied
-  #       '404':
-  #         description: Pet not found
+  '/pet/{petId}':
+    get:
+      summary: Find pet by ID
+      description: Returns a single pet
+      operationId: getPetById
+      x-lz-gencall: PetRepo.ReadAsync(callerInfo, petId)
+      parameters:
+      - name: petId
+        in: path
+        description: ID of pet to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
+    delete:
+      summary: Deletes a pet
+      operationId: deletePet
+      x-lz-gencall: PetRepo.DeleteAsync(callerInfo, petId)    
+      parameters:
+      - name: petId
+        in: path
+        description: Pet id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Pet not found
 
+  '/pet/findByTags':
+    get:
+      summary: Finds Pets by tags
+      description: >-
+        Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
+      operationId: findPetsByTags
+      # x-lz-gencall: PetRepo.FindPetsByTagsAsync(callerInfo, tags)
+      parameters:
+      - name: tags
+        in: query
+        description: Tags to filter by
+        required: true
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid tag value
+  # Categories
+  '/pet/categories':
+    get:
+      summary: Get all Pet Categories
+      operationId: getPetCategories
+      x-lz-gencall: CategoryRepo.ListAsync(callerInfo)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  # Tags
+  '/pet/tags':
+    get:
+      summary: Get all Pet Tags
+      operationId: getPetTags
+      x-lz-gencall: TagRepo.ListAsync(callerInfo)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
   # Inventory
   '/order/inventory':
     get:
@@ -117,7 +212,7 @@ paths:
     post:
       summary: Place an order for a pet
       operationId: placeOrder
-      x-lz-gencall: orderRepo.CreateAsync(callerInfo, body)
+      x-lz-gencall: OrderRepo.CreateAsync(callerInfo, body)
       requestBody:
         content:
           application/json:
@@ -141,7 +236,7 @@ paths:
       description: >-
         For valid response try integer IDs with value >= 1 and <= 10.\ \ Other values will generated exceptions
       operationId: getOrderById
-      x-lz-gencall: orderRepo.ReadAsync(callerInfo, orderId)  
+      x-lz-gencall: OrderRepo.ReadAsync(callerInfo, orderId)  
       parameters:
       - name: orderId
         in: path
@@ -165,7 +260,7 @@ paths:
     delete:
       summary: Delete purchase order by ID
       operationId: deleteOrder
-      x-lz-gencall: orderRepo.DeleteAsync(callerInfo, orderId)  
+      x-lz-gencall: OrderRepo.DeleteAsync(callerInfo, orderId)  
       parameters:
       - name: orderId
         in: path

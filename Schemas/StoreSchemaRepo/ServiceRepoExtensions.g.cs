@@ -16,7 +16,7 @@ public static partial class StoreSchemaRepoExtensions
     public static IServiceCollection AddStoreSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IOrderRepo, OrderRepo>();
 
 

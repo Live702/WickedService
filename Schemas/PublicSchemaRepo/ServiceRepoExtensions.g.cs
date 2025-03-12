@@ -16,7 +16,7 @@ public static partial class PublicSchemaRepoExtensions
     public static IServiceCollection AddPublicSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IBadaRepo, BadaRepo>();
 
 

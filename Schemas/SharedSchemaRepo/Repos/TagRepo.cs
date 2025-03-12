@@ -3,14 +3,16 @@
 namespace SharedSchemaRepo;
 public partial class TagRepo
 {
-    // For this demo we just define a static list of tags, for 
-    // a real app, we would probalby want to store these in
-    // the repo.
-    private readonly List<string> list = ["HouseTrained", "HasShots", "Crazy"];
+    // For this demo, this is a static list.
+    // // Later, if we want a dynamic store, we can
+    // move it into the database.
+    private readonly List<Tag> list = new() {
+        new Tag { Id = "HouseTrained", Name = "HouseTrained" },
+        new Tag { Id = "HasShots", Name = "HasShots" },
+        new Tag { Id = "Crazy", Name = "Crazy" }
+};
 
-    // We only override the ListAsync method, since the other base methods are 
-    // not called. 
-    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo)
+    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo, int limit = 0)
     {
         await Task.Delay(0);
         ObjectResult objResult = new ObjectResult(list)

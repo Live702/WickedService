@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace AdminSchemaRepo;
-public partial class TenantUserEnvelope : DataEnvelope<TenantUser>{}
-public partial interface ITenantUserRepo : IDYDBRepository<TenantUserEnvelope, TenantUser> {}
-public partial class TenantUserRepo : DYDBRepository<TenantUserEnvelope, TenantUser>, ITenantUserRepo
+public partial interface ITenantUserRepo : IDocumentRepo<TenantUser> {}
+public partial class TenantUserRepo : DYDBRepository<TenantUser>, ITenantUserRepo
 {
     public TenantUserRepo(IAmazonDynamoDB client) : base(client) {}
 }

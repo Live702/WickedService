@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="LazyMagic.Service.DynamoDBRepo" />
 		<PackageReference Include="LazyMagic.Service.Authorization" />
+		<PackageReference Include="LazyMagic.Service.Shared" />
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" />
 		<PackageReference Include="Amazon.Lambda.AspNetCoreServer" />		
 	</ItemGroup>

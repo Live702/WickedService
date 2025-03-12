@@ -70,7 +70,7 @@ public partial class TenantUserRepo
         }
     }
 
-    public override async Task<ActionResult<TenantUser>> CreateAsync(ICallerInfo callerInfo, TenantUser data, bool? useCache = null)
+    public override async Task<ActionResult<TenantUser>> CreateAsync(ICallerInfo callerInfo, TenantUser data)
     {
         // Validation
         if (string.IsNullOrEmpty(data.Login))
@@ -132,7 +132,7 @@ public partial class TenantUserRepo
 
             // Create user in base system
             Console.WriteLine("Creating user record in TenantDB");
-            var result = await base.CreateAsync(callerInfo, data, useCache);
+            var result = await base.CreateAsync(callerInfo, data);
             if(result.Value == null)
             {
                 throw new Exception("Error creating user record in TenantDB");

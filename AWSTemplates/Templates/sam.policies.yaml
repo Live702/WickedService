@@ -77,51 +77,6 @@ Resources:
             }
         }
 
-  DevConfigFunction:  
-    Type: AWS::CloudFront::Function
-    Condition: IsDev
-    Properties:
-      Name: !Sub ${SystemKey}---devconfig
-      AutoPublish: true
-      FunctionConfig:
-        Comment: 'Handle devconfig Requests.'
-        Runtime: cloudfront-js-2.0
-        KeyValueStoreAssociations:
-          - KeyValueStoreARN: !Ref KeyValueStoreArnParameter
-      FunctionCode: !Sub |
-        async function handler(event) {
-            const request = event.request;
-            const headers = request.headers;
-            let uri = request.uri;  
-            const originalUri = request.uri;
-            const origin = headers.origin && headers.origin.value;
-            const debug = false;
-            const log = true;
-            if(debug) console.log("host: " + host);
-            let config = {
-                kvsArn: "${KeyValueStoreArnParameter}"
-            };
-            try {
-
-                return {
-                    statusCode: 200,
-                    statusDescription: "Success",
-                    headers: {
-                        'content-type': { value: 'application/json' }, // Set the content type to application/json
-                        'cache-control': { value: 'max-age=0, no-cache, no-store, must-revalidate' } // Set caching headers to prevent caching
-                    },            
-                    body: JSON.stringify(config, null, 0)
-                }
-
-            } catch (err) {
-                console.log("Error listing KVS entries:", err);
-                return {
-                    statusCode: 500,
-                    statusDescription: 'Internal Server Error'
-                };
-            }
-        }
-
 
   # The Request function is used to update S3 origins on the fly using
   # an associated CloudFront KeyValueStore. This function reads kvs  
@@ -157,224 +112,152 @@ Resources:
         import cf from 'cloudfront';
         const kvsARN = "${KeyValueStoreArnParameter}";
         const kvs = cf.kvs(); 
+
         async function handler(event) {
-            const request = event.request;
-            const headers = request.headers;
-            let uri = request.uri;  
-            const originalUri = request.uri;
-            const origin = headers.origin && headers.origin.value;
-            const host = request.headers.host.value;
-            const debug = false;
-            const log = true;
-            if(debug) console.log("host: " + host);
-
-
-            // Grab the Config for the domain
-            let config = null;
-            const kvsKey = host;  
             try {
-                config = await kvs.get(kvsKey);
-            } catch (err) {
-                console.log("KVS " + kvsKey+ " entry not found.");
-            }
-            if(!config)
-                return {
-                    statusCode: 404,
-                    statusDescription: 'Not Found',
-                    body: 'Missing Config'
-                };      
+                const request = event.request;
+                const headers = request.headers;
+                const uri = request.uri;  
+                const host = headers.host.value;
+                const origin = headers.origin && headers.origin.value;
 
+                // Helper function for error responses
+                const err = (code, msg) => ({statusCode: code, statusDescription: code === 404 ? 'Not Found' : 'Error', body: msg});
 
-            config = JSON.parse(config);
-            if(!config || !config.behaviors)
-                return {
-                    statusCode: 200,
-                    statusDescription: 'Not Found',
-                    body: 'Bad Config'
-                };   
-
-            // Handle preflight requests from localhost in dev environment
-            if (
-                config.env === 'dev'
-                && request.method === 'OPTIONS' 
-                && origin 
-                && (origin.startsWith('https://localhost:') || origin.startsWith('http://localhost:')) 
-                && headers['access-control-request-method']
-            ) {
-                return {
-                    statusCode: 204,
-                    statusDescription: 'No Content',
-                    headers: {
-                        'access-control-allow-origin': { value: origin },
-                        'access-control-allow-methods': { value: 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH' },
-                        'access-control-allow-headers': { value: 'Content-Type, X-Amz-Date, Authorization, X-Api-Key, X-Amz-Security-Token' },
-                        'access-control-max-age': { value: '86400' },
-                        'cache-control': { value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0' }
-                    }
-                };
-            }
-
-            const systemKey = config.systemKey;
-            const systemKeyValue = config.systemKey;
-            const tenantKey = config.tenantKey;
-            const tenantKeyValue = (config.tenantKey && config.tenantKey.trim()) ? systemKeyValue + '-' + tenantKey : '';
-            const subtenantKey = config.subtenantKey;
-            const subtenantKeyValue = (config.subtenantKey && config.subtenantKey.trim()) ? tenantKeyValue + '-' + subtenantKey : '';
-            const ss = config.ss;
-            const ts = config.ts;
-            const sts = config.sts;
-
-            let behavior = null;
-            let found = false;
-            let b = 0;
-            if(config.behaviors) {
-                if(debug) console.log("Matching uri: " + uri);
-
-                const behaviorsRef = new Array(100);
-                for (let i = 0; i < config.behaviors.length; i++) {
-                    const value = config.behaviors[i]; 
-                    const prefixes = value[0].split(',');
-                    for(let p = 0; p < prefixes.length; p++) {
-                        behaviorsRef[b++] = [prefixes[p], i];
-                    }
+                // Get config
+                let config, configJson;
+                try {
+                    configJson = await kvs.get(host);
+                    if (!configJson) return err(404, 'Missing Config');
+                    config = JSON.parse(configJson);
+                    if (!config || !config.behaviors) return err(400, 'Invalid Configuration Format');
+                } catch (e) {
+                    console.log(`Config error for " +  host " :" + (e.message || e)`);
+                    return err(500, 'Configuration Error');
                 }
 
-                // Sort the behaviors descending by the path length
-                behaviorsRef.sort(function(a, b) {
-                    return b[0].length - a[0].length;
+                // Handle preflight requests
+                if (config.env === 'dev' && request.method === 'OPTIONS' && origin && 
+                    origin.startsWith('http://localhost:') && headers['access-control-request-method']) {
+                    return {
+                        statusCode: 204,
+                        statusDescription: 'No Content',
+                        headers: {
+                            'access-control-allow-origin': {value: origin},
+                            'access-control-allow-methods': {value: 'GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH'},
+                            'access-control-allow-headers': {value: 'Content-Type, X-Amz-Date, Authorization, X-Api-Key, X-Amz-Security-Token'},
+                            'access-control-max-age': {value: '86400'},
+                            'cache-control': {value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'}
+                        }
+                    };
+                }
+
+                // Set up keys
+                const systemKey = config.systemKey;
+                const tenantKey = config.tenantKey || '';
+                const subtenantKey = config.subtenantKey || '';
+
+
+                // Find matching behavior
+                let behavior = null;
+                if(config.behaviors) {
+                    // Create flattened behavior reference array with prefixes
+                    const behaviorsRef = [];
+                    config.behaviors.forEach((b, i) => {
+                        b[0].split(',').forEach(prefix => behaviorsRef.push([prefix, i]));
+                    });
+
+                    // Sort by path length (longest first) and find first match
+                    behaviorsRef.sort((a, b) => b[0].length - a[0].length);
+                    for(let i = 0; i < behaviorsRef.length; i++) {
+                        if (uri.startsWith(behaviorsRef[i][0])) {
+                            behavior = config.behaviors[behaviorsRef[i][1]];
+                            break;                
+                        }            
+                    }
+                }   
+
+                if(!behavior) return err(404, 'No path match');
+
+                // Process behavior
+                const assetType = behavior[1];
+                const awsSuffix = '.amazonaws.com';
+                let originPath = "";
+                let removePrefix = false;
+                let addCacheHeader = false;
+                let assetName = "";
+        
+                switch(assetType) {
+                    case "api":
+                        assetName = behavior[2] + '.execute-api.' + behavior[3] + awsSuffix;
+                        removePrefix = true;
+                        originPath = "/" + config.env;
+                        headers['lz-config'] = {value: configJson};
+                        headers['lz-tenantid'] = {value: host}; 
+                        const authheader = headers['authorization'] && headers['authorization'].value;
+                        if(authheader && authheader.startsWith('AWS4-HMAC-SHA256 Credential=')) {
+                            headers['lz-config-authorization'] = {value: authheader};
+                        }
+                        headers['lz-aws-kvsarn'] = {value: kvsARN};
+                        break;
+                    case "assets":
+                        const behaviorLevel = behavior[4];
+                        const assetTenantKey = behaviorLevel > 0 ? tenantKey : '';
+                        const assetSubtenantKey = behaviorLevel > 1 ? subtenantKey : '';
+                        assetName = systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '.s3.' + behavior[3] + awsSuffix;
+                        removePrefix = true;
+                        addCacheHeader = true;
+                        break;
+                    case "webapp":
+                        const webLevel = behavior[4];
+                        const webTenantKey = webLevel > 0 ? tenantKey : '';
+                        const webSubtenantKey = webLevel > 1 ? subtenantKey : '';
+                        assetName = systemKey + '-' + webTenantKey + '-' + webSubtenantKey + '-' + assetType + '-' + behavior[2] + '-' + behavior[3] + '.s3.' + behavior[4] + awsSuffix;
+                        removePrefix = true;
+                        addCacheHeader = true;
+                        originPath = "/wwwroot";
+                        break;
+                }
+
+                // Perform replacements in assetName
+                assetName = assetName
+                    .replaceAll('{sts}', config.sts)
+                    .replaceAll('{ts}', config.ts)
+                    .replaceAll('{ss}', config.ss);
+
+                if (assetName.includes('{')) return err(404, 'Bad Config behavior entry');
+
+                // Handle webapp Page URLs
+                if (assetType == 'webapp' && uri.endsWith("Page")) {
+                    request.uri = uri.substring(0, uri.lastIndexOf('/'));
+                }
+
+                if(removePrefix) {
+                    const secondSlash = uri.indexOf('/', 1); 
+                    request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
+                }
+        
+                if(addCacheHeader) {
+                    headers['x-custom-cache-key'] = {value: assetName + '-' + request.uri};
+                }
+        
+
+
+                cf.updateRequestOrigin({
+                    "domainName": assetName,
+                    "originPath": originPath
                 });
 
-                if(debug) {
-                    for(let br = 0; br < b; br++) {
-                        const item = config.behaviors[behaviorsRef[br][1]];
-                        console.log('[' + br + '] ' + behaviorsRef[br][0] + " -> " + item.slice(1).join(", "));
-                    }
-                }
-
-                for(let br = 0; br < b; br++) {
-                    const behaviorRef = behaviorsRef[br];
-
-                    if (uri.startsWith(behaviorRef[0])) {
-                        behavior = config.behaviors[behaviorRef[1]]
-                        if(debug) console.log("found:" + br);
-                        found = true;
-                        break;                
-                    }            
-                }
-            }   
-
-            if(!found) {
-               return {
-                    statusCode: 404,
-                    statusDescription: 'Not Found',
-                    body: 'No path match'
-                };         
+                return request;
+            } catch (e) {
+                console.log('Unhandled error: ' + (e.message || e));
+                return {statusCode: 500, statusDescription: 'Error', body: 'Internal Server Error'};
             }
-
-            const assetType = behavior[1];
-            const awssuffix = '.amazonaws.com';
-            let originPath = "";
-            let removePrefix = false;
-            let addCacheHeader = false;
-            let assetName = "";
-            let behaviorLevel = 0;
-            let assetTenantKey = "";
-            let assetSubtenantKey = "";
-            switch(assetType) {
-                case "api":
-                    //  0    1         2       3      4
-                    // [path,assetType,apiname,region,env]
-                    // ==> [apiName].execute-api.[region].amazonaws.com
-                    assetName = behavior[2] + '.execute-api.' + behavior[3] + awssuffix;
-                    removePrefix = true;
-                    originPath = "/" + config.env; // used to set stage name
-                    // Add headers used by service-side code
-                    headers['lz-config-systemkey'] = { value: systemKeyValue }; 
-                    headers['lz-config-tenantkey'] = { value: tenantKeyValue};
-                    headers['lz-config-subtenantkey'] = { value: subtenantKeyValue };
-                    // Handle old API Gateway that doesn't pass the Authorization header
-                    let authheader = headers['authorization'] && headers['authorization'].value;
-                    if(authheader.startsWith('AWS4-HMAC-SHA256 Credential=') {
-                        headers['lz-config-authorization'] = { value: authheader };
-                    }
-                    // Pass aws specific headers
-                    headers['lz-aws-kvskey'] = { value: host };
-                    headers['lz-aws-kvsarn'] = { value: kvsARN };
-                    break;
-                case "assets":
-                    //  0    1         2         3      4
-                    // [path,assetType,assetname,suffix,region,level]
-                    // ==> [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[suffix].s3.[region].amazonaws.com
-                    behaviorLevel = behavior[4];
-                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
-                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
-                    assetName = systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '.s3.' + behavior[3] + awssuffix;
-                    removePrefix = true;
-                    addCacheHeader = true;
-                    originPath = "";
-                    break;
-                case "webapp":
-                    //  0    1         2         3      4      5
-                    // [path,assetType,assetname,suffix,region,level]
-                    // ==> [systemKey]-[tenantKey]-[subtenantKey]-[assetType]-[appName]-[suffix].s3.[region].amazonaws.com
-                    behaviorLevel = behavior[4];
-                    assetTenantKey = behaviorLevel > 0 ? config.tenantKey : '';
-                    assetSubtenantKey = behaviorLevel > 1 ? config.subtenantKey : '';
-                    assetName = systemKey + '-' + assetTenantKey + '-' + assetSubtenantKey + '-' + assetType + '-' + behavior[2] + '-' + behavior[3] + '.s3.' + behavior[4] + awssuffix;
-                    removePrefix = true;
-                    addCacheHeader = true;
-                    originPath = "/wwwroot";
-                    break;
-            }
-
-            // perform any replacements in assetName
-            assetName = assetName.replaceAll('{sts}', sts);
-            assetName = assetName.replaceAll('{ts}', ts);
-            assetName = assetName.replaceAll('{ss}', ss);
-
-            // Check for any remaining unreplaced placeholders
-            if (assetName.includes('{')) {
-                return {
-                    statusCode: 404,
-                    statusDescription: 'Not Found',
-                    body: 'Bad Config behavior entry. Missing replacement value'
-                };
-            }
-
-            cf.updateRequestOrigin({
-              "domainName": assetName,
-              "originPath": originPath
-            });
-
-            if(debug) console.log("originDomainName: " + assetName + ", originPath: " + originPath);
-
-            if(assetType == 'webapp' && uri.endsWith("Page")) {
-                try {
-                    const url = new URL(uri);
-                    const pathSegments = url.pathname.split('/');
-                    pathSegments.pop(); // Remove last segment
-                    url.pathname = pathSegments.join('/');
-                    uri = url.toString();
-                } catch (e) {
-                    uri = uri.substring(0, uri.lastIndexOf('/'));
-                }             
-            }
-
-            if(removePrefix) {
-                const secondSlash = uri.indexOf('/', 1); 
-                request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
-            }
-            if(debug) console.log("uri: " + request.uri);
-            if(addCacheHeader) {
-                const key = assetName + '-' + request.uri;
-                headers['x-custom-cache-key'] = { value: key }; // We use a header to do caching of assets    
-                if(debug) console.log("x-custom-cache-key: " + key);
-            }
-            if(log) {
-                console.log("request: " + host + originalUri  + "\nredirect: " + assetName + originPath + request.uri  + "\nsystemkey: " + systemKeyValue + " , tenantkey: " + tenantKeyValue + " , subtenantkey: " + subtenantKeyValue);
-            }
-            return request;
         }
+
+
+
+
 
   CloudFrontFunctionLoggingRole:
     Type: AWS::IAM::Role
@@ -567,6 +450,4 @@ Outputs:
   AuthConfigFunctionArn:
     Value: !GetAtt AuthConfigFunction.FunctionARN
 
-  DevConfigFunctionArn:
-    Value: !If [IsDev, !GetAtt DevConfigFunction.FunctionARN, ""]
 

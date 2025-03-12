@@ -52,6 +52,9 @@ public partial class LambdaEntryPoint :
             {
                 app.Use(async (context, nextMiddleware) =>
                 {
+                    // Add headers to the request that identify the Cognito region and user pool ID
+                    // This information is extracted from the 'iss' claim in the JWT token provided by Cognito.
+
                     try
                     {
                         // Check if the user is authenticated and retrieve the 'iss' claim from the JWT
@@ -74,6 +77,11 @@ public partial class LambdaEntryPoint :
                                     }
                                 }
                             }
+                        }
+                        else
+                        {
+                            context.Request.Headers.TryAdd(RegionHeader, "");
+                            context.Request.Headers.TryAdd(UserPoolHeader, "");
                         }
                     }
                     catch (Exception ex)

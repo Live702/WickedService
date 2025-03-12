@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace PublicSchemaRepo;
-public partial class BadaEnvelope : DataEnvelope<Bada>{}
-public partial interface IBadaRepo : IDYDBRepository<BadaEnvelope, Bada> {}
-public partial class BadaRepo : DYDBRepository<BadaEnvelope, Bada>, IBadaRepo
+public partial interface IBadaRepo : IDocumentRepo<Bada> {}
+public partial class BadaRepo : DYDBRepository<Bada>, IBadaRepo
 {
     public BadaRepo(IAmazonDynamoDB client) : base(client) {}
 }

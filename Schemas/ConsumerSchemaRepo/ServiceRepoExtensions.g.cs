@@ -16,7 +16,7 @@ public static partial class ConsumerSchemaRepoExtensions
     public static IServiceCollection AddConsumerSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IPreferencesRepo, PreferencesRepo>();
 
 
