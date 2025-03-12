@@ -11,16 +11,22 @@
 // </auto-generated>
 //----------------------
 namespace ConsumerSchemaRepo;
-public static class ConsumerSchemaRepoExtensions
+public static partial class ConsumerSchemaRepoExtensions
 {
     public static IServiceCollection AddConsumerSchemaRepo(this IServiceCollection services)
     {
 
-        services.AddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
+        services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IPreferencesRepo, PreferencesRepo>();
 
 
-
+        AddCustom(services);    
         return services;
     }
+    // Implement this partial method in a separate file to add custom service registrations
+    // Note that this method doesn't return services as partial methods don't allow return 
+    // values other than void. Returning the collection is normally implemented to support 
+    // method chaining, but that is not required here.
+    static partial void AddCustom(IServiceCollection services);
+
 }

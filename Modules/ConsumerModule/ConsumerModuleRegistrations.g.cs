@@ -12,7 +12,7 @@ namespace ConsumerModule
         public static IServiceCollection AddConsumerModule(this IServiceCollection services) 
         {
             services.TryAddSingleton<IConsumerModuleAuthorization, ConsumerModuleAuthorization>();
-            services.TryAddSingleton<IConsumerModuleController, ConsumerModuleControllerImpl>();
+            services.TryAddSingleton<IConsumerModuleController, ConsumerModuleController>();
             services.AddConsumerSchemaRepo();
 			services.AddSharedSchemaRepo();
 			services.AddStoreSchemaRepo();

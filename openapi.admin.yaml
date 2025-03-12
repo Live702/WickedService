@@ -1,110 +1,10 @@
 openapi: 3.0.1
 paths:
- # User
-  '/{prefix}/suspendUser/{user}':
-    get:
-      summary: Suspend EmployeeLambda user 
-      operationId: suspendUser 
-      parameters:
-      - name: user
-        in: path
-        description: user login
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Success     
 
-  '/{prefix}/user/{userId}':
-    get:
-      summary: Find user by ID
-      operationId: getUserById
-      x-lz-gencall: userRepo.ReadAsync(callerInfo, userId)  
-      parameters:
-      - name: userId
-        in: path
-        description: ID of user that needs to be fetched
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: User not found
-
-
-  '/{prefix}/user':
-    post:
-      summary: Add a new user to the store
-      operationId: addUser
-      x-lz-gencall: userRepo.CreateAsync(callerInfo, body)
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '405':
-          description: Invalid input
-    put: 
-      summary: Update an existing user
-      operationId: updateUser
-      x-lz-gencall: userRepo.UpdateAsync(callerInfo, body)   
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: User not found
-        '405':
-          description: Validation exception
-
-  '/{prefix}/user/listUsers':
-    get:
-      summary: List all users 
-      operationId: listUsers
-      x-lz-gencall: userRepo.ListAsync(callerInfo) 
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid status value
-
-  '/{prefix}/pet/seedPets/{store}/{numPets}':
+  '/subtenant/seedPets/{store}/{numPets}':
     get:
       summary: See pet database
-      operationId: seedPets
-      x-lz-gencall: petRepo.SeedAsync(callerInfo, store, numPets)
+      operationId: seedPets 
       parameters:
       - name: store
         in: path
@@ -122,3 +22,238 @@ paths:
       responses:
         '200':
           description: Success
+
+
+ # TenantUser
+  '/isAdmin':
+    get:
+      summary: Check if currently logged in tenantUser is an admin
+      operationId: isAdmin
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUserStatus'
+
+  '/suspendTenantUser/{tenantUser}':
+    get:
+      summary: Suspend TenantUser
+      operationId: suspendTenantUser 
+      parameters:
+      - name: tenantUser
+        in: path
+        description: tenantUser login
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success     
+
+  '/tenantUser/{tenantUserId}':
+    get:
+      summary: Find tenantUser by ID
+      operationId: getTenantUserById
+      x-lz-gencall: TenantUserRepo.ReadAsync(callerInfo, tenantUserId)  
+      parameters:
+      - name: tenantUserId
+        in: path
+        description: ID of tenantUser that needs to be fetched
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: TenantUser not found
+
+
+  '/tenantUser':
+    post:
+      summary: Add a new tenantUser
+      operationId: addTenantUser
+      x-lz-gencall: TenantUserRepo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUser'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+        '405':
+          description: Invalid input
+    put: 
+      summary: Update an existing tenantUser
+      operationId: updateTenantUser
+      x-lz-gencall: TenantUserRepo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUser'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUser'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: TenantUser not found
+        '405':
+          description: Validation exception
+
+  '/tenantUser/delete/{tenantUserId}':
+    delete:
+      summary: Delete tenantUser by ID
+      operationId: deleteTenantUser
+      x-lz-gencall: TenantUserRepo.DeleteAsync(callerInfo, tenantUserId) 
+      parameters:
+      - name: tenantUserId
+        in: path
+        description: ID of tenantUser that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: TenantUser not found
+
+  '/tenantUser/listTenantUsers':
+    get:
+      summary: List all tenantUsers 
+      operationId: listTenantUsers
+      x-lz-gencall: TenantUserRepo.ListAsync(callerInfo) 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantUser'
+        '400':
+          description: Invalid status value
+
+
+ # Subtenant
+
+  '/subtenant/{subtenantId}':
+    get:
+      summary: Find Subtenant by ID
+      operationId: getSubtenantById
+      parameters:
+      - name: SubtenantId
+        in: path
+        description: ID of Subtenant that needs to be fetched
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subtenant'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Subtenant not found
+
+
+  '/subtenant':
+    post:
+      summary: Add a new Subtenant
+      operationId: addSubtenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subtenant'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subtenant'
+        '405':
+          description: Invalid input
+    put: 
+      summary: Update an existing Subtenant
+      operationId: updateSubtenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subtenant'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subtenant'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Subtenant not found
+        '405':
+          description: Validation exception
+
+  '/subtenant/delete/{subtenantId}':
+    delete:
+      summary: Delete Subtenant by ID
+      operationId: deleteSubtenant
+      parameters:
+      - name: SubtenantId
+        in: path
+        description: ID of Subtenant that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Subtenant not found
+
+  '/subtenant/listSubtenants':
+    get:
+      summary: List all Subtenants 
+      operationId: listSubtenants
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subtenant'
+        '400':
+          description: Invalid status value

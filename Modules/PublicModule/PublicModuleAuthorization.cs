@@ -3,44 +3,30 @@ using System.Runtime.CompilerServices;
 
 namespace PublicModule
 {
+    /// <summary>
+    /// This class is used to define the permissions for the PublicModule module.
+    /// Since this module is public, it does not require authentication, we implement
+    /// - authenticate = false
+    /// - override GetUserPermissionsAsync to return an empty list of permissions.
+    /// - override HasPermissionAsync to always return true.
+    /// </summary>
     public partial class PublicModuleAuthorization
     {
-        /// <summary>
-        /// Since this is the public module, we don't need to check permissions. We just return the default permissions
-        /// for an anonymous user.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="endpointName"></param>
-        /// <returns></returns>
-        public override async Task<ICallerInfo> GetCallerInfoAsync(HttpRequest request, [CallerMemberName] string endpointName = "")
+        public PublicModuleAuthorization ()
         {
-            await Task.Delay(0);
-            string tenantKey = await GetTenantKeyAsync(request);
-            string table = await GetTenantTableAsync(tenantKey);
-            string tenantConfigBucket = await GetTenantConfigBucketAsync(request, tenantKey);
-            var lzUserId = "";
-            var userName = "";
-            List<string> permissions = await GetUserPermissionsAsync(lzUserId, userName, table);
-            var callerInfo = new CallerInfo() {
-                LzUserId = lzUserId,
-                UserName = userName,
-                Table = table,
-                TenantConfigBucket = tenantConfigBucket,
-                Permissions = permissions,
-                Tenancy = tenantKey
-            };
-            return callerInfo;
+            authenticate = false; // This module does not require authentication
         }
         protected override async Task<List<string>> GetUserPermissionsAsync(string lzUserId, string userName, string table)
         {
+            await Task.Delay(0);
             // Since default methods can't access instance state, we call the helper method that can.
-            return await GetUserDefaultPermissionsAsync(lzUserId, userName, table);
+            return new List<string>();
         }
+        // Public API has no permission checks
         public override async Task<bool> HasPermissionAsync(string methodName, List<string> userPermissions)
         {
             await Task.Delay(0);
             return true;
         }
-
     }
 }

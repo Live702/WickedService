@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace ConsumerSchemaRepo;
-public partial class PreferencesEnvelope : DataEnvelope<Preferences>{}
-public partial interface IPreferencesRepo : IDYDBRepository<PreferencesEnvelope, Preferences> {}
-public partial class PreferencesRepo : DYDBRepository<PreferencesEnvelope, Preferences>, IPreferencesRepo
+public partial interface IPreferencesRepo : IDocumentRepo<Preferences> {}
+public partial class PreferencesRepo : DYDBRepository<Preferences>, IPreferencesRepo
 {
     public PreferencesRepo(IAmazonDynamoDB client) : base(client) {}
 }

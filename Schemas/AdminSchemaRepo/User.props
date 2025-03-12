@@ -1,1 +1,7 @@
-<Project></Project>
+<Project>
+	<ItemGroup>
+		<PackageReference Include="AWSSDK.CloudFront" />
+		<PackageReference Include="AWSSDK.CloudFrontKeyValueStore" />
+		<PackageReference Include="AWSSDK.Extensions.CrtIntegration" />
+	</ItemGroup>
+</Project>

@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace SharedSchemaRepo;
-public partial class CategoryEnvelope : DataEnvelope<Category>{}
-public partial interface ICategoryRepo : IDYDBRepository<CategoryEnvelope, Category> {}
-public partial class CategoryRepo : DYDBRepository<CategoryEnvelope, Category>, ICategoryRepo
+public partial interface ICategoryRepo : IDocumentRepo<Category> {}
+public partial class CategoryRepo : DYDBRepository<Category>, ICategoryRepo
 {
     public CategoryRepo(IAmazonDynamoDB client) : base(client) {}
 }

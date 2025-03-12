@@ -12,6 +12,8 @@
         - http://*
         AllowHeaders:
         - Authorization
+        - lz-cognito-region
+        - lz-cognito-userpool-id
         - '*'
         AllowMethods:
         - GET
@@ -23,6 +25,8 @@
         ExposeHeaders:
         - Date
         - x-api-id
+        - lz-cognito-region
+        - lz-cognito-userpool-id
         MaxAge: 600
         AllowCredentials: false
 

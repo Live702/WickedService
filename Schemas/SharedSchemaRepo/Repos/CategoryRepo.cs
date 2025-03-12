@@ -2,9 +2,9 @@
 
 public partial class CategoryRepo 
 {
-    // Since this is a relatively static list, we can just define it 
-    // here. Later, if the list became dynamic, we could move it into 
-    // the repo.
+    // For the demo, this is a static list.
+    // Later, if we want a dynamic store, we can move
+    // it into the database.
     private readonly List<Category> list = new List<Category>
     {
         new Category { Id = "Dogs", Name = "Dogs" },
@@ -16,9 +16,7 @@ public partial class CategoryRepo
         new Category { Id = "Other", Name = "Other" }
     };
 
-    // We only override the ListAsync method, since the other base methods are 
-    // not called. 
-    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo)
+    public override async Task<ObjectResult> ListAsync(ICallerInfo callerInfo, int limit = 0)
     {
         await Task.Delay(0);
         ObjectResult objResult = new ObjectResult(list)

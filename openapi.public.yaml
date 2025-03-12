@@ -1,22 +1,10 @@
 openapi: 3.0.1
 paths:
-  # Test/Util
-  '/{prefix}/publicTest':
-    get:
-      operationId: publicTest
-      responses:
-        '200':
-          description: successful operation
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  '/{prefix}/pet/listPets':
+  '/public/pet/listPets':
     get:
       summary: List all pets 
       operationId: listPets 
-      x-lz-gencall: petRepo.ListAsync(callerInfo) 
+      x-lz-gencall: PetRepo.ListAsync(callerInfo) 
       responses:
         '200':
           description: successful operation
@@ -29,7 +17,7 @@ paths:
         '400':
           description: Invalid status value
           
-  '/{prefix}/pet/findByStatus':
+  '/public/pet/findByStatus':
     get:
       summary: Finds Pets by status
       description: Multiple status values can be provided with comma separated strings
@@ -58,12 +46,12 @@ paths:
         '400':
           description: Invalid status value
 
-  '/{prefix}/pet/{petId}':
+  '/public/pet/{petId}':
     get:
       summary: Find pet by ID
       description: Returns a single pet
       operationId: getPetById
-      x-lz-gencall: petRepo.ReadAsync(callerInfo, petId)
+      x-lz-gencall: PetRepo.ReadAsync(callerInfo, petId)
       parameters:
       - name: petId
         in: path
@@ -83,13 +71,13 @@ paths:
         '404':
           description: Pet not found
 
-  '/{prefix}/pet/findByTags':
+  '/public/pet/findByTags':
     get:
       summary: Finds Pets by tags
       description: >-
         Muliple tags can be provided with comma separated strings. Use\ \ tag1, tag2, tag3 for testing.
       operationId: findPetsByTags
-      # x-lz-gencall: petRepo.FindPetsByTagsAsync(callerInfo, tags)
+      # x-lz-gencall: PetRepo.FindPetsByTagsAsync(callerInfo, tags)
       parameters:
       - name: tags
         in: query
@@ -112,11 +100,11 @@ paths:
         '400':
           description: Invalid tag value
   # Categories
-  '/{prefix}/pet/categories':
+  '/public/pet/categories':
     get:
       summary: Get all Pet Categories
       operationId: getPetCategories
-      x-lz-gencall: categoryRepo.ListAsync(callerInfo)
+      x-lz-gencall: CategoryRepo.ListAsync(callerInfo)
       responses:
         '200':
           description: successful operation
@@ -127,11 +115,11 @@ paths:
                 items:
                   $ref: '#/components/schemas/Category'
   # Tags
-  '/{prefix}/pet/tags':
+  '/public/pet/tags':
     get:
       summary: Get all Pet Tags
       operationId: getPetTags
-      x-lz-gencall: tagRepo.ListAsync(callerInfo)
+      x-lz-gencall: TagRepo.ListAsync(callerInfo)
       responses:
         '200':
           description: successful operation

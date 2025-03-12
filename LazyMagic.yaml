@@ -2,6 +2,7 @@ LazyMagicDirectivesVersion: 2.0.0
 
 Directives:
 # Cross cutting directives
+
   # SCHEMAS Default
   SchemaDefault:
     Type: Schema
@@ -17,13 +18,17 @@ Directives:
     Artifacts:
       DotNetControllerProject: # methods for each REST path operation
 
-  # CONTAINERS Default
+  # CONTAINERS Default  
   AwsApiLambdaContainerDefault:
     Type: Container
     IsDefault: true # this directive may be referenced by other Container directives
     Artifacts:
       DotNetApiLambdaProject: # Lambda function that processes the HttpApi request
       AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+        ManagedPolicyArns: 
+        # You can further restict this using the Perms stack
+        # if you want to restrict db access by lambda
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
 
   # API Default
   ApiDefault:
@@ -43,94 +48,19 @@ Directives:
     Type: Tenancy
     IsDefault: true # this directive may be referenced by other Tenancy directives
     Service: Service
-    Artifacts:
-      AwsTenancyStackTemplate: # the AWS SAM template for the Tenancy
 
   # AUTHENTICATORS - Authentication services
-  EmployeeAuth:
+  TenantAuth:
     Type: Authentication
     Artifacts:
       AwsCognitoResource: 
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.managed.yaml
+        Template: Templates/sam.cognito.tenant.yaml
 
   ConsumerAuth:
     Type: Authentication
     Artifacts:
       AwsCognitoResource:
-        Template: AWSTemplates/Snippets/sam.service.cognito.jwt.unmanaged.yaml
-
-# LzMessaging Subsystem Directives
-# This section contains the directives that define the LzMessaging subsystem which provides:
-# - WebSocket connections for clients to receive messages
-# - Use of DynamoDB to store subscription information  
-# - Use of SQS message broker to queue messages
-# - Use of Lambda to process messages and call a API Gateway WebSocket to send messages to subscribers
- 
-  # # Schemas
-  # LzMessagingSchema:
-  #   # schemas include LzSubscriptions and LzNotifications
-  #   Type: Schema
-  #   Defaults: SchemaDefault
-  #   OpenApiSpecs: # reads the schema section
-  #   - openapi.messaging-schema.yaml
-
-  # # Modules
-  # LzMessagingModule:
-  #   # path operations include subscribe, unsubscribe
-  #   Type: Module
-  #   Defaults: ModuleDefault
-  #   OpenApiSpecs: # reads the path section
-  #   - openapi.messaging.yaml
-
-  # # Containers
-  # LzMessagingWebSocketLambda:
-  #   # Handles websocket CONNECT, DISCONNECT, and MESSAGE events
-  #   # The only incoming message event is AUTHENTICATE.
-  #   # The only outgoing message is AUTHENTICATED.
-  #   # Note that the WebSocket it self may send DISCONNECT events. 
-  #   Type: Container
-  #   Artifacts:
-  #     DotNetWSApiLambdaProject:
-  #     AwsWSApiLambdaResource:
-  #       Authentications: # unlike HttpApi, we authenticate in the Lambda function
-  #       - ConsumerAuth
-  #       - EmployeeAuth
-  #       WebSocketApi: LzMessagingWebSocketApi # required to send AUTHENTICATED message to client
-
-  # # LzMessagingApi
-  # # Note the absence of Authentication. AWS WebSockets do not support authentication at the API Gateway level.
-  # # We do authentication in the Lambda function using an AUTHENTICATE message after connection. Connections not
-  # # authenticated after a few seconds are disconnected. 
-  # LzMessagingApi:
-  #   Type: Api
-  #   Containers:
-  #   - LzMessagingWebSocketLambda
-  #   Artifacts:
-  #     AwsWSApiResource: 
-  #     DotNetWSApiSDKProject:
-  
-  # # Message Queue
-  # # Schema Repos write to the message queue on Create Update and Delete (CUD) operations. 
-  # # The LzMessagingLambda reads from the queue and sends messages, with the CUD payload,
-  # # to subscribers using the WebSocket. CUD information is identified by a Topic.
-  # # Subscribers subscribe to Topics. The reason we use a message queue is to eliminate 
-  # # any latency in sending a response back to the client that performed the CUD operation.
-  # # Updates to subscribers are done asynchronously.
-  # LzMessagingQueue:
-  #   Type: Queue
-  #   Artifacts:
-  #     AwsSQSResource:
-      
-  # LzMessagingLambda:
-  #   # Reads message queue and sends messages to subscribers using WebSocket
-  #   # Subscribers subscribe to Topics and only receive messages for Topics 
-  #   # they are subscribed to.
-  #   Type: Container
-  #   Artifacts:
-  #     DotNetSQSLambdaProject:
-  #     AwsSQSLambdaResource:
-  #       Queue: LzMessagingQueue
-  #       WebSocketApi: LzMessagingApi 
+        Template: Templates/sam.cognito.consumer.yaml
 
 # Application Directives
 
@@ -165,12 +95,18 @@ Directives:
     - openapi.public-schema.yaml
 
   # MODULES - libraries handling paths
+ 
+  AdminModule:
+    Type: Module
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.admin.yaml
+
   StoreModule:
     Type: Module
     Defaults: ModuleDefault
     OpenApiSpecs:
     - openapi.store.yaml
-    - openapi.admin.yaml
 
   ConsumerModule:
     Type: Module
@@ -185,6 +121,23 @@ Directives:
     - openapi.public.yaml
 
   # CONTAINERS - executables
+ 
+  AdminLambda:
+    Type: Container
+    ApiPrefix: Admin
+    Defaults: AwsApiLambdaContainerDefault
+    Modules:
+    - AdminModule
+    Artifacts:
+      AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+        ManagedPolicyArns:
+        # You can further restict permissions using the Perms stack but 
+        # generally the admin module has full access to most services.
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonCognitoPowerUser
+        - arn:aws:iam::aws:policy/CloudFrontFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
   StoreLambda:
     Type: Container
     ApiPrefix: Store
@@ -207,12 +160,21 @@ Directives:
     - PublicModule
 
   # APIS - API Gateways that proxy requests to containers
+  AdminApi:
+    Type: Api
+    Defaults: ApiDefault
+    Authentication: TenantAuth
+    Containers:
+    - AdminLambda
+
   StoreApi:
     Type: Api
     Defaults: ApiDefault
-    Authentication: EmployeeAuth
+    Authentication: TenantAuth
     Containers:
     - StoreLambda
+    - ConsumerLambda
+    - PublicLambda
 
   ConsumerApi:
     Type: Api
@@ -220,6 +182,7 @@ Directives:
     Authentication: ConsumerAuth
     Containers:
     - ConsumerLambda
+    - PublicLambda
 
   PublicApi:
     Type: Api
@@ -231,21 +194,28 @@ Directives:
   Service:
     Type: Service
     Apis: # remember that each Api has it's own ClientSDK
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi
-    #WSApi: LzMessagingApi
     Artifacts:
       AwsServiceStackTemplate:
 
   LocalWebService:
     Type: Service
     Apis:
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi
     Artifacts:
       DotNetLocalWebApiProject:
+
+# DEPLOYMENT 
+  Deployment:
+    Type: Deployment
+    Artifacts:
+      AwsDeploymentConfig:
 
 # WEBAPPS
   AdminApp:
@@ -253,6 +223,7 @@ Directives:
     Defaults: WebAppDefault
     Path: admin
     Apis:
+    - AdminApi
     - StoreApi
     - ConsumerApi
     - PublicApi
@@ -275,24 +246,11 @@ Directives:
     - PublicApi
 
 # TENANCIES
-  SystemTenancy:
+  Tenancy:
     Type: Tenancy
     Defaults: TenancyDefaults
     WebApps:
     - AdminApp
     - StoreApp
-    - ConsumerApp
-
-  StoreTenancy:
-    Type: Tenancy
-    Defaults: TenancyDefaults
-    WebApps:
-    - StoreApp
-    - ConsumerApp
-
-  ConsumerTenancy:
-    Type: Tenancy
-    Defaults: TenancyDefaults
-    WebApps:
     - ConsumerApp
 

@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace SharedSchemaRepo;
-public partial class TagEnvelope : DataEnvelope<Tag>{}
-public partial interface ITagRepo : IDYDBRepository<TagEnvelope, Tag> {}
-public partial class TagRepo : DYDBRepository<TagEnvelope, Tag>, ITagRepo
+public partial interface ITagRepo : IDocumentRepo<Tag> {}
+public partial class TagRepo : DYDBRepository<Tag>, ITagRepo
 {
     public TagRepo(IAmazonDynamoDB client) : base(client) {}
 }

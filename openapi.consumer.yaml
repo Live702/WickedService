@@ -1,10 +1,10 @@
 openapi: 3.0.1
 paths:
-  '{prefix}/preferences':
+  '/preferences':
     get:
       summary: Get user preferences
       operationId: getPreferences
-      x-lz-gencall: preferencesRepo.ReadAsync(callerInfo, callerInfo.LzUserId)
+      x-lz-gencall: PreferencesRepo.ReadAsync(callerInfo, callerInfo.LzUserId)
       responses:
         '200':
           description: successful operation
@@ -15,7 +15,7 @@ paths:
     post:
       summary: Update user preferences
       operationId: updatePreferences
-      x-lz-gencall: preferencesRepo.UpdateAsync(callerInfo, body)
+      x-lz-gencall: PreferencesRepo.UpdateAsync(callerInfo, body)
       requestBody:
         content:
           application/json:

@@ -6,9 +6,8 @@
 // </auto-generated>
 //----------------------
 namespace SharedSchemaRepo;
-public partial class PetEnvelope : DataEnvelope<Pet>{}
-public partial interface IPetRepo : IDYDBRepository<PetEnvelope, Pet> {}
-public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
+public partial interface IPetRepo : IDocumentRepo<Pet> {}
+public partial class PetRepo : DYDBRepository<Pet>, IPetRepo
 {
     public PetRepo(IAmazonDynamoDB client) : base(client) {}
 }

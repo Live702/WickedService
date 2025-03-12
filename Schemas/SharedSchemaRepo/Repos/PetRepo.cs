@@ -7,14 +7,13 @@ namespace SharedSchemaRepo;
 // - Extended constructor to take other repos as parameters
 // - Implement a new method to seed the database
 
-
 // Extend the IPetRepo interface so new method can be seen by module(s).
-public partial interface IPetRepo
+public partial interface IPetRepo : IDocumentRepo<Pet>
 {
-    public Task<ActionResult> SeedAsync(ICallerInfo callerInfo, string store, int numPets);
+    public Task<ActionResult> SeedAsync(ICallerInfo callerInfo, int numPets);
 }
 // Extend the PetRepo class to implement the new constructor and method.
-public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
+public partial class PetRepo : DYDBRepository<Pet>, IPetRepo
 {
     // Implement a constructor that takes the tag and category repos as parameters,
     // Microsoft DIwill select the constructor with the most parameters it can satisfy,
@@ -23,17 +22,16 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
     public PetRepo(IAmazonDynamoDB client, ICategoryRepo categoryRepo, ITagRepo tagRepo) : base(client) { 
         this.tagRepo = tagRepo; 
         this.categoryRepo = categoryRepo;
-    // UseNotifications = true;
+        UseNotifications = true;
+        NotificationsSqsQueue = "notifications";
     }
 
     private ITagRepo tagRepo;
     private ICategoryRepo categoryRepo; 
 
-
     // Implement the new method to satisfy the interface
-    public async Task<ActionResult> SeedAsync(ICallerInfo callerInfo, string store, int numPets )
+    public async Task<ActionResult> SeedAsync(ICallerInfo callerInfo, int numPets )
     {
-        callerInfo.Table = store;
 
         List<string> petNames = ["Luna", "Max", "Bella", "Charlie", "Lucy", "Cooper", "Daisy", "Milo", "Lily", "Oliver", "Molly", "Rocky", "Bailey", "Shadow", "Sophie", "Tucker", "Coco", "Bear", "Maggie", "Leo",
 "Ruby", "Oscar", "Sadie", "Zeus", "Penny", "Duke", "Chloe", "Winston", "Rosie", "Jack", "Lola", "Buddy", "Gracie", "Thor", "Nala", "Scout", "Hazel", "Bruno", "Millie", "Sam",
@@ -88,6 +86,5 @@ public partial class PetRepo : DYDBRepository<PetEnvelope, Pet>, IPetRepo
 
         return new StatusCodeResult(200);
     }
-
 
 }

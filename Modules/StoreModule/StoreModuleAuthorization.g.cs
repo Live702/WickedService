@@ -13,21 +13,8 @@ namespace StoreModule;
 /// You then register your implementation BEFORE calling this projects service registration method. Note that we use TryAddSingleton to avoid
 /// registering multiple implementations of the same interface; the first registration wins.
 /// </summary>
-public interface IStoreModuleAuthorization : ILzAuthorization 
+public partial interface IStoreModuleAuthorization : ILzAuthorization 
 { 
-    public async Task<List<string>> GetUserPermissionsAsync(string lzUserId, string userName, string table)
-    {
-        // Since default methods can't access instance state, we call the helper method that can.
-        return await GetUserDefaultPermissionsAsync(lzUserId, userName, table);
-    }
-    public Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table);
-
-    public async Task LoadPermissionsAsync()
-    {
-        // Since default methods can't access instance state, we call the helper method that can.
-        await LoadDefaultPermissionsAsync();    
-    }   
-    public Task LoadDefaultPermissionsAsync();
 }
 
 /// <summary>
@@ -40,15 +27,4 @@ public interface IStoreModuleAuthorization : ILzAuthorization
 public partial class StoreModuleAuthorization : LzAuthorization, IStoreModuleAuthorization
 {
     
-    public virtual async Task<List<string>> GetUserDefaultPermissionsAsync(string lzUserId, string userName, string table)
-    {
-        // TODO: generated code here
-        return await Task.FromResult(new List<string>());
-    }
-
-    public virtual async Task LoadDefaultPermissionsAsync()
-    {
-        // TODO: generatedcode here
-        await Task.CompletedTask;
-    }
 }
