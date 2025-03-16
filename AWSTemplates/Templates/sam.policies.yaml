@@ -117,23 +117,17 @@ Resources:
             try {
                 const request = event.request;
                 const headers = request.headers;
-                const uri = request.uri;  
-                const host = headers.host.value;
                 const origin = headers.origin && headers.origin.value;
 
                 // Helper function for error responses
                 const err = (code, msg) => ({statusCode: code, statusDescription: code === 404 ? 'Not Found' : 'Error', body: msg});
 
                 // Get config
-                let config, configJson;
-                try {
-                    configJson = await kvs.get(host);
-                    if (!configJson) return err(404, 'Missing Config');
-                    config = JSON.parse(configJson);
-                    if (!config || !config.behaviors) return err(400, 'Invalid Configuration Format');
-                } catch (e) {
-                    console.log(`Config error for " +  host " :" + (e.message || e)`);
-                    return err(500, 'Configuration Error');
+                let config = await GetConfig(headers.host.value);
+                if(config.redirecthost) {
+                    headers.host.value = config.redirecthost;
+                    request.uri = config.redirecturi;
+                    config = await GetConfig(headers.host.value);
                 }
 
                 // Handle preflight requests
@@ -170,7 +164,7 @@ Resources:
                     // Sort by path length (longest first) and find first match
                     behaviorsRef.sort((a, b) => b[0].length - a[0].length);
                     for(let i = 0; i < behaviorsRef.length; i++) {
-                        if (uri.startsWith(behaviorsRef[i][0])) {
+                        if (request.uri.startsWith(behaviorsRef[i][0])) {
                             behavior = config.behaviors[behaviorsRef[i][1]];
                             break;                
                         }            
@@ -186,14 +180,14 @@ Resources:
                 let removePrefix = false;
                 let addCacheHeader = false;
                 let assetName = "";
-        
+
                 switch(assetType) {
                     case "api":
                         assetName = behavior[2] + '.execute-api.' + behavior[3] + awsSuffix;
                         removePrefix = true;
                         originPath = "/" + config.env;
                         headers['lz-config'] = {value: configJson};
-                        headers['lz-tenantid'] = {value: host}; 
+                        headers['lz-tenantid'] = {value: headers.host.value}; 
                         const authheader = headers['authorization'] && headers['authorization'].value;
                         if(authheader && authheader.startsWith('AWS4-HMAC-SHA256 Credential=')) {
                             headers['lz-config-authorization'] = {value: authheader};
@@ -228,20 +222,20 @@ Resources:
                 if (assetName.includes('{')) return err(404, 'Bad Config behavior entry');
 
                 // Handle webapp Page URLs
-                if (assetType == 'webapp' && uri.endsWith("Page")) {
-                    request.uri = uri.substring(0, uri.lastIndexOf('/'));
+                if (assetType == 'webapp' && request.uri.endsWith("Page")) {
+                    request.uri = request.uri.substring(0, request.uri.lastIndexOf('/'));
                 }
 
                 if(removePrefix) {
-                    const secondSlash = uri.indexOf('/', 1); 
-                    request.uri = secondSlash > 0 ? uri.slice(secondSlash) : '/';
+                    const secondSlash = request.uri.indexOf('/', 1); 
+                    request.uri = secondSlash > 0 ? request.uri.slice(secondSlash) : '/';
                 }
-        
+
                 if(addCacheHeader) {
                     headers['x-custom-cache-key'] = {value: assetName + '-' + request.uri};
                 }
-        
 
+                //console.log("request: " + headers.host.value + request.uri + ", redirect: " + assetName + originPath + request.uri);
 
                 cf.updateRequestOrigin({
                     "domainName": assetName,
@@ -253,9 +247,20 @@ Resources:
                 console.log('Unhandled error: ' + (e.message || e));
                 return {statusCode: 500, statusDescription: 'Error', body: 'Internal Server Error'};
             }
+
+            async function GetConfig(host) {
+                try {
+                    const configJson = await kvs.get(host);
+                    if (!configJson) throw Error("Missing Config");
+                    let config = JSON.parse(configJson);
+                    if (!config || (!config.behaviors && !config.redirecthost)) throw new Error("Bad Config");
+                    return config;
+                } catch (e) {
+                    console.log(e.message);
+                    throw e;
+                }        
+            }
         }
-
-
 
 
 
