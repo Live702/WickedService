@@ -7,7 +7,4 @@
 		<!-- Avoid spurious errors for !Sub style markup in the templates -->
 		<None Update="./*.yaml" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Generated\" />
-	</ItemGroup>
 </Project>

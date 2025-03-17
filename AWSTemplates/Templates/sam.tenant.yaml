@@ -26,10 +26,6 @@ Parameters:
       - test
       - prod
 
-  CDNLogBucketNameParameter:
-    Description: "CDN Log Bucket Name"
-    Type: String
-
   # TenantKey is the Tenant defined in the serviceconfig.yaml file
   TenantKeyParameter:
     Description: "Tenant Key. No spaces. Lower case."
@@ -59,6 +55,9 @@ Parameters:
     Type: String
 
   CachePolicyIdParameter:
+    Type: String
+
+  CacheByHeaderPolicyIdParameter:
     Type: String
 
   ApiCachePolicyIdParameter:
@@ -153,10 +152,10 @@ Resources:
           - !Ref RootDomainParameter
           - !Sub '*.${RootDomainParameter}' # Wildcard subdomain necessary to allow subtenants under tenant
         Comment: !Sub '${AWS::StackName}-${TenantKeyParameter}'
-        Logging:
-          Bucket: !Sub '${CDNLogBucketNameParameter}.s3.${AWS::Region}.amazonaws.com'
-          IncludeCookies: false 
-          Prefix: !Sub '${TenantKeyParameter}/'
+        # Logging:
+        #   Bucket: !Sub '${CDNLogBucketNameParameter}.s3.${AWS::Region}.amazonaws.com'
+        #   IncludeCookies: false 
+        #   Prefix: !Sub '${TenantKeyParameter}/'
 
         Enabled: true
         HttpVersion: 'http2'
@@ -173,7 +172,7 @@ Resources:
           # API path pattern. The RequestFunction handles all Origin Routing.
           TargetOriginId: TenancyAssetsOrigin
           ViewerProtocolPolicy: 'https-only'
-          CachePolicyId: !Ref CachePolicyIdParameter
+          CachePolicyId: !Ref CacheByHeaderPolicyIdParameter
           OriginRequestPolicyId: !Ref OriginRequestPolicyIdParameter
           ResponseHeadersPolicyId: !GetAtt ResponseHeadersPolicy.Id
           FunctionAssociations:

@@ -118,6 +118,7 @@ Resources:
                 const request = event.request;
                 const headers = request.headers;
                 const origin = headers.origin && headers.origin.value;
+                const originalUri = request.uri;
 
                 // Helper function for error responses
                 const err = (code, msg) => ({statusCode: code, statusDescription: code === 404 ? 'Not Found' : 'Error', body: msg});
