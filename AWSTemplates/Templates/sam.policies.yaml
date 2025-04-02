@@ -118,17 +118,15 @@ Resources:
                 const request = event.request;
                 const headers = request.headers;
                 const origin = headers.origin && headers.origin.value;
+                const originalUri = request.uri;
+                const originalDomain = headers.host.value;
+                if(!request.uri) request.uri = '/';
 
                 // Helper function for error responses
                 const err = (code, msg) => ({statusCode: code, statusDescription: code === 404 ? 'Not Found' : 'Error', body: msg});
 
                 // Get config
                 let config = await GetConfig(headers.host.value);
-                if(config.redirecthost) {
-                    headers.host.value = config.redirecthost;
-                    request.uri = config.redirecturi;
-                    config = await GetConfig(headers.host.value);
-                }
 
                 // Handle preflight requests
                 if (config.env === 'dev' && request.method === 'OPTIONS' && origin && 
@@ -151,25 +149,39 @@ Resources:
                 const tenantKey = config.tenantKey || '';
                 const subtenantKey = config.subtenantKey || '';
 
-
                 // Find matching behavior
                 let behavior = null;
+                let redirectPath = null;
                 if(config.behaviors) {
                     // Create flattened behavior reference array with prefixes
                     const behaviorsRef = [];
                     config.behaviors.forEach((b, i) => {
-                        b[0].split(',').forEach(prefix => behaviorsRef.push([prefix, i]));
+                        const paths = b[0].split(',');
+                        paths.forEach((prefix,p) => {
+                            const redirectPath = (p !== 0 ? paths[0] : null);
+                            behaviorsRef.push([prefix, i, redirectPath]);
+                        });
                     });
 
                     // Sort by path length (longest first) and find first match
                     behaviorsRef.sort((a, b) => b[0].length - a[0].length);
+
                     for(let i = 0; i < behaviorsRef.length; i++) {
                         if (request.uri.startsWith(behaviorsRef[i][0])) {
+                            redirectPath = behaviorsRef[i][2];
                             behavior = config.behaviors[behaviorsRef[i][1]];
                             break;                
                         }            
                     }
                 }   
+
+                if(redirectPath) {
+                    return {
+                        statusCode: 302,
+                        statusDescription: 'Found',
+                        headers: {location: {value: redirectPath}}
+                    };
+                }
 
                 if(!behavior) return err(404, 'No path match');
 
@@ -231,11 +243,18 @@ Resources:
                     request.uri = secondSlash > 0 ? request.uri.slice(secondSlash) : '/';
                 }
 
+                const cacheKeyValue = assetName + '-' + originPath + '-' + request.uri;
                 if(addCacheHeader) {
-                    headers['x-custom-cache-key'] = {value: assetName + '-' + request.uri};
+                    headers['x-custom-cache-key'] = {value: cacheKeyValue};
+                }
+        
+
+                if(request.uri === '/') {
+                    headers['referrer'] = {value: originalDomain + '/sets'};
                 }
 
-                //console.log("request: " + headers.host.value + request.uri + ", redirect: " + assetName + originPath + request.uri);
+
+                // console.log("request: " + originalDomain + originalUri + ", redirect: " + assetName + originPath + request.uri + " cachekey: " + cacheKeyValue);
 
                 cf.updateRequestOrigin({
                     "domainName": assetName,
