@@ -127,6 +127,7 @@ Resources:
 
                 // Get config
                 let config = await GetConfig(headers.host.value);
+                const configJson = JSON.stringify(config);  
 
                 // Handle preflight requests
                 if (config.env === 'dev' && request.method === 'OPTIONS' && origin && 
