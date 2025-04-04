@@ -22,7 +22,7 @@ public partial class PetRepo : DYDBRepository<Pet>, IPetRepo
     public PetRepo(IAmazonDynamoDB client, ICategoryRepo categoryRepo, ITagRepo tagRepo) : base(client) { 
         this.tagRepo = tagRepo; 
         this.categoryRepo = categoryRepo;
-        UseNotifications = true;
+        UseNotifications = false;
         NotificationsSqsQueue = "notifications";
     }
 

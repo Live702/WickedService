@@ -2,7 +2,8 @@
 
 public partial class StoreModuleController 
 {
-    public async Task<ActionResult<Pet>> UpdatePet([FromBody] Pet body)
+
+    public override async Task<ActionResult<Pet>> UpdatePet([FromBody] Pet body)
     {
 
         if (!ModelState.IsValid)
