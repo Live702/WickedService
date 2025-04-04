@@ -43,7 +43,7 @@ public partial class PetRepo : DYDBRepository<Pet>, IPetRepo
         var categories = (List<Category>)categoriesResult!.Value!;
 
         var tagResult = await tagRepo.ListAsync(callerInfo);
-        var tags = (List<string>)tagResult!.Value!;
+        var tags = (List<Tag>)tagResult!.Value!;
 
         var pets = new List<Pet>();
         var maxPets = numPets;
@@ -60,7 +60,7 @@ public partial class PetRepo : DYDBRepository<Pet>, IPetRepo
                 string tag = "";
                 do
                 {
-                    tag = tags[randomTag.Next(0, tags.Count)];
+                    tag = tags[randomTag.Next(0, tags.Count)].Name;
                 } while (petTags.Contains(tag));
 
                 petTags.Add(tag);
