@@ -60,6 +60,58 @@ namespace PublicModule
         Task<ActionResult<System.Collections.Generic.ICollection<Tag>>> GetPetTags();
 
         /// <summary>
+        /// Update an existing message
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Message>> UpdateMessage(Message body);
+
+        /// <summary>
+        /// Create Message
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Message>> CreateMessage(Message body);
+
+        /// <summary>
+        /// List all Messages
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<System.Collections.Generic.ICollection<Message>>> ListMessages();
+
+        /// <summary>
+        /// Update an existing premise
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Premise>> UpdatePremise(Premise body);
+
+        /// <summary>
+        /// Create Premise
+        /// </summary>
+
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Premise>> CreatePremise(Premise body);
+
+        /// <summary>
+        /// List all Premises
+        /// </summary>
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<System.Collections.Generic.ICollection<Premise>>> ListPremises();
+
+        /// <summary>
         /// Find pet by ID
         /// </summary>
 
@@ -72,6 +124,26 @@ namespace PublicModule
         /// <returns>successful operation</returns>
 
         Task<ActionResult<Pet>> GetPetById(string petId);
+
+        /// <summary>
+        /// Read message b y id
+        /// </summary>
+
+        /// <param name="id">ID of pet to return</param>
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Message>> GetMessageById(string id);
+
+        /// <summary>
+        /// Read premise b y id
+        /// </summary>
+
+        /// <param name="id">ID of pet to return</param>
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Premise>> GetPremiseById(string id);
 
     }
 

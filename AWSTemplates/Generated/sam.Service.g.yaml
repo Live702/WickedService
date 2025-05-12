@@ -634,7 +634,77 @@ Resources:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
 
+          '/message':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/public/message/listMessages':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/listPremises':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
           '/public/pet/{petId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/message/{id}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/{id}':
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -750,7 +820,77 @@ Resources:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
 
+          '/message':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/public/message/listMessages':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/listPremises':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
           '/public/pet/{petId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/message/{id}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/{id}':
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -839,7 +979,77 @@ Resources:
                   Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
                 payloadFormatVersion: 2.0
 
+          '/message':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/public/message/listMessages':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise':
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/listPremises':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
           '/public/pet/{petId}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/message/{id}':
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PublicLambda.Arn}/invocations
+                payloadFormatVersion: 2.0
+
+          '/premise/{id}':
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST

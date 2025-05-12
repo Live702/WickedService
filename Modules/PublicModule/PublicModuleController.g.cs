@@ -6,7 +6,10 @@ public partial class PublicModuleController : PublicModuleControllerBase {
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
-			IOrderRepo orderRepo
+			IOrderRepo orderRepo,
+			IBadaRepo badaRepo,
+			IMessageRepo messageRepo,
+			IPremiseRepo premiseRepo
             ) 
         {
             PublicModuleAuthorization = publicModuleAuthorization;
@@ -14,6 +17,9 @@ public partial class PublicModuleController : PublicModuleControllerBase {
 			TagRepo = tagRepo;
 			PetRepo = petRepo;
 			OrderRepo = orderRepo;
+			BadaRepo = badaRepo;
+			MessageRepo = messageRepo;
+			PremiseRepo = premiseRepo;
 
             Init();
         }

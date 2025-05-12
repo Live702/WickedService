@@ -18,6 +18,8 @@ public static partial class PublicSchemaRepoExtensions
 
         services.TryAddAWSService<Amazon.DynamoDBv2.IAmazonDynamoDB>();
 		services.TryAddSingleton<IBadaRepo, BadaRepo>();
+		services.TryAddSingleton<IMessageRepo, MessageRepo>();
+		services.TryAddSingleton<IPremiseRepo, PremiseRepo>();
 
 
         AddCustom(services);    

@@ -82,6 +82,66 @@ namespace PublicModule
             return await TagRepo.ListAsync(callerInfo);
         }
         /// <summary>
+        /// Update an existing message
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpPut, Route("message")]
+        public virtual async Task<ActionResult<Message>> UpdateMessage([FromBody] Message body)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await MessageRepo.UpdateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// Create Message
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpPost, Route("message")]
+        public virtual async Task<ActionResult<Message>> CreateMessage([FromBody] Message body)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await MessageRepo.CreateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// List all Messages
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpGet, Route("public/message/listMessages")]
+        public virtual async Task<ActionResult<System.Collections.Generic.ICollection<Message>>> ListMessages()
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await MessageRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
+        /// Update an existing premise
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpPut, Route("premise")]
+        public virtual async Task<ActionResult<Premise>> UpdatePremise([FromBody] Premise body)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await PremiseRepo.UpdateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// Create Premise
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpPost, Route("premise")]
+        public virtual async Task<ActionResult<Premise>> CreatePremise([FromBody] Premise body)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await PremiseRepo.CreateAsync(callerInfo, body);
+        }
+        /// <summary>
+        /// List all Premises
+        /// </summary>
+        /// <returns>successful operation</returns>
+        [HttpGet, Route("premise/listPremises")]
+        public virtual async Task<ActionResult<System.Collections.Generic.ICollection<Premise>>> ListPremises()
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await PremiseRepo.ListAsync(callerInfo);
+        }
+        /// <summary>
         /// Find pet by ID
         /// </summary>
         /// <remarks>
@@ -95,11 +155,36 @@ namespace PublicModule
             var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
             return await PetRepo.ReadAsync(callerInfo, petId);
         }
+        /// <summary>
+        /// Read message b y id
+        /// </summary>
+        /// <param name="id">ID of pet to return</param>
+        /// <returns>successful operation</returns>
+        [HttpGet, Route("message/{id}")]
+        public virtual async Task<ActionResult<Message>> GetMessageById(string id)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await MessageRepo.ReadAsync(callerInfo, callerInfo.LzUserId);
+        }
+        /// <summary>
+        /// Read premise b y id
+        /// </summary>
+        /// <param name="id">ID of pet to return</param>
+        /// <returns>successful operation</returns>
+        [HttpGet, Route("premise/{id}")]
+        public virtual async Task<ActionResult<Premise>> GetPremiseById(string id)
+        {
+            var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await PremiseRepo.ReadAsync(callerInfo, callerInfo.LzUserId);
+        }
 		public IPublicModuleAuthorization PublicModuleAuthorization { get; set; }
 		public ICategoryRepo CategoryRepo { get; set; }
 		public ITagRepo TagRepo { get; set; }
 		public IPetRepo PetRepo { get; set; }
 		public IOrderRepo OrderRepo { get; set; }
+		public IBadaRepo BadaRepo { get; set; }
+		public IMessageRepo MessageRepo { get; set; }
+		public IPremiseRepo PremiseRepo { get; set; }
 		protected virtual void Init() { }
     }
 

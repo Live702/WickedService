@@ -33,4 +33,4 @@ components:
           format: int64
         updateUtcTick:
           type: integer
-          format: int64            
+          format: int64
