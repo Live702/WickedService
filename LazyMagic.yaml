@@ -237,7 +237,7 @@ Directives:
     - ConsumerApi
     - PublicApi
 
-  ConsumerApp:
+  WickedApp:
     Type: WebApp
     Defaults: WebAppDefault
     Path: app
@@ -252,5 +252,5 @@ Directives:
     WebApps:
     - AdminApp
     - StoreApp
-    - ConsumerApp
+    - WickedApp
 
