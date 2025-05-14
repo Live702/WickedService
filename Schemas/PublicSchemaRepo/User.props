@@ -1,1 +1,6 @@
-<Project></Project>
+<Project>
+	<!-- This file contains project properties unique to your implementation. -->
+	<ItemGroup>
+		<PackageReference Include="AWSSDK.BedrockRuntime" />
+	</ItemGroup>
+</Project>

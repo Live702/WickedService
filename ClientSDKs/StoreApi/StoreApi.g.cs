@@ -2278,8 +2278,8 @@ namespace StoreApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "StoreApi/public/message/listMessages"
-                    urlBuilder_.Append("StoreApi/public/message/listMessages");
+                    // Operation Path: "StoreApi/message/listMessages"
+                    urlBuilder_.Append("StoreApi/message/listMessages");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

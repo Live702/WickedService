@@ -28,3 +28,4 @@
               - sts:AssumeRole
       ManagedPolicyArns:
 __ManagedPolicyArns__
+
