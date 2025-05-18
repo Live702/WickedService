@@ -1184,8 +1184,8 @@ namespace ConsumerApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "ConsumerApi/public/message/listMessages"
-                    urlBuilder_.Append("ConsumerApi/public/message/listMessages");
+                    // Operation Path: "ConsumerApi/message/listMessages"
+                    urlBuilder_.Append("ConsumerApi/message/listMessages");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

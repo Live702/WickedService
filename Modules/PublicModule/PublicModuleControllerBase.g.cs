@@ -105,7 +105,7 @@ namespace PublicModule
         /// List all Messages
         /// </summary>
         /// <returns>successful operation</returns>
-        [HttpGet, Route("public/message/listMessages")]
+        [HttpGet, Route("message/listMessages")]
         public virtual async Task<ActionResult<System.Collections.Generic.ICollection<Message>>> ListMessages()
         {
             var callerInfo = await PublicModuleAuthorization.GetCallerInfoAsync(this.Request);

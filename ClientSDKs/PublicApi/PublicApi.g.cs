@@ -982,8 +982,8 @@ namespace PublicApi
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "PublicApi/public/message/listMessages"
-                    urlBuilder_.Append("PublicApi/public/message/listMessages");
+                    // Operation Path: "PublicApi/message/listMessages"
+                    urlBuilder_.Append("PublicApi/message/listMessages");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

@@ -158,6 +158,12 @@ Directives:
     Defaults: AwsApiLambdaContainerDefault
     Modules:
     - PublicModule
+    Artifacts:
+      AwsApiLambdaResource: # AWS SAM template resource for the Lambda function
+        ManagedPolicyArns:
+        # You can further restict permissions using the Perms stack but 
+        # generally the admin module has full access to most services.
+        - arn:aws:iam::aws:policy/AmazonBedrockFullAccess
 
   # APIS - API Gateways that proxy requests to containers
   AdminApi:

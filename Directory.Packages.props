@@ -15,7 +15,8 @@
     <PackageVersion Include="Amazon.Lambda.Serialization.Json" Version="2.2.4" />
     <PackageVersion Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
     <PackageVersion Include="AWSSDK.ApiGatewayManagementApi" Version="3.7.400.64" />
-    <PackageVersion Include="AWSSDK.CognitoIdentityProvider" Version="3.7.407.1" />
+	<PackageVersion Include="AWSSDK.BedrockRuntime" Version="3.7.301.36" />
+	<PackageVersion Include="AWSSDK.CognitoIdentityProvider" Version="3.7.407.1" />
     <PackageVersion Include="AWSSDK.CloudFront" Version="3.7.404.41" />
     <PackageVersion Include="AWSSDK.CloudFrontKeyValueStore" Version="3.7.400.106" />
     <PackageVersion Include="AWSSDK.Core" Version="3.7.400.59" />
