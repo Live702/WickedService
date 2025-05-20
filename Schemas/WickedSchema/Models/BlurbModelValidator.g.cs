@@ -8,16 +8,16 @@
 // </auto-generated>
 //----------------------
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-public partial class MessageModelValidator : FluentValidation.AbstractValidator<MessageModel>
+public partial class BlurbModelValidator : FluentValidation.AbstractValidator<BlurbModel>
 {
-    public MessageModelValidator()
+    public BlurbModelValidator()
     {
-        Include(new MessageValidator());
+        Include(new BlurbValidator());
         CustomValidation();
     }
     partial void CustomValidation();

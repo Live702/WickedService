@@ -5,6 +5,6 @@
 // to add additional global usings.
 global using LazyMagic.Shared;
 
+global using WickedSchema;
 global using SharedSchema;
 global using StoreSchema;
-global using PublicSchema;

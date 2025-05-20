@@ -8,12 +8,12 @@
 // </auto-generated>
 //----------------------
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     
 
-public partial class PremiseValidator : FluentValidation.AbstractValidator<Premise>
+public partial class MessageValidator : FluentValidation.AbstractValidator<Message>
 {
 }
 

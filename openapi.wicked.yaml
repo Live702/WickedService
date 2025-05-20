@@ -1,0 +1,570 @@
+openapi: 3.0.1
+paths:
+  # Blurb CRUDL Operations
+  '/blurb/{blurbId}':
+    # Read
+    get:
+      summary: Read blurb by ID
+      description: Returns a single blurb
+      operationId: readBlurbById
+      x-lz-gencall: BlurbRepo.ReadAsync(callerInfo, blurbId)
+      parameters:
+      - name: blurbId
+        in: path
+        description: ID of blurb to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blurb'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Blurb not found
+    # Delete
+    delete:
+      summary: Deletes a blurb
+      operationId: deleteBlurb
+      x-lz-gencall: BlurbRepo.DeleteAsync(callerInfo, blurbId)    
+      parameters:
+      - name: blurbId
+        in: path
+        description: Blurb id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Blurb not found
+  
+  '/blurb':
+    # Create
+    post:
+      summary: Add a new blurb to the store
+      operationId: createBlurb
+      x-lz-gencall: BlurbRepo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blurb'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blurb'
+        '405':
+          description: Invalid input
+    # Update
+    put:
+      summary: Update an existing blurb
+      operationId: updateBlurb
+      x-lz-gencall: BlurbRepo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blurb'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blurb'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Blurb not found
+        '405':
+          description: Validation exception
+
+  '/blurb/listBlurbs':
+    # List
+    get:
+      summary: List all blurbs 
+      operationId: listBlurbs 
+      x-lz-gencall: BlurbRepo.ListAsync(callerInfo) 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blurb'
+        '400':
+          description: Invalid status value
+          
+  '/blurb/ListByStatus':
+    # ListBy
+    get:
+      summary: List Blurbs by status
+      description: Status
+      operationId: listBlurbsByStatus
+      x-lz-gencall: BlurbRepo.ListBlurbsByStatusAsync(callerInfo, blurbStatus)
+      parameters:
+      - name: blurbStatus
+        in: query
+        description: Status value
+        required: true
+        schema:
+          type: string      
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blurb'
+        '400':
+          description: Invalid status value
+
+# Message CRUDL Operations
+  '/message/{messageId}':
+    # Read
+    get:
+      summary: Read message by ID
+      description: Returns a single message
+      operationId: readMessageById
+      x-lz-gencall: MessageRepo.ReadAsync(callerInfo, messageId)
+      parameters:
+      - name: messageId
+        in: path
+        description: ID of message to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message not found
+    # Delete
+    delete:
+      summary: Deletes a message
+      operationId: deleteMessage
+      x-lz-gencall: MessageRepo.DeleteAsync(callerInfo, messageId)    
+      parameters:
+      - name: messageId
+        in: path
+        description: Message id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message not found
+  
+  '/message':
+    # Create
+    post:
+      summary: Add a new message to the store
+      operationId: createMessage
+      x-lz-gencall: MessageRepo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '405':
+          description: Invalid input
+    # Update
+    put:
+      summary: Update an existing message
+      operationId: updateMessage
+      x-lz-gencall: MessageRepo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Message not found
+        '405':
+          description: Validation exception
+         
+  '/message/ListByChatId/{chatId}':
+    # ListBy
+    get:
+      summary: List Messages by ChatId
+      description: Lists messages by chatId
+      operationId: listMessagesByChatId
+      x-lz-gencall: MessageRepo.ListMessagesByChatIdAsync(callerInfo, chatId)
+      parameters:
+      - name: chatId
+        in: query
+        description: ChatId message belongs to
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid status value
+
+# Premise CRUDL Operations
+  '/premise/{premiseId}':
+    # Read
+    get:
+      summary: Read premise by ID
+      description: Returns a single premise
+      operationId: readPremiseById
+      x-lz-gencall: PremiseRepo.ReadAsync(callerInfo, premiseId)
+      parameters:
+      - name: premiseId
+        in: path
+        description: ID of premise to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Premise'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Premise not found
+    # Delete
+    delete:
+      summary: Deletes a premise
+      operationId: deletePremise
+      x-lz-gencall: PremiseRepo.DeleteAsync(callerInfo, premiseId)    
+      parameters:
+      - name: premiseId
+        in: path
+        description: Premise id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Premise not found
+  
+  '/premise':
+    # Create
+    post:
+      summary: Add a new premise to the store
+      operationId: createPremise
+      x-lz-gencall: PremiseRepo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Premise'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Premise'
+        '405':
+          description: Invalid input
+    # Update
+    put:
+      summary: Update an existing premise
+      operationId: updatePremise
+      x-lz-gencall: PremiseRepo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Premise'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Premise'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Premise not found
+        '405':
+          description: Validation exception
+          
+  '/premise/listByBlurbId/{blurbId}':
+    # ListBy
+    get:
+      summary: List Premises by blurbId
+      description: List Premiess by blurbId
+      operationId: listPremisesByBlurbId
+      x-lz-gencall: PremiseRepo.ListPremisesByBlurbIdAsync(callerInfo, blurbId)
+      parameters:
+      - name: blurbId
+        in: query
+        description: BlurbId the premise belongs to
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Premise'
+        '400':
+          description: Invalid blurbId value
+
+# Chat CRUDL Operations
+  '/chat/{chatId}':
+    # Read
+    get:
+      summary: Read chat by ID
+      description: Returns a single chat
+      operationId: readChatById
+      x-lz-gencall: ChatRepo.ReadAsync(callerInfo, chatId)
+      parameters:
+      - name: chatId
+        in: path
+        description: ID of chat to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Chat not found
+    # Delete
+    delete:
+      summary: Deletes a chat
+      operationId: deleteChat
+      x-lz-gencall: ChatRepo.DeleteAsync(callerInfo, chatId)    
+      parameters:
+      - name: chatId
+        in: path
+        description: Chat id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Chat not found
+  
+  '/chat':
+    # Create
+    post:
+      summary: Add a new chat to the store
+      operationId: createChat
+      x-lz-gencall: ChatRepo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '405':
+          description: Invalid input
+    # Update
+    put:
+      summary: Update an existing chat
+      operationId: updateChat
+      x-lz-gencall: ChatRepo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Chat not found
+        '405':
+          description: Validation exception
+         
+  '/chat/listByBlurbId/{blurbId}':
+    # ListBy
+    get:
+      summary: List Chats by blurbId
+      description: blurbId value chat belongs to
+      operationId: listChatsByBlurbId
+      x-lz-gencall: ChatRepo.ListChatsByBlurbIdAsync(callerInfo, blurbId)
+      parameters:
+      - name: blurbId
+        in: query
+        description: BlurbId chat belongs to
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chat'
+        '400':
+          description: Invalid blurbId value
+
+  '/chat/listByPremiseId/{premiseId}':
+    # ListBy
+    get:
+      summary: List Chats by premiseId
+      description: premiseId value chat belongs to
+      operationId: listChatsByPremiseId
+      x-lz-gencall: ChatRepo.ListChatsByPremiseIdAsync(callerInfo, premiseId)
+      parameters:
+      - name: premiseId
+        in: query
+        description: PremiseId chat belongs to
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chat'
+        '400':
+          description: Invalid premiseId value
+
+components:
+  schemas:
+    Blurb:
+      type: object
+      x-lz-genrepo: true
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Message:
+      type: object
+      properties:
+        id:
+          type: string  
+        blurbId:
+          type: string
+        premiseId:
+          type: string
+        body:
+          type: string
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+    Premise:
+      type: object
+      properties:
+        id:
+          type: string  
+        blurbId:
+          type: string
+        body:
+          type: string
+        createUtcTick: 
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64  
+    Chat:
+      type: object
+      properties:
+        id:
+          type: string  
+        blurbId:
+          type: string
+        premiseId:
+          type: string  
+        body:
+          type: string
+        createUtcTick: 
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64  
+          

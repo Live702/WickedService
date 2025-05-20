@@ -9,5 +9,6 @@ public partial class Startup
 		services.AddStoreModule();
 		services.AddConsumerModule();
 		services.AddPublicModule();
+		services.AddWickedModule();
     }
 }

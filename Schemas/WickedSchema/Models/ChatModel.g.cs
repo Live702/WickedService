@@ -8,12 +8,12 @@
 // </auto-generated>
 //----------------------
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     
 
-public partial class PremiseModel : Premise,IRegisterObservables
+public partial class ChatModel : Chat,IRegisterObservables
 {
 }
 

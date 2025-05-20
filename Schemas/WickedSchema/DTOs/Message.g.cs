@@ -16,14 +16,15 @@
 #pragma warning disable 1591 // Disable "CS1591 Missing XML comment for publicly visible type or member ..."
 #pragma warning disable 8073 // Disable "CS8073 The result of the expression is always 'false' since a value of type 'T' is never equal to 'null' of type 'T?'"
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.3.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.3.0))")]
     public partial class Message : System.ComponentModel.INotifyPropertyChanged,IItem    {
         private string _id;
-        private string _body;
+        private string _blurbId;
         private string _premiseId;
+        private string _body;
         private long _createUtcTick;
         private long _updateUtcTick;
 
@@ -42,16 +43,16 @@ namespace PublicSchema
             }
         }
 
-        [Newtonsoft.Json.JsonProperty("body", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Body
+        [Newtonsoft.Json.JsonProperty("blurbId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string BlurbId
         {
-            get { return _body; }
+            get { return _blurbId; }
 
             set
             {
-                if (_body != value)
+                if (_blurbId != value)
                 {
-                    _body = value;
+                    _blurbId = value;
                     RaisePropertyChanged();
                 }
             }
@@ -67,6 +68,21 @@ namespace PublicSchema
                 if (_premiseId != value)
                 {
                     _premiseId = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty("body", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Body
+        {
+            get { return _body; }
+
+            set
+            {
+                if (_body != value)
+                {
+                    _body = value;
                     RaisePropertyChanged();
                 }
             }

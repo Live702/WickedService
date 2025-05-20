@@ -6,5 +6,6 @@ public partial class Startup
     public void ConfigureSvcs(IServiceCollection services)
     {
         services.AddPublicModule();
+		services.AddWickedModule();
     }
 }

@@ -1,0 +1,144 @@
+  # This is a template for CRUD operations in OpenAPI 3.0
+  # Replace the following targets 
+  # _obj_ with the name of your object with lowercase first letter
+  # _Obj_ with the name of your object with uppercase first letter
+  # _api_ with the name of your API prefix. Include the /
+  #     example: /MyAPI or "" for no prefix
+  # _listBy_ with the name of your listBy property with lowercase first letter
+  # _ListBy_ with the name of your ListBy property with uppercase first letter
+  
+
+  # _Obj_ CRUDL Operations
+  '_api_/_obj_/{_obj_Id}':
+    # Read
+    get:
+      summary: Find _obj_ by ID
+      description: Returns a single _obj_
+      operationId: read_Obj_ById
+      x-lz-gencall: _Obj_Repo.ReadAsync(callerInfo, _obj_Id)
+      parameters:
+      - name: _obj_Id
+        in: path
+        description: ID of _obj_ to return
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_Obj_'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: _Obj_ not found
+    # Delete
+    delete:
+      summary: Deletes a _obj_
+      operationId: delete_Obj_
+      x-lz-gencall: _Obj_Repo.DeleteAsync(callerInfo, _obj_Id)    
+      parameters:
+      - name: _obj_Id
+        in: path
+        description: _Obj_ id to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: _Obj_ not found
+  
+  '_api_/_obj_':
+    # Create
+    post:
+      summary: Add a new _obj_ to the store
+      operationId: create_Obj_
+      x-lz-gencall: _Obj_Repo.CreateAsync(callerInfo, body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_Obj_'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_Obj_'
+        '405':
+          description: Invalid input
+    # Update
+    put:
+      summary: Update an existing _obj_
+      operationId: update_Obj_
+      x-lz-gencall: _Obj_Repo.UpdateAsync(callerInfo, body)   
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_Obj_'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_Obj_'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: _Obj_ not found
+        '405':
+          description: Validation exception
+
+  '_api_/_obj_/list_Obj_s':
+    # List
+    get:
+      summary: List all _obj_s 
+      operationId: list_Obj_s 
+      x-lz-gencall: _Obj_Repo.ListAsync(callerInfo) 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/_Obj_'
+        '400':
+          description: Invalid status value
+          
+  '_api_/_obj_/listBy_ListBy_/{_obj__listBy_}':
+    # ListBy
+    get:
+      summary: List _Obj_s by __listBy_ property
+      description: List by status
+      operationId: list_Obj_s_ListBy_
+      x-lz-gencall: _obj_Repo.List_Obj_sBy_listBy_Async(callerInfo, _obj__listBy_)
+      parameters:
+      - name: _obj__listBy_
+        in: query
+        description: _ListBy_ property to filter by
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/_Obj_'
+        '400':
+          description: Invalid status value
+

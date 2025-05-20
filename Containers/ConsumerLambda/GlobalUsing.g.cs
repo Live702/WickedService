@@ -6,6 +6,8 @@
 
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Serialization;
+global using WickedSchema;
+global using WickedSchemaRepo;
 global using ConsumerSchema;
 global using ConsumerSchemaRepo;
 global using SharedSchema;

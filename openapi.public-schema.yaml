@@ -9,31 +9,4 @@ components:
           type: string
         name:
           type: string    
-    Message:
-      type: object
-      properties:
-        id:
-          type: string  
-        body:
-          type: string
-        premiseId:
-          type: string
-        createUtcTick:
-          type: integer
-          format: int64
-        updateUtcTick:
-          type: integer
-          format: int64
-    Premise:
-      type: object
-      properties:
-        id:
-          type: string  
-        body:
-          type: string
-        createUtcTick: 
-          type: integer
-          format: int64
-        updateUtcTick:
-          type: integer
-          format: int64  
+

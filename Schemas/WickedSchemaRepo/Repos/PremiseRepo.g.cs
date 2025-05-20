@@ -5,9 +5,9 @@
 //  See the README.g.md file for best practices for extending these generated classes.
 // </auto-generated>
 //----------------------
-namespace PublicSchemaRepo;
-public partial interface IMessageRepo : IDocumentRepo<Message> {}
-public partial class MessageRepo : DYDBRepository<Message>, IMessageRepo
+namespace WickedSchemaRepo;
+public partial interface IPremiseRepo : IDocumentRepo<Premise> {}
+public partial class PremiseRepo : DYDBRepository<Premise>, IPremiseRepo
 {
-    public MessageRepo(IAmazonDynamoDB client) : base(client) {}
+    public PremiseRepo(IAmazonDynamoDB client) : base(client) {}
 }

@@ -8,7 +8,7 @@
 // </auto-generated>
 //----------------------
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     

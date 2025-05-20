@@ -64,6 +64,12 @@ Directives:
 
 # Application Directives
 
+  WickedSchema:
+    Type: Schema
+    Defaults: SchemaDefault
+    OpenApiSpecs:
+    - openapi.wicked.yaml
+
   ConsumerSchema:
     Type: Schema
     Defaults: SchemaDefault
@@ -94,6 +100,8 @@ Directives:
     OpenApiSpecs:
     - openapi.public-schema.yaml
 
+
+
   # MODULES - libraries handling paths
  
   AdminModule:
@@ -119,6 +127,12 @@ Directives:
     Defaults: ModuleDefault
     OpenApiSpecs:
     - openapi.public.yaml
+  
+  WickedModule: 
+    Type: Module 
+    Defaults: ModuleDefault
+    OpenApiSpecs:
+    - openapi.wicked.yaml
 
   # CONTAINERS - executables
  
@@ -158,6 +172,7 @@ Directives:
     Defaults: AwsApiLambdaContainerDefault
     Modules:
     - PublicModule
+    - WickedModule 
 
   # APIS - API Gateways that proxy requests to containers
   AdminApi:

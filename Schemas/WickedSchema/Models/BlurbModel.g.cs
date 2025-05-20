@@ -8,12 +8,12 @@
 // </auto-generated>
 //----------------------
 
-namespace PublicSchema
+namespace WickedSchema
 {
     using System = global::System;
     
 
-public partial class MessageModel : Message,IRegisterObservables
+public partial class BlurbModel : Blurb,IRegisterObservables
 {
 }
 
