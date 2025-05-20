@@ -122,7 +122,7 @@
       summary: List _Obj_s by __listBy_ property
       description: List by status
       operationId: list_Obj_s_ListBy_
-      x-lz-gencall: _obj_Repo.List_Obj_sBy_listBy_Async(callerInfo, _obj__listBy_)
+      x-lz-gencall: _Obj_Repo.List_Obj_sBy_listBy_Async(callerInfo, _obj__listBy_)
       parameters:
       - name: _obj__listBy_
         in: query
