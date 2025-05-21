@@ -1,5 +1,22 @@
 openapi: 3.0.1
 paths:
+  '/blurb/seed':
+    get:
+      summary: seed blurb for test
+      description: create blrub with chat
+      operationId: seedBlurb
+      x-lz-gencall: BlurbRepo.SeedBlurbAsync(callerInfo)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blurb'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Blurb not found
   # Blurb CRUDL Operations
   '/blurb/{blurbId}':
     # Read
@@ -518,6 +535,12 @@ components:
           type: string
         name:
           type: string
+        createUtcTick:
+          type: integer
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
     Message:
       type: object
       properties:

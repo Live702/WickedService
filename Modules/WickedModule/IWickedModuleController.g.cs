@@ -8,6 +8,18 @@ namespace WickedModule
     {
 
         /// <summary>
+        /// seed blurb for test
+        /// </summary>
+
+        /// <remarks>
+        /// create blrub with chat
+        /// </remarks>
+
+        /// <returns>successful operation</returns>
+
+        Task<ActionResult<Blurb>> SeedBlurb();
+
+        /// <summary>
         /// Add a new blurb to the store
         /// </summary>
 

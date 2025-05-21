@@ -26,6 +26,19 @@ namespace WickedModule
     {
 
         /// <summary>
+        /// seed blurb for test
+        /// </summary>
+        /// <remarks>
+        /// create blrub with chat
+        /// </remarks>
+        /// <returns>successful operation</returns>
+        [HttpGet, Route("blurb/seed")]
+        public virtual async Task<ActionResult<Blurb>> SeedBlurb()
+        {
+            var callerInfo = await WickedModuleAuthorization.GetCallerInfoAsync(this.Request);
+            return await BlurbRepo.SeedBlurbAsync(callerInfo);
+        }
+        /// <summary>
         /// Add a new blurb to the store
         /// </summary>
         /// <returns>successful operation</returns>

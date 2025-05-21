@@ -23,6 +23,8 @@ namespace WickedSchema
     public partial class Blurb : System.ComponentModel.INotifyPropertyChanged,IItem    {
         private string _id;
         private string _name;
+        private long _createUtcTick;
+        private long _updateUtcTick;
 
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Id
@@ -49,6 +51,36 @@ namespace WickedSchema
                 if (_name != value)
                 {
                     _name = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty("createUtcTick", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long CreateUtcTick
+        {
+            get { return _createUtcTick; }
+
+            set
+            {
+                if (_createUtcTick != value)
+                {
+                    _createUtcTick = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        [Newtonsoft.Json.JsonProperty("updateUtcTick", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long UpdateUtcTick
+        {
+            get { return _updateUtcTick; }
+
+            set
+            {
+                if (_updateUtcTick != value)
+                {
+                    _updateUtcTick = value;
                     RaisePropertyChanged();
                 }
             }
