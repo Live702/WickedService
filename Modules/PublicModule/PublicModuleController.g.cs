@@ -3,10 +3,6 @@ namespace PublicModule;
 public partial class PublicModuleController : PublicModuleControllerBase {
         public PublicModuleController(
             IPublicModuleAuthorization publicModuleAuthorization,
-			IBlurbRepo blurbRepo,
-			IMessageRepo messageRepo,
-			IPremiseRepo premiseRepo,
-			IChatRepo chatRepo,
 			ICategoryRepo categoryRepo,
 			ITagRepo tagRepo,
 			IPetRepo petRepo,
@@ -14,10 +10,6 @@ public partial class PublicModuleController : PublicModuleControllerBase {
             ) 
         {
             PublicModuleAuthorization = publicModuleAuthorization;
-			BlurbRepo = blurbRepo;
-			MessageRepo = messageRepo;
-			PremiseRepo = premiseRepo;
-			ChatRepo = chatRepo;
 			CategoryRepo = categoryRepo;
 			TagRepo = tagRepo;
 			PetRepo = petRepo;

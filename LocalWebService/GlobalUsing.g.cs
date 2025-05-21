@@ -17,8 +17,6 @@ global using Microsoft.Extensions.Logging.Console;
 global using Microsoft.Extensions.Logging.Debug;
 global using LazyMagic.Service;
 
-global using WickedSchema;
-global using WickedSchemaRepo;
 global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
@@ -31,4 +29,6 @@ global using ConsumerSchema;
 global using ConsumerSchemaRepo;
 global using ConsumerModule;
 global using PublicModule;
+global using WickedSchema;
+global using WickedSchemaRepo;
 global using WickedModule;

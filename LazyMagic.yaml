@@ -240,8 +240,6 @@ Directives:
     Apis:
     - AdminApi
     - StoreApi
-    - ConsumerApi
-    - PublicApi
 
   StoreApp:
     Type: WebApp

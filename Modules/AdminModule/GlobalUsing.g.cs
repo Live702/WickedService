@@ -10,8 +10,6 @@ global using System.Threading.Tasks;
 global using Microsoft.AspNetCore.Mvc;
 
 
-global using WickedSchema;
-global using WickedSchemaRepo;
 global using SharedSchema;
 global using SharedSchemaRepo;
 global using StoreSchema;
