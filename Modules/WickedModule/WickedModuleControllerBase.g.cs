@@ -66,7 +66,8 @@ namespace WickedModule
         public virtual async Task<ActionResult<System.Collections.Generic.ICollection<Blurb>>> ListBlurbs()
         {
             var callerInfo = await WickedModuleAuthorization.GetCallerInfoAsync(this.Request);
-            return await BlurbRepo.ListAsync(callerInfo);
+            var result = await BlurbRepo.ListAsync(callerInfo);
+            return result;
         }
         /// <summary>
         /// List Blurbs by status

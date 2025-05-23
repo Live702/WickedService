@@ -32,18 +32,29 @@ public partial class BlurbRepo
     }
     public async Task<ObjectResult> SeedBlurbAsync(ICallerInfo callerInfo)
     {
-        var blurb = new Blurb
+        try
         {
-            Id = "TestBlurb"
-        };
+            var blurb = new Blurb
+            {
+                Id = "TestBlurb",
+                Name= "Test Blurb"
+            };
 
-        var result = await UpdateCreateAsync(callerInfo, blurb);
-        var chat = new Chat
+            var result = await CreateAsync(callerInfo, blurb);
+            var chat = new Chat
+            {
+                Id = "TestChat",
+                BlurbId = blurb.Id
+            };
+            var chatResult = await chatRepo.CreateAsync(callerInfo, chat);
+            return new ObjectResult(blurb);
+        } catch (Exception ex)
         {
-            Id = "TestChat",
-            BlurbId = blurb.Id
-        };
-        var chatResult = await chatRepo.UpdateCreateAsync(callerInfo, chat);
-        return new ObjectResult(blurb);
+            return new ObjectResult(new { error = ex.Message })
+            {
+                StatusCode = 500
+            };
+        }
+
     }
 }
