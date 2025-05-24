@@ -1,5 +1,8 @@
 ﻿using Amazon.DynamoDBv2.Model;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WickedSchemaRepo;
 
@@ -9,6 +12,14 @@ public partial interface IChatRepo : IDocumentRepo<Chat> {
 }
 public partial class ChatRepo
 {
+    [ActivatorUtilitiesConstructor]
+    public ChatRepo(
+        IAmazonDynamoDB client,
+        IMessageRepo messageRepo
+        ) : base(client) {
+        this.messageRepo = messageRepo;
+    }
+    private IMessageRepo messageRepo;
     protected override void AssignEntityAttributes(ICallerInfo callerInfo, JObject jobjectData, Dictionary<string, AttributeValue> dbrecord, long now)
     {
         base.AssignEntityAttributes(callerInfo, jobjectData, dbrecord, now);
@@ -30,6 +41,38 @@ public partial class ChatRepo
     public async Task<ObjectResult> ListChatsByPremiseIdAsync(ICallerInfo callerInfo, string premiseId, int limit = 0)
     {
         return await ListAsync(callerInfo, "SK2", premiseId, limit);
+    }
+
+    public override async Task<StatusCodeResult> DeleteAsync(ICallerInfo callerInfo, string id)
+    {
+        try
+        {
+            // Get all Messages belonging to this Chat
+            var messagesResult = await messageRepo.ListMessagesByChatIdAsync(callerInfo, id);
+
+            // Delete all Messages belonging to this Chat
+            if (messagesResult.Value is IEnumerable<Message> messageList)
+            {
+                var messageDeleteTasks = messageList.Select(message => 
+                    messageRepo.DeleteAsync(callerInfo, message.Id)
+                ).ToList();
+                
+                if (messageDeleteTasks.Any())
+                {
+                    await Task.WhenAll(messageDeleteTasks);
+                }
+            }
+
+            // Finally, delete the Chat itself
+            return await base.DeleteAsync(callerInfo, id);
+        }
+        catch (Exception ex)
+        {
+            // Log the error and return a meaningful error response
+            // For now, we'll re-throw the exception to maintain consistent error handling
+            // In production, you might want to log this and return a specific status code
+            throw new Exception($"Failed to delete Chat and its related records: {ex.Message}", ex);
+        }
     }
 
 }

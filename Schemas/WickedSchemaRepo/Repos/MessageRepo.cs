@@ -8,7 +8,9 @@ using System.Text.Json;
 namespace WickedSchemaRepo;
 
 public partial interface IMessageRepo : IDocumentRepo<Message> { 
-    public Task<ObjectResult> ListMessagesByChatIdAsync(ICallerInfo callerInfo, string blurbId, int limit = 0); 
+    public Task<ObjectResult> ListMessagesByChatIdAsync(ICallerInfo callerInfo, string chatId, int limit = 0);
+    public Task<ObjectResult> ListMessagesByBlurbIdAsync(ICallerInfo callerInfo, string blurbId, int limit = 0);
+    public Task<ObjectResult> ListMessagesByPremiseIdAsync(ICallerInfo callerInfo, string premiseId, int limit = 0);
 }
 public partial class MessageRepo
 {
@@ -30,9 +32,19 @@ public partial class MessageRepo
     {
         base.AssignEntityAttributes(callerInfo, jobjectData, dbrecord, now);
         // Assign SK1 (ChatId) index
-        var blurbId = jobjectData["chatId"]?.ToString();
+        var chatId = jobjectData["chatId"]?.ToString();
+        if (chatId != null)
+            dbrecord.Add("SK1", new AttributeValue { S = chatId });
+        
+        // Assign SK2 (BlurbId) index
+        var blurbId = jobjectData["blurbId"]?.ToString();
         if (blurbId != null)
-            dbrecord.Add("SK1", new AttributeValue { S = blurbId });
+            dbrecord.Add("SK2", new AttributeValue { S = blurbId });
+        
+        // Assign SK3 (PremiseId) index
+        var premiseId = jobjectData["premiseId"]?.ToString();
+        if (premiseId != null)
+            dbrecord.Add("SK3", new AttributeValue { S = premiseId });
     }
 
     public override async Task<ActionResult<Message>> CreateAsync(ICallerInfo callerInfo, Message data)
@@ -194,9 +206,19 @@ public partial class MessageRepo
     }
 
 
-    public async Task<ObjectResult> ListMessagesByChatIdAsync(ICallerInfo callerInfo, string blurbId, int limit = 0)
+    public async Task<ObjectResult> ListMessagesByChatIdAsync(ICallerInfo callerInfo, string chatId, int limit = 0)
     {
-        return await ListAsync(callerInfo, "SK1", blurbId, limit);
+        return await ListAsync(callerInfo, "SK1", chatId, limit);
+    }
+
+    public async Task<ObjectResult> ListMessagesByBlurbIdAsync(ICallerInfo callerInfo, string blurbId, int limit = 0)
+    {
+        return await ListAsync(callerInfo, "SK2", blurbId, limit);
+    }
+
+    public async Task<ObjectResult> ListMessagesByPremiseIdAsync(ICallerInfo callerInfo, string premiseId, int limit = 0)
+    {
+        return await ListAsync(callerInfo, "SK3", premiseId, limit);
     }
 
 }

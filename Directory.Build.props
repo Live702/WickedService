@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Disable file system time operations to avoid WSL permission issues -->
+    <UseFileSystemTime>false</UseFileSystemTime>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <!-- Disable creating app host to avoid executable permission issues -->
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+</Project>
